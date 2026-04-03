@@ -85,6 +85,12 @@ export async function fetchEmpresaPorSlug(slug: string): Promise<EmpresaApi> {
   return r.json()
 }
 
+export async function fetchEmpresasPublicas(): Promise<EmpresaApi[]> {
+  const r = await fetch('/api/empresas')
+  if (!r.ok) throw new Error(await parseError(r))
+  return r.json()
+}
+
 export async function fetchPreguntasSede(sedeSlug: string): Promise<PreguntaTurnoPublica[]> {
   const r = await fetch(`/api/sedes/${encodeURIComponent(sedeSlug)}/preguntas`)
   if (!r.ok) throw new Error(await parseError(r))

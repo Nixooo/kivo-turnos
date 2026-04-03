@@ -3,8 +3,10 @@ import {
   useId,
   useMemo,
   useState,
+  useRef,
   type ReactNode,
 } from 'react'
+import { toPng } from 'html-to-image'
 import { DayPicker } from 'react-day-picker'
 import { es } from 'date-fns/locale'
 import { format, parse, startOfToday } from 'date-fns'
@@ -151,12 +153,15 @@ export default function KivoPublic() {
   const dialogTitleId = useId()
   const cancelDialogId = useId()
   const sitioModalTitleId = useId()
+  const ticketRef = useRef<HTMLDivElement>(null)
 
+  const [empresas, setEmpresas] = useState<EmpresaApi[]>([])
   const [sedes, setSedes] = useState<SedeApi[]>([])
   const [sedesError, setSedesError] = useState<string | null>(null)
   const [empresaCustom, setEmpresaCustom] = useState<EmpresaApi | null>(null)
 
   const [paso, setPaso] = useState<WizardStep>('inicio')
+  const [empresaSeleccionadaId, setEmpresaSeleccionadaId] = useState<number | ''>('')
   const [empresaInicialId, setEmpresaInicialId] = useState('')
   const [fecha, setFecha] = useState<Date | undefined>(today)
   const [form, setForm] = useState<FormState>(() => emptyForm(''))
@@ -166,6 +171,7 @@ export default function KivoPublic() {
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const [consultarOpen, setConsultarOpen] = useState(false)
+  const [legalModal, setLegalModal] = useState<{ open: boolean, title: string, content: ReactNode } | null>(null)
   const [triageUrgencia, setTriageUrgencia] = useState<boolean | null>(null)
   const [triageEfectivo, setTriageEfectivo] = useState<boolean | null>(null)
   const [modoHibrido, setModoHibrido] = useState(true)
@@ -229,11 +235,16 @@ export default function KivoPublic() {
   useEffect(() => {
     const load = async () => {
       try {
+        const emps = await fetchEmpresasPublicas()
+        setEmpresas(emps)
+
         if (empresaSlug) {
           const emp = await fetchEmpresaPorSlug(empresaSlug)
           setEmpresaCustom(emp)
+          setEmpresaSeleccionadaId(emp.id)
         } else {
           setEmpresaCustom(null)
+          setEmpresaSeleccionadaId('')
         }
 
         const data = await fetchSedes(empresaSlug)
@@ -486,6 +497,19 @@ export default function KivoPublic() {
       const r = await confirmarTurno(reservaTemporalId, c)
       setTurnoNumero(r.numeroPublico ?? '')
       setTurnoId(reservaTemporalId)
+      
+      // Guardar información temporal en localStorage
+      const turnData = {
+        id: reservaTemporalId,
+        numero: r.numeroPublico,
+        codigo: c,
+        empresa: empresaCustom?.nombre,
+        sede: lugarLabel,
+        fecha: format(fecha || today, 'dd/MM/yyyy'),
+        hora: form.hora
+      }
+      localStorage.setItem('detaim_last_turn', JSON.stringify(turnData))
+
       setModalCodigoOpen(false)
       setPaso('confirmado')
       setCodigoCheckin(c)
@@ -504,6 +528,7 @@ export default function KivoPublic() {
   const resetTodo = () => {
     const first = sedes[0]?.id ?? ''
     setPaso('inicio')
+    setEmpresaSeleccionadaId(empresaCustom?.id ?? '')
     setEmpresaInicialId(first)
     setForm(emptyForm(first))
     setFecha(today)
@@ -534,6 +559,43 @@ export default function KivoPublic() {
       navigate(`/${empresaSlug}`)
     } else {
       navigate('/')
+    }
+  }
+
+  const handleGuardarImagen = async () => {
+    if (ticketRef.current === null) return
+    try {
+      const dataUrl = await toPng(ticketRef.current, { cacheBust: true })
+      const link = document.createElement('a')
+      link.download = `Turno-${turnoNumero}.png`
+      link.href = dataUrl
+      link.click()
+    } catch (err) {
+      console.error('Error al guardar imagen', err)
+    }
+  }
+
+  const sedesFiltradas = useMemo(() => {
+    if (!empresaSeleccionadaId) return []
+    return sedes.filter(s => s.empresaId === empresaSeleccionadaId)
+  }, [sedes, empresaSeleccionadaId])
+
+  const irASede = () => {
+    const emp = empresas.find(e => e.id === empresaSeleccionadaId)
+    if (emp) setEmpresaCustom(emp)
+    
+    const s = sedes.find(s => s.empresaId === empresaSeleccionadaId)
+    if (s) {
+      setEmpresaInicialId(s.id)
+      setForm(f => ({ ...f, lugarId: s.id }))
+    }
+    
+    // Si la empresa seleccionada solo tiene una sede, saltar directo a datos
+    const filtered = sedes.filter(s => s.empresaId === empresaSeleccionadaId)
+    if (filtered.length === 1) {
+      setPaso('datos')
+    } else {
+      setPaso('inicio') // Aquí 'inicio' ahora significará elegir sede después de empresa
     }
   }
 
@@ -630,135 +692,190 @@ export default function KivoPublic() {
 
   const sedeSitio = sedes.find((s) => s.id === sitioSlug) ?? sedes[0]
 
-  const HeaderBar = () => (
-    <header className="relative border-b border-zinc-200/60 bg-white/70 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 py-4 sm:flex-row sm:gap-3">
-        <div 
-          className="flex w-full min-w-0 cursor-pointer items-center justify-center gap-3 sm:w-auto sm:justify-start"
-          onClick={() => navigate(empresaSlug ? `/${empresaSlug}` : '/')}
-        >
-          <img
-            src={empresaCustom?.logo_url || "/kivo-logo.png"}
-            alt={empresaCustom?.nombre || "DETAIM"}
-            className="h-9 w-auto shrink-0 object-contain sm:h-10"
-            width={120}
-            height={40}
-          />
-          <div className="hidden text-left xs:block">
-            <p className="text-base font-semibold tracking-tight text-zinc-900 sm:text-lg">
-              {empresaCustom?.nombre || "DETAIM"}
-            </p>
-            {!empresaCustom && <p className="text-[10px] text-zinc-500 sm:text-xs">Turnos sin complicaciones</p>}
+  const HeaderBar = () => {
+    const lastTurnStr = localStorage.getItem('detaim_last_turn')
+    const lastTurn = lastTurnStr ? JSON.parse(lastTurnStr) : null
+
+    return (
+      <header className="relative border-b border-zinc-200/60 bg-white/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 py-4 sm:flex-row sm:gap-3">
+          <div 
+            className="flex w-full min-w-0 cursor-pointer items-center justify-center gap-3 sm:w-auto sm:justify-start"
+            onClick={() => navigate(empresaSlug ? `/${empresaSlug}` : '/')}
+          >
+            <img
+              src={empresaCustom?.logo_url || "/kivo-logo.png"}
+              alt={empresaCustom?.nombre || "DETAIM"}
+              className="h-9 w-auto shrink-0 object-contain sm:h-10"
+              width={120}
+              height={40}
+            />
+            <div className="hidden text-left xs:block">
+              <p className="text-base font-semibold tracking-tight text-zinc-900 sm:text-lg">
+                {empresaCustom?.nombre || "DETAIM"}
+              </p>
+              {!empresaCustom && <p className="text-[10px] text-zinc-500 sm:text-xs">Turnos sin complicaciones</p>}
+            </div>
+          </div>
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
+            {lastTurn && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDocConsulta(lastTurn.documento || '')
+                  setConsultarOpen(true)
+                }}
+                className="flex-1 rounded-xl border border-kivo-200 bg-kivo-50 px-3 py-2 text-xs font-semibold text-kivo-900 shadow-sm transition hover:bg-kivo-100 focus:outline-none focus:ring-2 focus:ring-kivo-500/20 sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
+              >
+                Recuperar último código
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setSitioOpen(true)}
+              className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-kivo-500/20 sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
+            >
+              Consultar sitio
+            </button>
+            <button
+              type="button"
+              onClick={() => setConsultarOpen(true)}
+              className="flex-1 rounded-xl bg-zinc-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
+            >
+              Consultar turno
+            </button>
           </div>
         </div>
-        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
-          <button
-            type="button"
-            onClick={() => setSitioOpen(true)}
-            className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-kivo-500/20 sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
-          >
-            Consultar sitio
-          </button>
-          <button
-            type="button"
-            onClick={() => setConsultarOpen(true)}
-            className="flex-1 rounded-xl bg-zinc-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/20 sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
-          >
-            Consultar turno
-          </button>
-        </div>
-      </div>
-    </header>
-  )
+      </header>
+    )
+  }
 
-  const Footer = () => (
-    <footer className="mt-auto border-t border-zinc-200 bg-white/80 py-12 backdrop-blur-md">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <img 
-                src={empresaCustom?.logo_url || "/kivo-logo.png"} 
-                alt={empresaCustom?.nombre || "DETAIM"} 
-                className="h-6 w-auto object-contain" 
-              />
-              <span className="text-lg font-bold tracking-tight text-zinc-900">
-                {empresaCustom?.nombre || "DETAIM"}
-              </span>
+  const Footer = () => {
+    const legalContent = {
+      habeas: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>De acuerdo con la Ley 1581 de 2012 (Habeas Data), DETAIM y sus empresas aliadas informan que los datos personales recolectados (Nombre, Cédula, Teléfono) tienen como única finalidad la gestión del turno solicitado.</p>
+          <p>Al solicitar el turno, usted autoriza el tratamiento de sus datos. Puede ejercer sus derechos de conocimiento, actualización y rectificación escribiendo a soporte@detaim.com.</p>
+        </div>
+      ),
+      tyc: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>1. El servicio de turnos es una herramienta de facilitación y no garantiza atención inmediata si ocurren contingencias en la sede.</p>
+          <p>2. El usuario debe presentarse en la sede y realizar el Check-In (vía GPS o QR) para activar su llamado.</p>
+          <p>3. El mal uso del sistema (reservas falsas recurrentes) podrá resultar en el bloqueo del documento.</p>
+        </div>
+      ),
+      privacidad: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>DETAIM no comparte su información con terceros para fines comerciales. Los datos son compartidos únicamente con la empresa prestadora del servicio a la que usted solicita el turno para efectos de atención al cliente.</p>
+        </div>
+      ),
+      cookies: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>Utilizamos cookies técnicas esenciales para mantener su sesión activa y recordar su último turno solicitado en este dispositivo. No utilizamos cookies de rastreo publicitario.</p>
+        </div>
+      )
+    }
+
+    return (
+      <footer className="mt-auto border-t border-zinc-200 bg-white/80 py-12 backdrop-blur-md">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={empresaCustom?.logo_url || "/kivo-logo.png"} 
+                  alt={empresaCustom?.nombre || "DETAIM"} 
+                  className="h-6 w-auto object-contain" 
+                />
+                <span className="text-lg font-bold tracking-tight text-zinc-900">
+                  {empresaCustom?.nombre || "DETAIM"}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-zinc-500">
+                {empresaCustom 
+                  ? `Plataforma de turnos oficial de ${empresaCustom.nombre}, potenciada por la tecnología de DETAIM.`
+                  : 'La plataforma líder en gestión de turnos y filas en Colombia. Optimizamos la espera para que tus clientes valoren su tiempo.'}
+              </p>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Desarrollado por</span>
+                <a 
+                  href="https://detaim.com" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex w-fit items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-zinc-800"
+                >
+                  DETAIM
+                </a>
+              </div>
             </div>
-            <p className="text-sm leading-relaxed text-zinc-500">
-              {empresaCustom 
-                ? `Plataforma de turnos oficial de ${empresaCustom.nombre}, potenciada por la tecnología de DETAIM.`
-                : 'La plataforma líder en gestión de turnos y filas en Colombia. Optimizamos la espera para que tus clientes valoren su tiempo.'}
-            </p>
-            <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Desarrollado por</span>
+
+            <div>
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-400">
+                Legal y Privacidad
+              </h3>
+              <ul className="space-y-3 text-sm font-medium text-zinc-600">
+                <li>
+                  <button onClick={() => setLegalModal({ open: true, title: 'Tratamiento de Datos (Habeas Data)', content: legalContent.habeas })} className="transition hover:text-kivo-600">
+                    Tratamiento de Datos
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setLegalModal({ open: true, title: 'Términos y Condiciones', content: legalContent.tyc })} className="transition hover:text-kivo-600">
+                    Términos y Condiciones
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setLegalModal({ open: true, title: 'Política de Privacidad', content: legalContent.privacidad })} className="transition hover:text-kivo-600">
+                    Política de Privacidad
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setLegalModal({ open: true, title: 'Manejo de Cookies', content: legalContent.cookies })} className="transition hover:text-kivo-600">
+                    Manejo de Cookies
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-400">
+                Soporte y Contacto
+              </h3>
+              <ul className="space-y-3 text-sm font-medium text-zinc-600">
+                <li>
+                  <button onClick={() => setContactOpen(true)} className="transition hover:text-kivo-600">
+                    Contáctanos
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('/panel')} className="transition hover:text-kivo-600">
+                    Iniciar sesión (Staff)
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setSitioOpen(true)} className="transition hover:text-kivo-600">
+                    Información de sedes
+                  </button>
+                </li>
+              </ul>
               <a 
-                href="https://detaim.com" 
-                target="_blank" 
-                rel="noreferrer"
-                className="inline-flex w-fit items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-zinc-800"
+                href="mailto:soporte@detaim.com" 
+                className="mt-4 inline-block text-sm font-bold text-kivo-600 hover:underline"
               >
-                DETAIM
+                soporte@detaim.com
               </a>
             </div>
           </div>
-
-          <div>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-400">
-              Enlaces rápidos
-            </h3>
-            <ul className="space-y-3 text-sm font-medium text-zinc-600">
-              <li>
-                <button 
-                  onClick={() => setContactOpen(true)}
-                  className="transition hover:text-kivo-600"
-                >
-                  Contáctanos
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => navigate('/panel')}
-                  className="transition hover:text-kivo-600"
-                >
-                  Iniciar sesión (Staff)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => setSitioOpen(true)}
-                  className="transition hover:text-kivo-600"
-                >
-                  Información de sedes
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-400">
-              Soporte
-            </h3>
-            <p className="text-sm text-zinc-500">
-              ¿Necesitas ayuda con la plataforma?
+          <div className="mt-12 border-t border-zinc-100 pt-8 text-center">
+            <p className="text-xs text-zinc-400">
+              © 2026 DETAIM Colombia. Todos los derechos reservados.
             </p>
-            <a 
-              href="mailto:soporte@detaim.com" 
-              className="mt-3 inline-block text-sm font-bold text-kivo-600 hover:underline"
-            >
-              soporte@detaim.com
-            </a>
           </div>
         </div>
-        <div className="mt-12 border-t border-zinc-100 pt-8 text-center">
-          <p className="text-xs text-zinc-400">
-            © 2026 DETAIM Colombia. Todos los derechos reservados.
-          </p>
-        </div>
-      </div>
-    </footer>
-  )
+      </footer>
+    )
+  }
 
   const Modal = ({
     open,
@@ -835,134 +952,69 @@ export default function KivoPublic() {
         {fondo}
         <HeaderBar />
         <main className="relative mx-auto w-full max-w-lg flex-1 px-6 py-10 pb-24">
-          {filaInfo && (
-            <div className="mb-6 rounded-3xl border-2 border-kivo-400 bg-kivo-600 px-5 py-4 text-center text-white shadow-lg shadow-kivo-600/30">
-              <p className="text-xs font-semibold uppercase tracking-wide text-kivo-100">
-                Tu fila en el celular
-              </p>
-              <p className="mt-2 text-2xl font-bold">
-                Faltan{' '}
-                <span className="tabular-nums">{filaInfo.faltan}</span>{' '}
-                {filaInfo.faltan === 1 ? 'persona' : 'personas'} para tu turno
-              </p>
-              <p className="mt-1 text-sm text-kivo-100">
-                Turno en ventanilla ahora:{' '}
-                <span className="font-mono font-bold">{filaInfo.turnoAtendiendo}</span>{' '}
-                · espera aprox. {filaInfo.estimadoMinutos} min
-              </p>
-            </div>
-          )}
-
-          <div className="w-full overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/90 shadow-xl shadow-zinc-200/60 backdrop-blur-sm">
-            <div className="border-b border-zinc-100 bg-kivo-50/80 px-6 py-5 text-center">
-              <p className="text-xs font-semibold uppercase tracking-wider text-kivo-800">
-                Turno asignado
-              </p>
-              <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight text-zinc-900">
-                {turnoNumero}
-              </p>
-              {prioridadPreferencial && (
-                <p className="mt-2 text-sm text-kivo-900">
-                  Prioridad por ley de atención preferencial
-                </p>
-              )}
-              {modoHibrido && (
-                <p className="mt-3 text-xs text-zinc-600">
-                  Modo híbrido: pediste desde casa. La geocerca es de{' '}
-                  {radioMetros} m; si no llegás a tiempo, el sistema puede mover
-                  tu turno dos puestos para no frenar la fila.
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-4 px-6 py-6 text-sm text-zinc-700">
-              <div className="flex justify-between gap-3">
-                <span className="text-zinc-500">Nombre</span>
-                <span className="text-right font-medium text-zinc-900">
-                  {form.nombre || form.apellido ? `${form.nombre} ${form.apellido}`.trim() : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span className="text-zinc-500">Cédula</span>
-                <span className="font-medium text-zinc-900">{form.documento || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span className="text-zinc-500">Celular</span>
-                <span className="font-medium text-zinc-900">{form.telefono || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span className="text-zinc-500">Fecha</span>
-                <span className="text-right font-medium text-zinc-900">
-                  {format(fecha, "EEEE d 'de' MMMM", { locale: es })}
-                </span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span className="text-zinc-500">Hora</span>
-                <span className="font-medium text-zinc-900">{form.hora || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-3 border-t border-zinc-100 pt-4">
-                <span className="text-zinc-500">Sede</span>
-                <span className="max-w-[60%] text-right font-medium text-zinc-900">
-                  {lugarLabel}
-                </span>
-              </div>
-            </div>
-
-            <div className="border-t border-zinc-100 px-6 py-6">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCodigoCheckin('')
-                    setGpsStatus('idle')
-                    setGpsDistanciaM(null)
-                    setQrInput('')
-                    setQrStatus('idle')
-                    setQrScanOpen(false)
-                    setCheckInOpen(true)
-                  }}
-                  className="flex-1 rounded-2xl bg-kivo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-kivo-600/25 hover:bg-kivo-700"
-                >
-                  Hacer Check-In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCodigoRetraso('')
-                    setRetrasoMsg(null)
-                    setTardeOpen(true)
-                  }}
-                  className="flex-1 rounded-2xl bg-amber-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-amber-600/25 hover:bg-amber-700"
-                >
-                  Tardo más
-                </button>
-              </div>
-              {checkInListo && (
-                <div className="mt-4 rounded-2xl border border-kivo-300 bg-kivo-50 px-4 py-3 text-center text-sm text-kivo-900">
-                  Check-in registrado por {checkInMetodo === 'gps' ? 'ubicación' : 'QR'}.
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <div ref={ticketRef} className="w-full max-w-sm overflow-hidden rounded-[2.5rem] border border-zinc-200 bg-white shadow-2xl shadow-zinc-200/50">
+              <div className="bg-zinc-900 p-8 text-white">
+                <div className="flex justify-center mb-4">
+                  <img
+                    src={empresaCustom?.logo_url || "/kivo-logo.png"}
+                    alt=""
+                    className="h-12 w-auto object-contain brightness-0 invert"
+                  />
                 </div>
-              )}
-              {retrasoMsg && (
-                <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
-                  {retrasoMsg}
+                <h2 className="text-sm font-bold uppercase tracking-[0.2em] opacity-60">
+                  Turno confirmado
+                </h2>
+                <p className="mt-4 text-7xl font-black tracking-tighter">
+                  {turnoNumero}
+                </p>
+              </div>
+              <div className="p-8 text-left">
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Sede</p>
+                    <p className="text-lg font-bold text-zinc-900">{lugarLabel}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Fecha</p>
+                      <p className="font-bold text-zinc-900">{format(fecha, 'dd/MM/yyyy')}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Hora</p>
+                      <p className="font-bold text-zinc-900">{form.hora}</p>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-zinc-50 p-6 border border-zinc-100 text-center">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Código seguro</p>
+                    <p className="text-4xl font-black tracking-[0.3em] text-zinc-900">
+                      {codigoCheckin}
+                    </p>
+                    <p className="mt-3 text-[10px] leading-relaxed text-zinc-500">
+                      Guardá este código. Lo necesitarás para hacer el Check-In al llegar a la sede.
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-zinc-100 px-6 py-5">
+            <div className="mt-10 flex w-full max-w-sm flex-col gap-3">
               <button
                 type="button"
-                onClick={() => setCancelOpen(true)}
-                className="w-full rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-800 hover:bg-red-100"
+                onClick={() => void handleGuardarImagen()}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-bold text-zinc-900 shadow-sm transition hover:bg-zinc-50"
               >
-                Cancelar este turno
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Guardar imagen
               </button>
               <button
                 type="button"
                 onClick={resetTodo}
-                className="w-full rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+                className="rounded-2xl bg-zinc-900 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-zinc-900/20 transition hover:bg-zinc-800"
               >
-                Pedir otro turno
+                Finalizar
               </button>
             </div>
           </div>
@@ -1191,7 +1243,24 @@ export default function KivoPublic() {
           </div>
         </Modal>
 
-        <Modal open={contactOpen} onClose={() => setContactOpen(false)} title="Contáctanos">
+        <Modal
+        open={legalModal?.open ?? false}
+        onClose={() => setLegalModal(null)}
+        title={legalModal?.title ?? ''}
+      >
+        {legalModal?.content}
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => setLegalModal(null)}
+            className="w-full rounded-2xl bg-zinc-900 py-3 text-sm font-bold text-white transition hover:bg-zinc-800"
+          >
+            Entendido
+          </button>
+        </div>
+      </Modal>
+
+      <Modal open={contactOpen} onClose={() => setContactOpen(false)} title="Contáctanos">
           <p className="text-sm text-zinc-600">
             ¿Tu empresa quiere usar nuestra plataforma? Escríbenos.
           </p>
@@ -1339,37 +1408,81 @@ export default function KivoPublic() {
               <p className="mt-2 text-zinc-600">
                 {empresaCustom 
                   ? 'Por favor seleccioná la sede en la que deseás ser atendido.' 
-                  : 'Elegí la empresa o sede. Si ya tenés turnos, consultalos con tu cédula.'}
+                  : 'Elegí la empresa para continuar con tu solicitud.'}
               </p>
             </div>
 
             <section className="rounded-3xl border border-zinc-200/80 bg-white/90 p-6 shadow-lg sm:p-8">
-              <FieldLabel htmlFor="empresa-inicial">
-                Empresa o lugar para sacar el turno
-              </FieldLabel>
-              <select
-                id="empresa-inicial"
-                value={empresaInicialId}
-                onChange={(e) => setEmpresaInicialId(e.target.value)}
-                className="w-full cursor-pointer appearance-none rounded-2xl border border-zinc-200 bg-zinc-50/50 bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat px-4 py-3 text-zinc-900 outline-none focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
-                }}
-              >
-                {sedes.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => void irADatos()}
-                style={{ backgroundColor: empresaCustom?.color_hex || undefined }}
-                className="mt-6 w-full rounded-2xl bg-kivo-600 py-4 text-sm font-bold text-white shadow-lg shadow-kivo-600/25 hover:opacity-90"
-              >
-                Continuar con esta empresa
-              </button>
+              {!empresaCustom ? (
+                <>
+                  <FieldLabel htmlFor="empresa-select">Seleccioná la empresa</FieldLabel>
+                  <select
+                    id="empresa-select"
+                    value={empresaSeleccionadaId}
+                    onChange={(e) => setEmpresaSeleccionadaId(Number(e.target.value))}
+                    className="w-full cursor-pointer appearance-none rounded-2xl border border-zinc-200 bg-zinc-50/50 bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat px-4 py-3 text-zinc-900 outline-none focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                    }}
+                  >
+                    <option value="">Elegir empresa...</option>
+                    {empresas.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={!empresaSeleccionadaId}
+                    onClick={irASede}
+                    className="mt-6 w-full rounded-2xl bg-zinc-900 py-4 text-sm font-bold text-white shadow-lg shadow-zinc-900/25 hover:bg-zinc-800 disabled:opacity-40"
+                  >
+                    Siguiente
+                  </button>
+                </>
+              ) : (
+                <>
+                  <FieldLabel htmlFor="sede-select">Seleccioná la sede</FieldLabel>
+                  <select
+                    id="sede-select"
+                    value={empresaInicialId}
+                    onChange={(e) => setEmpresaInicialId(e.target.value)}
+                    className="w-full cursor-pointer appearance-none rounded-2xl border border-zinc-200 bg-zinc-50/50 bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat px-4 py-3 text-zinc-900 outline-none focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                    }}
+                  >
+                    {sedesFiltradas.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-4 flex gap-3">
+                    {!empresaSlug && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmpresaCustom(null)
+                          setEmpresaSeleccionadaId('')
+                        }}
+                        className="rounded-2xl border border-zinc-200 bg-white px-6 py-4 text-sm font-bold text-zinc-700 hover:bg-zinc-50"
+                      >
+                        Cambiar empresa
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => void irADatos()}
+                      style={{ backgroundColor: empresaCustom?.color_hex || undefined }}
+                      className="flex-1 rounded-2xl bg-kivo-600 py-4 text-sm font-bold text-white shadow-lg shadow-kivo-600/25 hover:opacity-90"
+                    >
+                      Continuar
+                    </button>
+                  </div>
+                </>
+              )}
             </section>
           </div>
         )}

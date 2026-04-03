@@ -189,6 +189,16 @@ app.get('/api/sedes', async (req, res) => {
   }
 })
 
+app.get('/api/empresas', async (_req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT id, slug, nombre, tipo, logo_url, color_hex FROM empresas ORDER BY nombre')
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al listar empresas' })
+  }
+})
+
 app.get('/api/empresas/:slug', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM empresas WHERE slug = $1', [
