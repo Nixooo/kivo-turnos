@@ -49,14 +49,16 @@ export default function PanelLogin() {
       <div className="relative mx-auto flex min-h-svh max-w-md flex-col justify-center px-6 py-12">
         <div className="mb-8 text-center">
           <img
-            src="/kivo-logo.png"
+            src="/detaim.avif"
             alt="DETAIM"
             className="mx-auto h-12 w-auto object-contain"
             width={160}
             height={48}
           />
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-900">
-            DETAIM · Panel interno
+          <h1 className="mt-4 flex items-center justify-center gap-2 text-2xl font-semibold tracking-tight text-zinc-900">
+            <img src="/detaim.avif" alt="DETAIM" className="h-6 w-auto" />
+            <span className="opacity-60">·</span>
+            <span>Panel interno</span>
           </h1>
           <p className="mt-2 text-sm text-zinc-600">
             Administradores y asesores de tu empresa. Los datos están aislados

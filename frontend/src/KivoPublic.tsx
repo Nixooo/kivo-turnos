@@ -706,7 +706,7 @@ export default function KivoPublic() {
             onClick={() => navigate(empresaSlug ? `/${empresaSlug}` : '/')}
           >
             <img
-              src={empresaCustom?.logo_url || "/kivo-logo.png"}
+              src={empresaCustom?.logo_url || "/detaim.avif"}
               alt={empresaCustom?.nombre || "DETAIM"}
               className="h-9 w-auto shrink-0 object-contain sm:h-10"
               width={120}
@@ -714,7 +714,7 @@ export default function KivoPublic() {
             />
             <div className="hidden text-left xs:block">
               <p className="text-base font-semibold tracking-tight text-zinc-900 sm:text-lg">
-                {empresaCustom?.nombre || "DETAIM"}
+                {empresaCustom?.nombre}
               </p>
               {!empresaCustom && <p className="text-[10px] text-zinc-500 sm:text-xs">Turnos sin complicaciones</p>}
             </div>
@@ -760,12 +760,12 @@ export default function KivoPublic() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <img 
-                  src={empresaCustom?.logo_url || "/kivo-logo.png"} 
+                  src={empresaCustom?.logo_url || "/detaim.avif"} 
                   alt={empresaCustom?.nombre || "DETAIM"} 
                   className="h-6 w-auto object-contain" 
                 />
                 <span className="text-lg font-bold tracking-tight text-zinc-900">
-                  {empresaCustom?.nombre || "DETAIM"}
+                  {empresaCustom?.nombre}
                 </span>
               </div>
               <p className="text-sm leading-relaxed text-zinc-500">
@@ -781,7 +781,7 @@ export default function KivoPublic() {
                   rel="noreferrer"
                   className="inline-flex w-fit items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-zinc-800"
                 >
-                  DETAIM
+                  <img src="/detaim.avif" alt="DETAIM" className="h-4 w-auto brightness-0 invert" />
                 </a>
               </div>
             </div>
@@ -843,9 +843,10 @@ export default function KivoPublic() {
               </a>
             </div>
           </div>
-          <div className="mt-12 border-t border-zinc-100 pt-8 text-center">
+          <div className="mt-12 border-t border-zinc-100 pt-8 text-center flex flex-col items-center gap-3">
+            <img src="/detaim.avif" alt="DETAIM" className="h-4 w-auto opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition" />
             <p className="text-xs text-zinc-400">
-              © 2026 DETAIM Colombia. Todos los derechos reservados.
+              © 2026 Colombia. Todos los derechos reservados.
             </p>
           </div>
         </div>

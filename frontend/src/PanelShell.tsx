@@ -28,7 +28,7 @@ export default function PanelShell({
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-4 sm:flex-row sm:gap-3">
           <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
             <img
-              src="/kivo-logo.png"
+              src="/detaim.avif"
               alt="DETAIM"
               className="h-8 w-auto shrink-0 object-contain sm:h-9"
               width={120}
