@@ -706,15 +706,15 @@ export default function KivoPublic() {
             onClick={() => navigate(empresaSlug ? `/${empresaSlug}` : '/')}
           >
             <img
-              src={empresaCustom?.logo_url || "/detaim.avif"}
-              alt={empresaCustom?.nombre || "DETAIM"}
+              src={empresaCustom?.logo_url || "/kivo-logo.png"}
+              alt={empresaCustom?.nombre || "KIVO"}
               className="h-9 w-auto shrink-0 object-contain sm:h-10"
               width={120}
               height={40}
             />
             <div className="hidden text-left xs:block">
               <p className="text-base font-semibold tracking-tight text-zinc-900 sm:text-lg">
-                {empresaCustom?.nombre}
+                {empresaCustom?.nombre || "KIVO"}
               </p>
               {!empresaCustom && <p className="text-[10px] text-zinc-500 sm:text-xs">Turnos sin complicaciones</p>}
             </div>
@@ -760,12 +760,12 @@ export default function KivoPublic() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <img 
-                  src={empresaCustom?.logo_url || "/detaim.avif"} 
-                  alt={empresaCustom?.nombre || "DETAIM"} 
+                  src={empresaCustom?.logo_url || "/kivo-logo.png"} 
+                  alt={empresaCustom?.nombre || "KIVO"} 
                   className="h-6 w-auto object-contain" 
                 />
                 <span className="text-lg font-bold tracking-tight text-zinc-900">
-                  {empresaCustom?.nombre}
+                  {empresaCustom?.nombre || "KIVO"}
                 </span>
               </div>
               <p className="text-sm leading-relaxed text-zinc-500">

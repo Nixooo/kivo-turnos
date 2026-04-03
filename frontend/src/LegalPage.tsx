@@ -160,7 +160,8 @@ export default function LegalPage() {
       <header className="bg-white border-b border-zinc-200 py-6 px-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/detaim.avif" alt="DETAIM" className="h-8 w-auto" />
+            <img src="/kivo-logo.png" alt="KIVO" className="h-8 w-auto" />
+            <span className="font-bold text-xl text-zinc-900">KIVO</span>
           </div>
           <button 
             onClick={() => navigate(-1)}
