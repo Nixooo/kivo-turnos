@@ -24,6 +24,7 @@ import {
   fetchSedes,
   fetchTurnosPorDocumento,
   fetchEmpresaPorSlug,
+  fetchEmpresasPublicas,
 } from './api/kivo'
 import type { PreguntaTurnoPublica } from './api/kivo'
 
@@ -191,14 +192,15 @@ export default function KivoPublic() {
   >(null)
   const [consultaCargando, setConsultaCargando] = useState(false)
 
-  const [checkInMetodo, setCheckInMetodo] = useState<'gps' | 'qr' | null>(null)
-  const [checkInListo, setCheckInListo] = useState(false)
   const [gpsStatus, setGpsStatus] = useState<
     'idle' | 'loading' | 'ok' | 'lejos' | 'error'
   >('idle')
   const [gpsDistanciaM, setGpsDistanciaM] = useState<number | null>(null)
   const [qrInput, setQrInput] = useState('')
   const [qrStatus, setQrStatus] = useState<'idle' | 'ok' | 'invalid'>('idle')
+
+  const [checkInMetodo, setCheckInMetodo] = useState<'gps' | 'qr' | null>(null)
+  const [checkInListo, setCheckInListo] = useState(false)
 
   const [contactOpen, setContactOpen] = useState(false)
   const [modalCodigoOpen, setModalCodigoOpen] = useState(false)
@@ -962,9 +964,23 @@ export default function KivoPublic() {
                     className="h-12 w-auto object-contain brightness-0 invert"
                   />
                 </div>
-                <h2 className="text-sm font-bold uppercase tracking-[0.2em] opacity-60">
-                  Turno confirmado
-                </h2>
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-sm font-bold uppercase tracking-[0.2em] opacity-60">
+                    Turno confirmado
+                  </h2>
+                  <div className="flex flex-col items-end gap-1">
+                    {prioridadPreferencial && (
+                      <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-950">
+                        Preferencial
+                      </span>
+                    )}
+                    {checkInListo && (
+                      <span className="rounded-full bg-kivo-400 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-kivo-950">
+                        Check-in {checkInMetodo === 'gps' ? 'GPS' : 'QR'}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <p className="mt-4 text-7xl font-black tracking-tighter">
                   {turnoNumero}
                 </p>
@@ -994,6 +1010,15 @@ export default function KivoPublic() {
                       Guardá este código. Lo necesitarás para hacer el Check-In al llegar a la sede.
                     </p>
                   </div>
+                  {filaInfo && (
+                    <div className="rounded-2xl bg-kivo-50 p-4 border border-kivo-100">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-kivo-600 mb-1">Tu lugar en la fila</p>
+                      <div className="flex justify-between items-end">
+                        <p className="text-sm font-bold text-zinc-900">Faltan {filaInfo.faltan} personas</p>
+                        <p className="text-xs text-kivo-700">~{filaInfo.estimadoMinutos} min</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
