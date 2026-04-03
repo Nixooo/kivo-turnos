@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: detaim-turnos
+    runtime: node
+    buildCommand: npm run install-all && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        fromDatabase:
+          name: detaim-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: detaim-db
+    databaseName: detaim
+    user: detaim_user
+    plan: free
