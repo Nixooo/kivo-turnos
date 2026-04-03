@@ -4,6 +4,7 @@ import PanelLogin from './PanelLogin'
 import PanelAdmin from './PanelAdmin'
 import PanelAsesor from './PanelAsesor'
 import PanelSupremo from './PanelSupremo'
+import LegalPage from './LegalPage'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Route path="/panel/admin" element={<PanelAdmin />} />
       <Route path="/panel/asesor" element={<PanelAsesor />} />
       <Route path="/panel/supremo" element={<PanelSupremo />} />
+      <Route path="/legal/:tipo" element={<LegalPage />} />
     </Routes>
   )
 }

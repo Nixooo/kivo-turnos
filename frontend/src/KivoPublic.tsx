@@ -753,32 +753,6 @@ export default function KivoPublic() {
   }
 
   const Footer = () => {
-    const legalContent = {
-      habeas: (
-        <div className="space-y-4 text-sm text-zinc-600">
-          <p>De acuerdo con la Ley 1581 de 2012 (Habeas Data), DETAIM y sus empresas aliadas informan que los datos personales recolectados (Nombre, Cédula, Teléfono) tienen como única finalidad la gestión del turno solicitado.</p>
-          <p>Al solicitar el turno, usted autoriza el tratamiento de sus datos. Puede ejercer sus derechos de conocimiento, actualización y rectificación escribiendo a soporte@detaim.com.</p>
-        </div>
-      ),
-      tyc: (
-        <div className="space-y-4 text-sm text-zinc-600">
-          <p>1. El servicio de turnos es una herramienta de facilitación y no garantiza atención inmediata si ocurren contingencias en la sede.</p>
-          <p>2. El usuario debe presentarse en la sede y realizar el Check-In (vía GPS o QR) para activar su llamado.</p>
-          <p>3. El mal uso del sistema (reservas falsas recurrentes) podrá resultar en el bloqueo del documento.</p>
-        </div>
-      ),
-      privacidad: (
-        <div className="space-y-4 text-sm text-zinc-600">
-          <p>DETAIM no comparte su información con terceros para fines comerciales. Los datos son compartidos únicamente con la empresa prestadora del servicio a la que usted solicita el turno para efectos de atención al cliente.</p>
-        </div>
-      ),
-      cookies: (
-        <div className="space-y-4 text-sm text-zinc-600">
-          <p>Utilizamos cookies técnicas esenciales para mantener su sesión activa y recordar su último turno solicitado en este dispositivo. No utilizamos cookies de rastreo publicitario.</p>
-        </div>
-      )
-    }
-
     return (
       <footer className="mt-auto border-t border-zinc-200 bg-white/80 py-12 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-6">
@@ -818,22 +792,22 @@ export default function KivoPublic() {
               </h3>
               <ul className="space-y-3 text-sm font-medium text-zinc-600">
                 <li>
-                  <button onClick={() => setLegalModal({ open: true, title: 'Tratamiento de Datos (Habeas Data)', content: legalContent.habeas })} className="transition hover:text-kivo-600">
+                  <button onClick={() => navigate('/legal/tratamiento-datos')} className="transition hover:text-kivo-600">
                     Tratamiento de Datos
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setLegalModal({ open: true, title: 'Términos y Condiciones', content: legalContent.tyc })} className="transition hover:text-kivo-600">
+                  <button onClick={() => navigate('/legal/terminos-condiciones')} className="transition hover:text-kivo-600">
                     Términos y Condiciones
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setLegalModal({ open: true, title: 'Política de Privacidad', content: legalContent.privacidad })} className="transition hover:text-kivo-600">
+                  <button onClick={() => navigate('/legal/politica-privacidad')} className="transition hover:text-kivo-600">
                     Política de Privacidad
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setLegalModal({ open: true, title: 'Manejo de Cookies', content: legalContent.cookies })} className="transition hover:text-kivo-600">
+                  <button onClick={() => navigate('/legal/manejo-cookies')} className="transition hover:text-kivo-600">
                     Manejo de Cookies
                   </button>
                 </li>
@@ -2047,7 +2021,13 @@ export default function KivoPublic() {
         <p className="text-sm text-zinc-600 mb-4">
           Ingresá tu número de cédula para ver tus turnos activos.
         </p>
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <form 
+          className="flex flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault()
+            void consultarDocumento()
+          }}
+        >
           <input
             type="text"
             inputMode="numeric"
@@ -2061,14 +2041,13 @@ export default function KivoPublic() {
             className="min-w-0 flex-1 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
           />
           <button
-            type="button"
+            type="submit"
             disabled={consultaCargando}
-            onClick={() => void consultarDocumento()}
             className="rounded-2xl border border-kivo-600 bg-white px-6 py-3 text-sm font-semibold text-kivo-800 hover:bg-kivo-50 disabled:opacity-50"
           >
             {consultaCargando ? '…' : 'Consultar'}
           </button>
-        </div>
+        </form>
         {resultadosConsulta && (
           <ul className="mt-4 space-y-3">
             {resultadosConsulta.length === 0 ? (
