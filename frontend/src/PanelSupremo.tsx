@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PanelShell from './PanelShell'
 import {
@@ -52,7 +52,6 @@ function TabButton({
 
 export default function PanelSupremo() {
   const navigate = useNavigate()
-  const modalTitleId = useId()
   const [authOk, setAuthOk] = useState(false)
   const [tab, setTab] = useState<Tab>('empresas')
   const [error, setError] = useState<string | null>(null)
