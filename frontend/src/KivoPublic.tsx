@@ -340,6 +340,40 @@ export default function KivoPublic() {
 
   const sedeTipo = lugarActual?.tipo ?? 'general'
 
+  const isSedeOpenNow = (l: SedeApi | null) => {
+    if (!l) return false
+    const now = new Date()
+    const isToday = fecha && format(fecha, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd')
+    if (!isToday) return true // Para días futuros permitimos reservar (se validará la hora elegida)
+
+    const [hA, mA] = l.horaApertura.split(':').map(Number)
+    const [hC, mC] = l.horaCierre.split(':').map(Number)
+    
+    const apertura = new Date(now)
+    apertura.setHours(hA, mA, 0, 0)
+    
+    const cierre = new Date(now)
+    cierre.setHours(hC, mC, 0, 0)
+    
+    return now >= apertura && now <= cierre
+  }
+
+  const isTimeInSedeRange = (timeStr: string, l: SedeApi | null) => {
+    if (!l || !timeStr) return false
+    const [h, m] = timeStr.split(':').map(Number)
+    const [hA, mA] = l.horaApertura.split(':').map(Number)
+    const [hC, mC] = l.horaCierre.split(':').map(Number)
+    
+    const timeNum = h * 60 + m
+    const aperturaNum = hA * 60 + mA
+    const cierreNum = hC * 60 + mC
+    
+    return timeNum >= aperturaNum && timeNum <= cierreNum
+  }
+
+  const sedeAbierta = isSedeOpenNow(lugarActual)
+  const horaValida = isTimeInSedeRange(form.hora, lugarActual)
+
   const triageOk =
     (sedeTipo !== 'eps' || triageUrgencia === false) &&
     (sedeTipo !== 'banco' || triageEfectivo !== null) &&
@@ -349,6 +383,8 @@ export default function KivoPublic() {
     !!fecha &&
     !!form.hora &&
     triageOk &&
+    sedeAbierta &&
+    horaValida &&
     !(sedeTipo === 'eps' && triageUrgencia === true) &&
     preguntasExtra.every((q) => {
       const v = respuestasExtra[q.key]
@@ -1996,6 +2032,18 @@ export default function KivoPublic() {
                   <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
                     {submitError}
                   </p>
+                )}
+
+                {!sedeAbierta && lugarActual && (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    La sede {lugarActual.label} está cerrada en este momento. Abrirá a las {horaCorta(lugarActual.horaApertura)}.
+                  </div>
+                )}
+
+                {sedeAbierta && !horaValida && form.hora && (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    La hora seleccionada ({form.hora}) está fuera del horario de atención de esta sede ({horaCorta(lugarActual.horaApertura)} - {horaCorta(lugarActual.horaCierre)}).
+                  </div>
                 )}
 
                 <form onSubmit={(e) => void handleSubmitTurno(e)} className="space-y-4">

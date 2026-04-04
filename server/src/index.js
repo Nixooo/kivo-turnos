@@ -318,6 +318,26 @@ app.post('/api/turnos/reservar', async (req, res) => {
     }
     const sede = sedeR.rows[0]
 
+    // Validar horario de atención
+    const now = new Date()
+    // Ajustar a hora local (Colombia UTC-5 si es necesario, pero asumiendo hora del sistema)
+    const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+    const todayStr = now.toISOString().slice(0, 10)
+
+    if (horaTurno < sede.hora_apertura || horaTurno > sede.hora_cierre) {
+      return res.status(400).json({
+        error: `La hora seleccionada (${horaTurno}) está fuera del horario de atención (${sede.hora_apertura} - ${sede.hora_cierre})`,
+      })
+    }
+
+    if (fechaTurno === todayStr) {
+      if (currentTimeStr < sede.hora_apertura || currentTimeStr > sede.hora_cierre) {
+        return res.status(400).json({
+          error: `La sede está cerrada en este momento. Horario: ${sede.hora_apertura} - ${sede.hora_cierre}`,
+        })
+      }
+    }
+
     if (sede.tipo === 'eps' && triageUrgenciaVital === true) {
       return res.status(400).json({
         error: 'Derivación a urgencias',
