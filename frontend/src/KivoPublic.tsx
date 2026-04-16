@@ -53,7 +53,6 @@ const PLANES = [
   },
 ]
 
-const SIMULADORES = ['Simulador de tiro']
 const NIVELES = ['Principiante', 'Amateur', 'Profesional']
 
 type WizardStep = 'inicio' | 'datos' | 'detalle' | 'confirmado'
