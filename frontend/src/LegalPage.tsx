@@ -8,74 +8,34 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
       <div className="space-y-6">
         <p>De conformidad con la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, <strong>DETAIM</strong> (en adelante, "La Compañía"), en su calidad de Responsable del Tratamiento de datos personales, informa a los usuarios sobre su política para la recolección, almacenamiento, uso, circulación y supresión de la información personal.</p>
         
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">1. Finalidades del Tratamiento</h3>
-        <p>Los datos personales proporcionados por los usuarios a través de nuestra plataforma de gestión de turnos serán tratados para las siguientes finalidades:</p>
+        <h3 className="text-xl font-semibold text-white border-l-4 border-blue-600 pl-3">1. Finalidades del Tratamiento</h3>
+        <p>Los datos personales proporcionados por los tiradores serán tratados para:</p>
         <ul className="list-disc pl-6 space-y-3">
-          <li><strong>Gestión Operativa:</strong> Procesar, asignar y realizar seguimiento a las solicitudes de turnos de atención presencial o virtual.</li>
-          <li><strong>Comunicación:</strong> Remitir notificaciones relacionadas con el estado del turno, cambios en la programación o avisos de proximidad de atención mediante SMS, correo electrónico o mensajería instantánea (WhatsApp).</li>
-          <li><strong>Seguridad:</strong> Validar la identidad del titular al momento de presentarse en la sede física para evitar suplantaciones.</li>
-          <li><strong>Mejora del Servicio:</strong> Realizar análisis estadísticos anónimos sobre el flujo de personas y tiempos de espera para optimizar la operación de las sedes aliadas.</li>
-          <li><strong>Calidad:</strong> Contactar al usuario para evaluar su nivel de satisfacción con el servicio recibido mediante encuestas cortas.</li>
+          <li><strong>Gestión de Reservas:</strong> Asignación de líneas de tiro y control de flujo en el polígono.</li>
+          <li><strong>Seguridad y Control:</strong> Verificación de identidad obligatoria para el uso de simuladores tácticos.</li>
+          <li><strong>Comunicaciones Técnicas:</strong> Notificaciones sobre estado de calibración, cambios de horario o alertas de sesión.</li>
         </ul>
 
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">2. Derechos de los Titulares</h3>
-        <p>Como titular de sus datos personales, usted tiene los siguientes derechos establecidos por ley:</p>
-        <ul className="list-disc pl-6 space-y-3">
-          <li>Conocer, actualizar y rectificar sus datos personales frente a los Responsables o Encargados del Tratamiento.</li>
-          <li>Solicitar prueba de la autorización otorgada, salvo cuando expresamente se exceptúe como requisito para el Tratamiento.</li>
-          <li>Ser informado, previa solicitud, respecto del uso que se le ha dado a sus datos personales.</li>
-          <li>Presentar ante la Superintendencia de Industria y Comercio quejas por infracciones a lo dispuesto en la ley.</li>
-          <li>Revocar la autorización y/o solicitar la supresión del dato cuando en el Tratamiento no se respeten los principios, derechos y garantías constitucionales y legales.</li>
-          <li>Acceder en forma gratuita a sus datos personales que hayan sido objeto de Tratamiento.</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">3. Canales de Atención</h3>
-        <p>Para el ejercicio de sus derechos de consulta, reclamo o supresión, DETAIM ha dispuesto el siguiente canal oficial de comunicación:</p>
-        <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-          <p className="font-medium text-zinc-900">Oficina de Privacidad y Datos</p>
-          <p className="text-zinc-600">Correo electrónico: <a href="mailto:soporte@detaim.com" className="text-kivo-600 hover:underline">soporte@detaim.com</a></p>
-          <p className="text-xs mt-2 text-zinc-400">Tiempo de respuesta: Hasta 15 días hábiles según lo estipulado por la Ley 1581.</p>
-        </div>
+        <h3 className="text-xl font-semibold text-white border-l-4 border-blue-600 pl-3">2. Derechos de los Titulares</h3>
+        <p>Usted tiene derecho a conocer, actualizar y rectificar su información personal en cualquier momento a través de nuestros canales oficiales.</p>
       </div>
     )
   },
   'terminos-condiciones': {
-    title: 'Términos y Condiciones de Uso del Sistema',
+    title: 'Términos y Condiciones de Uso',
     content: (
       <div className="space-y-6">
-        <p>El acceso y uso de la plataforma de turnos operada por <strong>DETAIM</strong> implica la aceptación plena y sin reservas de los presentes Términos y Condiciones por parte del usuario.</p>
+        <p>El uso de la plataforma de simulación táctica <strong>DETAIM</strong> implica la aceptación de los siguientes términos:</p>
         
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">1. Objeto del Servicio</h3>
-        <p>DETAIM proporciona una solución tecnológica de intermediación para la organización de filas y turnos. El usuario entiende que DETAIM no es el prestador directo del servicio final (médico, bancario, administrativo, etc.), sino el proveedor de la tecnología que facilita la espera.</p>
-
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">2. Compromisos del Usuario</h3>
-        <p>Al reservar un turno, el usuario se compromete a:</p>
+        <h3 className="text-xl font-semibold text-white border-l-4 border-blue-600 pl-3">1. Compromisos del Tirador</h3>
         <ul className="list-disc pl-6 space-y-3">
-          <li>Suministrar información veraz, completa y actualizada.</li>
-          <li>Presentarse en la sede física con la antelación suficiente sugerida por el sistema (recomendado 10 min antes).</li>
-          <li>Realizar el proceso de <strong>Check-In</strong> una vez esté en la sede.</li>
-          <li>Hacer un uso responsable del equipo de simulación, siguiendo las instrucciones del staff. Cualquier daño por mal uso será responsabilidad del usuario.</li>
-          <li>Hacer un uso responsable del sistema, evitando reservas ficticias o cancelaciones reiteradas sin justificación.</li>
+          <li>Presentarse 10 minutos antes de la sesión para el briefing de seguridad.</li>
+          <li>Seguir estrictamente las instrucciones del instructor a cargo.</li>
+          <li>Hacer uso responsable del equipo láser de alta precisión.</li>
         </ul>
 
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">3. Uso de Equipos y Seguridad</h3>
-        <p>Para garantizar una experiencia segura y óptima:</p>
-        <ul className="list-disc pl-6 space-y-3">
-          <li>El uso de simuladores de movimiento puede causar mareos o fatiga; el usuario acepta este riesgo al contratar el servicio.</li>
-          <li>No se permite el ingreso con alimentos o bebidas a la zona de simuladores.</li>
-          <li>Menores de edad deben estar acompañados por un adulto responsable.</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">4. Limitación de Responsabilidad</h3>
-        <p>Aunque DETAIM se esfuerza por mantener la precisión en los tiempos estimados de espera, estos son cálculos aproximados basados en promedios históricos y flujo actual. DETAIM no se hace responsable por:</p>
-        <ul className="list-disc pl-6 space-y-3">
-          <li>Retrasos imprevistos causados por emergencias u operativos internos de la sede física.</li>
-          <li>Fallas en la conexión a internet del dispositivo del usuario que impidan el Check-In.</li>
-          <li>Pérdida del turno por no estar presente al momento del llamado físico o digital.</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-zinc-900 border-l-4 border-kivo-500 pl-3">4. Propiedad Intelectual</h3>
-        <p>Todos los derechos de propiedad intelectual sobre la interfaz, algoritmos, logotipos y software de la plataforma pertenecen exclusivamente a DETAIM Colombia.</p>
+        <h3 className="text-xl font-semibold text-white border-l-4 border-blue-600 pl-3">2. Seguridad en el Polígono</h3>
+        <p>Nuestros simuladores utilizan tecnología láser Clase 1 (segura para la vista). Sin embargo, se requiere el uso de protección visual si el instructor lo indica para fines de inmersión.</p>
       </div>
     )
   },
@@ -199,40 +159,40 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
     )
   },
   'preguntas-frecuentes': {
-    title: 'Preguntas Frecuentes (FAQ)',
+    title: 'Preguntas Frecuentes',
     content: (
       <div className="space-y-8">
         <div className="space-y-4">
-          <h3 className="text-xl font-black text-zinc-900 flex items-center gap-3">
+          <h3 className="text-xl font-black text-white flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-xs">?</span>
             Sobre las Reservas
           </h3>
           <div className="grid gap-4">
-            <details className="group bg-zinc-50 p-6 rounded-3xl border border-zinc-100 cursor-pointer">
-              <summary className="font-bold text-zinc-900 list-none flex justify-between items-center">
+            <details className="group bg-white/5 p-6 rounded-3xl border border-white/5 cursor-pointer">
+              <summary className="font-bold text-white list-none flex justify-between items-center">
                 ¿Con cuánta anticipación debo reservar?
                 <span className="transition-transform group-open:rotate-180">▼</span>
               </summary>
-              <p className="mt-4 text-zinc-600 text-sm leading-relaxed">
-                Recomendamos reservar con al menos 24 horas de antelación para asegurar tu cupo. El sistema permite reservas hasta con 2 horas de anticipación según disponibilidad.
+              <p className="mt-4 text-zinc-400 text-sm leading-relaxed">
+                Recomendamos reservar con al menos 24 horas de antelación. Sin embargo, el sistema permite agendar hasta con 2 horas de anticipación según la disponibilidad del polígono.
               </p>
             </details>
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-xl font-black text-zinc-900 flex items-center gap-3">
+          <h3 className="text-xl font-black text-white flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-xs">🎯</span>
-            Simulador de Tiro
+            Simulador Táctico
           </h3>
           <div className="grid gap-4">
-            <details className="group bg-zinc-50 p-6 rounded-3xl border border-zinc-100 cursor-pointer">
-              <summary className="font-bold text-zinc-900 list-none flex justify-between items-center">
-                ¿Es seguro el simulador de tiro?
+            <details className="group bg-white/5 p-6 rounded-3xl border border-white/5 cursor-pointer">
+              <summary className="font-bold text-white list-none flex justify-between items-center">
+                ¿Qué tipo de tecnología utilizan?
                 <span className="transition-transform group-open:rotate-180">▼</span>
               </summary>
-              <p className="mt-4 text-zinc-600 text-sm leading-relaxed">
-                Totalmente. Utilizamos tecnología láser de alta precisión sin proyectiles reales. Es una experiencia 100% segura para todas las edades bajo supervisión.
+              <p className="mt-4 text-zinc-400 text-sm leading-relaxed">
+                Utilizamos sistemas de simulación láser de grado profesional con retroalimentación en tiempo real y balística digital precisa para entrenamiento táctico y deportivo.
               </p>
             </details>
           </div>

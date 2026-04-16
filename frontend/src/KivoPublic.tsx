@@ -42,15 +42,6 @@ const PLANES = [
     descripcion: 'Sesión extendida',
     color: 'from-orange-500 to-yellow-400',
   },
-  {
-    id: 'membresia',
-    minutos: 15,
-    precio: '360.000',
-    diario: true,
-    fotos: 0,
-    descripcion: 'Membresía 30 días',
-    color: 'from-green-500 to-emerald-400',
-  },
 ]
 
 const NIVELES = ['Principiante', 'Amateur', 'Profesional']
@@ -121,30 +112,33 @@ export default function KivoPublic() {
     if (!fecha || !form.lugarId) return
     const loadSlots = async () => {
       setLoadingSlots(true)
+      let reservas: any[] = []
       try {
         const fechaStr = format(fecha, 'yyyy-MM-dd')
         const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/sedes/${form.lugarId}/reservas-dia?fecha=${fechaStr}`)
-        const reservas = await res.json()
-        const slots = []
-        for (let h = 9; h < 20; h++) {
-          for (let m = 0; m < 60; m += 10) {
-            const horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-            const reservada = Array.isArray(reservas) && reservas.some((r: any) => {
-              const [rh, rm] = r.hora_turno.split(':').map(Number)
-              const start = rh * 60 + rm
-              const end = start + (r.duracion_minutos || 15)
-              const current = h * 60 + m
-              return current >= start && current < end
-            })
-            slots.push({ hora: horaStr, reservada })
-          }
+        if (res.ok) {
+          reservas = await res.json()
         }
-        setAvailableSlots(slots)
       } catch (err) {
-        console.error(err)
-      } finally {
-        setLoadingSlots(false)
+        console.error('Error fetching reservas:', err)
       }
+
+      const slots = []
+      for (let h = 9; h < 20; h++) {
+        for (let m = 0; m < 60; m += 10) {
+          const horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+          const reservada = Array.isArray(reservas) && reservas.some((r: any) => {
+            const [rh, rm] = r.hora_turno.split(':').map(Number)
+            const start = rh * 60 + rm
+            const end = start + (r.duracion_minutos || 15)
+            const current = h * 60 + m
+            return current >= start && current < end
+          })
+          slots.push({ hora: horaStr, reservada })
+        }
+      }
+      setAvailableSlots(slots)
+      setLoadingSlots(false)
     }
     loadSlots()
   }, [fecha, form.lugarId])
@@ -349,7 +343,7 @@ export default function KivoPublic() {
               <div className="p-8 text-left space-y-5 bg-zinc-900">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Piloto</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Tirador</p>
                     <p className="text-sm font-bold text-white">{form.nombre}</p>
                   </div>
                   <div>
@@ -399,12 +393,12 @@ export default function KivoPublic() {
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse" />
             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">
-              Sede <span className="text-white">Cajicá</span> — <span className="text-zinc-400">Pista Activa</span>
+              Sede <span className="text-white">Cajicá</span> — <span className="text-zinc-400">Polígono Activo</span>
             </p>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Condición:</span>
+              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Calibración:</span>
               <span className="text-[9px] font-black text-white uppercase tracking-widest">Óptima</span>
             </div>
             <div className="flex items-center gap-2">
@@ -418,13 +412,13 @@ export default function KivoPublic() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 h-full">
           
-          {/* Columna Izquierda: Piloto y Plan */}
+          {/* Columna Izquierda: Tirador y Plan */}
           <div className="lg:col-span-4 space-y-8 animate-in">
-            {/* Piloto */}
+            {/* Tirador */}
             <div className="p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 shadow-2xl backdrop-blur-sm">
               <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-white tracking-tighter">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl">01</span>
-                Perfil del Piloto
+                Perfil del Tirador
               </h3>
               <div className="space-y-8">
                 <div className="group">
@@ -468,7 +462,7 @@ export default function KivoPublic() {
             <div className="p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 shadow-2xl backdrop-blur-sm">
               <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-white tracking-tighter">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl">02</span>
-                Misión de Vuelo
+                Sesión de Tiro
               </h3>
               <div className="space-y-4">
                 {PLANES.map((plan) => (
@@ -547,7 +541,7 @@ export default function KivoPublic() {
                   {!form.hora ? (
                     <>
                       <div className="flex items-center justify-between mb-8">
-                        <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em]">Horarios de Salida</h4>
+                        <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em]">Horarios de Sesión</h4>
                         {loadingSlots && <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-ping shadow-[0_0_10px_rgba(59,130,246,0.5)]" />}
                       </div>
                       
@@ -557,7 +551,7 @@ export default function KivoPublic() {
                             <div className="h-12 w-12 border-2 border-white/5 border-t-white rounded-full animate-spin" />
                             <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Cargando...</p>
                           </div>
-                        ) : (
+                        ) : availableSlots.length > 0 ? (
                           <div className="grid grid-cols-3 gap-4">
                             {availableSlots.map((slot) => (
                               <button
@@ -577,6 +571,10 @@ export default function KivoPublic() {
                                 )}
                               </button>
                             ))}
+                          </div>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center space-y-4 opacity-20">
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">No hay horarios disponibles</p>
                           </div>
                         )}
                       </div>
@@ -644,7 +642,7 @@ export default function KivoPublic() {
           <div className="relative w-full max-w-5xl bg-zinc-900/50 border border-white/5 rounded-[4rem] p-12 overflow-hidden animate-in fade-in zoom-in duration-500 shadow-2xl">
             <div className="flex justify-between items-start mb-16">
               <div className="space-y-3">
-                <h2 className="text-5xl font-black text-white tracking-tighter">Planes de Vuelo</h2>
+                <h2 className="text-5xl font-black text-white tracking-tighter">Planes de Entrenamiento</h2>
                 <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">DETAIM Strategic Comparison</p>
               </div>
               <button onClick={() => setShowPlansComparison(false)} className="group p-4 rounded-full bg-white/5 text-zinc-500 hover:bg-white hover:text-black transition-all duration-500 shadow-xl">
