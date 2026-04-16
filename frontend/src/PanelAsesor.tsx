@@ -24,7 +24,9 @@ function estadoLabel(e: string) {
     case 'espera':
       return 'En espera'
     case 'atendiendo':
-      return 'Atendiendo'
+      return 'En sesión'
+    case 'completado':
+      return 'Completado'
     default:
       return e
   }
@@ -47,7 +49,7 @@ export default function PanelAsesor() {
   const siguienteEnCola = turnos.find((t) => t.estado === 'espera')
 
   useEffect(() => {
-    if (!localStorage.getItem('kivo_token')) {
+    if (!localStorage.getItem('detaim_token')) {
       logoutPanel()
       navigate('/panel', { replace: true })
       return
@@ -152,123 +154,116 @@ export default function PanelAsesor() {
 
   return (
     <PanelShell variant="asesor" empresaNombre={empresaNombre} empresaTipo={empresaTipo}>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-in">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900">Panel de Atención</h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            Gestioná los turnos en tiempo real para la sede seleccionada.
+          <h1 className="text-2xl font-black tracking-tight text-white">Panel de Atención</h1>
+          <p className="mt-1 text-sm text-zinc-500 font-medium">
+            Gestioná las reservas en tiempo real.
           </p>
         </div>
 
-        {/* Sección de Turno Actual y Acciones Rápidas */}
+        {/* Sección de Reserva Actual y Acciones Rápidas */}
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-3xl border border-kivo-100 bg-white p-6 shadow-sm ring-1 ring-zinc-100">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Atendiendo ahora</h2>
+          <div className="lg:col-span-2 rounded-[2.5rem] border border-zinc-800 bg-zinc-900/50 p-8 shadow-2xl">
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6">Atendiendo ahora</h2>
             {turnoActual ? (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-kivo-600 text-3xl font-black text-white shadow-lg shadow-kivo-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+                <div className="flex items-center gap-8">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-white text-4xl font-black text-black shadow-xl">
                     {turnoActual.numero_publico}
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-zinc-900">
+                    <p className="text-2xl font-black text-white">
                       {turnoActual.nombre} {turnoActual.apellido}
                     </p>
-                    <p className="text-sm font-medium text-zinc-500">
-                      Documento: <span className="font-mono">{turnoActual.documento_norm}</span>
+                    <p className="text-sm font-bold text-zinc-500 mt-1">
+                      Celular: <span className="text-zinc-300">{turnoActual.telefono || 'No reg.'}</span>
                     </p>
-                    <div className="mt-2 flex gap-2">
-                      {turnoActual.prioridad && turnoActual.prioridad !== 'ninguna' && (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
-                          Preferencial
-                        </span>
-                      )}
-                      {turnoActual.triage_efectivo && (
-                        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-800">
-                          Caja/Efectivo
-                        </span>
-                      )}
+                    <div className="mt-4 flex gap-2">
+                      <span className="rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/20">
+                        Sesión Activa
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex w-full sm:w-auto flex-col gap-2">
+                <div className="flex w-full sm:w-auto flex-col gap-3">
                   <button
                     type="button"
                     disabled={!!actionId}
                     onClick={() => void handleCompletar(turnoActual.id)}
-                    className="rounded-xl bg-zinc-900 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-zinc-800 disabled:opacity-50 transition-all active:scale-95"
+                    className="rounded-2xl bg-white px-8 py-4 text-sm font-bold text-black shadow-xl transition-all hover:bg-zinc-200 active:scale-95"
                   >
-                    Finalizar Atención
+                    Finalizar Sesión
                   </button>
                   <button
                     type="button"
                     disabled={!!actionId || !siguienteEnCola}
                     onClick={() => void handleLlamarSiguiente()}
-                    className="rounded-xl border border-kivo-600 bg-kivo-50 px-6 py-3 text-sm font-bold text-kivo-800 hover:bg-kivo-100 disabled:opacity-50 transition-all active:scale-95"
+                    className="rounded-2xl border border-zinc-700 bg-zinc-800 px-8 py-4 text-sm font-bold text-white transition-all hover:bg-zinc-700 active:scale-95"
                   >
-                    Finalizar y Siguiente
+                    Siguiente Reserva
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="mb-4 rounded-full bg-zinc-50 p-4">
-                  <svg className="h-8 w-8 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-6 rounded-full bg-zinc-800 p-6">
+                  <svg className="h-10 w-10 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="font-medium text-zinc-500">No hay ningún turno en atención</p>
+                <p className="font-bold text-zinc-500">No hay ninguna reserva en atención</p>
                 <button
                   type="button"
                   disabled={!!actionId || !siguienteEnCola}
                   onClick={() => void handleLlamarSiguiente()}
-                  className="mt-4 rounded-xl bg-kivo-600 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-kivo-200 hover:bg-kivo-700 disabled:opacity-50 transition-all active:scale-95"
+                  className="mt-8 rounded-2xl bg-white px-10 py-4 text-sm font-bold text-black shadow-xl shadow-white/5 hover:bg-zinc-200 transition-all active:scale-95"
                 >
-                  Llamar primer turno
+                  Llamar primera reserva
                 </button>
               </div>
             )}
           </div>
 
-          <div className="rounded-3xl border border-zinc-100 bg-zinc-50/50 p-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Siguiente en fila</h2>
+          <div className="rounded-[2.5rem] border border-zinc-800 bg-zinc-900/30 p-8">
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-6">Próxima reserva</h2>
             {siguienteEnCola ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-zinc-200 text-lg font-bold text-zinc-900 shadow-sm">
+              <div className="space-y-6">
+                <div className="flex items-center gap-5">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-800 border border-zinc-700 text-2xl font-black text-white shadow-lg">
                     {siguienteEnCola.numero_publico}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-bold text-zinc-900">
+                    <p className="truncate font-black text-white text-lg">
                       {siguienteEnCola.nombre} {siguienteEnCola.apellido}
                     </p>
-                    <p className="text-xs text-zinc-500">
-                      Espera: <span className="font-mono tabular-nums">{horaCorta(siguienteEnCola.hora_turno)}</span>
+                    <p className="text-sm font-bold text-zinc-500">
+                      Cita: <span className="text-white">{horaCorta(siguienteEnCola.hora_turno)}</span>
                     </p>
                   </div>
                 </div>
-                <div className="text-[11px] text-zinc-500 bg-white/50 p-3 rounded-xl border border-zinc-100">
-                  <p>Quedan <strong>{turnos.filter(t => t.estado === 'espera').length}</strong> personas esperando en esta sede.</p>
+                <div className="text-[11px] font-bold text-zinc-500 bg-zinc-800/50 p-4 rounded-2xl border border-zinc-700/50">
+                  <p>Quedan <strong className="text-white">{turnos.filter(t => t.estado === 'espera').length}</strong> personas esperando.</p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
-                <p className="text-sm font-medium text-zinc-400 italic">La fila está vacía</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <p className="text-sm font-bold text-zinc-600 italic tracking-wide">La fila está vacía</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-6 rounded-[2rem] border border-zinc-800 bg-zinc-900/50 p-6">
           <div className="flex-1 min-w-0">
-            <label className="mb-1 block text-sm font-medium text-zinc-700" htmlFor="asesor-sede">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500" htmlFor="asesor-sede">
               Sede de trabajo
             </label>
             <select
               id="asesor-sede"
               value={sedeSlug}
               onChange={(e) => setSedeSlug(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
+              className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white focus:ring-2 focus:ring-white/20 transition outline-none"
             >
               {sedes.map((s) => (
                 <option key={s.slug} value={s.slug}>
@@ -278,7 +273,7 @@ export default function PanelAsesor() {
             </select>
           </div>
           <div className="flex-1 min-w-0">
-            <label className="mb-1 block text-sm font-medium text-zinc-700" htmlFor="asesor-fecha">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500" htmlFor="asesor-fecha">
               Fecha de consulta
             </label>
             <input
@@ -286,108 +281,88 @@ export default function PanelAsesor() {
               type="date"
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-              className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 focus:border-kivo-500 focus:ring-2 focus:ring-kivo-500/20"
+              className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white focus:ring-2 focus:ring-white/20 transition outline-none"
             />
           </div>
           <button
             type="button"
             onClick={() => void loadCola()}
-            className="w-full sm:w-auto rounded-xl bg-white border border-zinc-200 px-6 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
+            className="w-full sm:w-auto rounded-xl border border-zinc-700 bg-zinc-800 px-8 py-3 text-sm font-bold text-white hover:bg-zinc-700 transition"
           >
-            Refrescar cola
+            Actualizar
           </button>
         </div>
 
         {error && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 border border-red-100">{error}</p>
+          <p className="rounded-2xl bg-red-500/10 px-6 py-4 text-sm font-bold text-red-400 border border-red-500/20">{error}</p>
         )}
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-zinc-900">Cola de espera completa</h2>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-500">
-              {turnos.length} Turnos hoy
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-xl font-black text-white">Cola de Reservas</h2>
+            <span className="rounded-full bg-zinc-800 border border-zinc-700 px-4 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+              {turnos.length} Reservas hoy
             </span>
           </div>
           
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-[2.5rem] border border-zinc-800 bg-zinc-900/30">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="border-b border-zinc-200 bg-zinc-50/50 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                <thead className="border-b border-zinc-800 bg-zinc-900/50 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                   <tr>
-                    <th className="px-6 py-4">Turno</th>
-                    <th className="px-6 py-4">Usuario</th>
-                    <th className="px-6 py-4">Documento</th>
-                    <th className="px-6 py-4">Hora</th>
-                    <th className="px-6 py-4">Estado</th>
-                    <th className="px-6 py-4">Alertas</th>
-                    <th className="px-6 py-4 text-right">Acción</th>
+                    <th className="px-8 py-6">ID</th>
+                    <th className="px-8 py-6">Usuario</th>
+                    <th className="px-8 py-6">Cita</th>
+                    <th className="px-8 py-6">Estado</th>
+                    <th className="px-8 py-6 text-right">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100">
+                <tbody className="divide-y divide-zinc-800/50">
                   {loading && turnos.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-zinc-500 italic">
-                        Cargando cola en tiempo real…
+                      <td colSpan={5} className="px-8 py-16 text-center text-zinc-600 italic font-bold">
+                        Cargando reservas en tiempo real…
                       </td>
                     </tr>
                   ) : turnos.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-zinc-500 italic">
-                        No hay turnos registrados para esta sede hoy.
+                      <td colSpan={5} className="px-8 py-16 text-center text-zinc-600 italic font-bold">
+                        No hay reservas para hoy.
                       </td>
                     </tr>
                   ) : (
                     turnos.map((t) => (
-                      <tr key={t.id} className={`hover:bg-zinc-50/50 transition-colors ${t.estado === 'atendiendo' ? 'bg-kivo-50/30' : ''}`}>
-                        <td className="px-6 py-4 font-mono font-black text-kivo-900">
+                      <tr key={t.id} className={`hover:bg-zinc-800/30 transition-colors ${t.estado === 'atendiendo' ? 'bg-white/5' : ''}`}>
+                        <td className="px-8 py-6 font-black text-white">
                           {t.numero_publico}
                         </td>
-                        <td className="px-6 py-4">
-                          <p className="font-semibold text-zinc-900">{t.nombre} {t.apellido}</p>
+                        <td className="px-8 py-6">
+                          <p className="font-bold text-white">{t.nombre} {t.apellido}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">{t.telefono || 'Sin celular'}</p>
                         </td>
-                        <td className="px-6 py-4 font-mono text-xs text-zinc-500">
-                          {t.documento_norm}
-                        </td>
-                        <td className="px-6 py-4 tabular-nums text-zinc-800 font-medium">
+                        <td className="px-8 py-6 tabular-nums text-white font-bold">
                           {horaCorta(t.hora_turno)}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-8 py-6">
                           <span
-                            className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            className={`inline-flex rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${
                               t.estado === 'atendiendo'
-                                ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                                ? 'bg-white text-black'
                                 : t.estado === 'pendiente_confirmacion'
-                                  ? 'bg-violet-50 text-violet-700 border border-violet-100'
-                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                  ? 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                                  : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                             }`}
                           >
                             {estadoLabel(t.estado)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap gap-1">
-                            {t.prioridad && t.prioridad !== 'ninguna' && (
-                              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-900 uppercase">Prioritario</span>
-                            )}
-                            {t.triage_urgencia_vital && (
-                              <span className="rounded bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-900 uppercase">Vital</span>
-                            )}
-                            {t.triage_efectivo === true && (
-                              <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-bold text-sky-900 uppercase">Caja</span>
-                            )}
-                            {!t.checkin_completado && t.estado === 'espera' && (
-                              <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9px] font-bold text-zinc-500 uppercase">Sin Check-in</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-8 py-6 text-right">
                           {t.estado === 'espera' && (
                             <button
                               type="button"
                               disabled={!!actionId}
                               onClick={() => void handleAtender(t.id)}
-                              className="rounded-xl bg-kivo-600 px-4 py-2 text-xs font-bold text-white hover:bg-kivo-700 disabled:opacity-50 transition-all active:scale-95"
+                              className="rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black hover:bg-zinc-200 transition-all active:scale-95"
                             >
                               Atender
                             </button>
@@ -397,9 +372,9 @@ export default function PanelAsesor() {
                               type="button"
                               disabled={!!actionId}
                               onClick={() => void handleCompletar(t.id)}
-                              className="rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-800 disabled:opacity-50 transition-all active:scale-95"
+                              className="rounded-xl bg-zinc-800 border border-zinc-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-zinc-700 transition-all active:scale-95"
                             >
-                              Completar
+                              Finalizar
                             </button>
                           )}
                         </td>

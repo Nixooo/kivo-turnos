@@ -1,8 +1,8 @@
 import type { SedeApi } from './kivo'
 
-const TOKEN_KEY = 'kivo_token'
-const ROLE_KEY = 'kivo_role'
-const SUPREMO_KEY = 'kivo_is_supremo'
+const TOKEN_KEY = 'detaim_token'
+const ROLE_KEY = 'detaim_role'
+const SUPREMO_KEY = 'detaim_is_supremo'
 
 export function logoutPanel() {
   localStorage.removeItem(TOKEN_KEY)

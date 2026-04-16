@@ -225,7 +225,23 @@ app.get('/api/sedes/:slug', async (req, res) => {
   }
 })
 
-app.get('/api/sedes/:slug/preguntas', async (req, res) => {
+app.get('/api/sedes/:slug/reservas-dia', async (req, res) => {
+  const { fecha } = req.query
+  if (!fecha) return res.status(400).json({ error: 'Fecha requerida' })
+  try {
+    const { rows } = await pool.query(
+      `SELECT hora_turno, duracion_minutos FROM turnos 
+       WHERE sede_id = (SELECT id FROM sedes WHERE slug = $1)
+       AND fecha_turno = $2::date
+       AND estado IN ('espera', 'atendiendo', 'completado', 'pendiente_confirmacion')`,
+      [req.params.slug, fecha],
+    )
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al consultar reservas' })
+  }
+})
   try {
     const { rows: sede } = await pool.query(`SELECT empresa_id FROM sedes WHERE slug = $1`, [
       req.params.slug,
@@ -293,6 +309,8 @@ app.post('/api/turnos/reservar', async (req, res) => {
     telefono,
     fechaTurno,
     horaTurno,
+    duracionMinutos,
+    planId,
     prioridad,
     triageUrgenciaVital,
     triageEfectivo,
@@ -301,7 +319,7 @@ app.post('/api/turnos/reservar', async (req, res) => {
     idempotencyKey,
   } = req.body || {}
 
-  if (!sedeSlug || !documento || !nombre || !apellido || !telefono || !fechaTurno || !horaTurno) {
+  if (!sedeSlug || !documento || !nombre || !telefono || !fechaTurno || !horaTurno) {
     return res.status(400).json({ error: 'Faltan datos obligatorios' })
   }
 
@@ -426,7 +444,7 @@ app.post('/api/turnos/reservar', async (req, res) => {
     const orden = maxOrden.rows[0].m + 1
 
     const n = Math.floor(1 + Math.random() * 98)
-    const pref = prefijoPrioridad(prioridad)
+    const pref = 'R'
     const numeroPublico = `${pref}-${String(n).padStart(2, '0')}`
 
     let codigo = randomCodigo()
@@ -443,9 +461,9 @@ app.post('/api/turnos/reservar', async (req, res) => {
       `
       INSERT INTO turnos (
         sede_id, numero_publico, documento, documento_norm, nombre, apellido, telefono,
-        fecha_turno, hora_turno, prioridad, triage_urgencia_vital, triage_efectivo,
+        fecha_turno, hora_turno, duracion_minutos, plan_id, prioridad, triage_urgencia_vital, triage_efectivo,
         modo_hibrido, estado, orden_atencion, codigo_seguro, idempotency_key, respuestas_extra
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8::date,$9::time,$10,$11,$12,$13,'pendiente_confirmacion',$14,$15,$16,$17::jsonb)
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8::date,$9::time,$10,$11,$12,$13,$14,$15,'pendiente_confirmacion',$16,$17,$18,$19::jsonb)
       RETURNING id, numero_publico, orden_atencion, codigo_seguro
     `,
       [
@@ -454,10 +472,12 @@ app.post('/api/turnos/reservar', async (req, res) => {
         documento,
         docN,
         nombre.trim(),
-        apellido.trim(),
+        apellido?.trim() || null,
         telefono,
         fechaTurno,
         horaTurno,
+        duracionMinutos || 15,
+        planId || null,
         prioridad || 'ninguna',
         triageUrgenciaVital ?? null,
         triageEfectivo ?? null,

@@ -23,14 +23,14 @@ export default function PanelShell({
   }
 
   return (
-    <div className="min-h-svh bg-gradient-to-br from-zinc-50 via-white to-kivo-50/40">
-      <header className="border-b border-zinc-200/80 bg-white/90 backdrop-blur-sm">
+    <div className="min-h-svh bg-black text-white">
+      <header className="border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-4 sm:flex-row sm:gap-3">
           <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
             <img
-              src="/kivo-logo.png"
-              alt="KIVO"
-              className="h-8 w-auto shrink-0 object-contain sm:h-9"
+              src="/logo.jpg"
+              alt="DETAIM"
+              className="h-8 w-auto shrink-0 object-contain sm:h-9 rounded-lg"
               width={120}
               height={40}
             />
@@ -42,40 +42,24 @@ export default function PanelShell({
                     ? 'Panel de administración'
                     : 'Panel de asesores'}
               </p>
-              <p className="truncate text-sm font-semibold text-zinc-900 sm:text-base">{empresaNombre}</p>
+              <p className="truncate text-sm font-semibold text-white sm:text-base">{empresaNombre}</p>
               <p className="text-[10px] text-zinc-500 sm:text-xs">
                 Empresa ·{' '}
-                <span className="font-medium text-zinc-700">{empresaTipo}</span>
+                <span className="font-medium text-zinc-400">{empresaTipo}</span>
               </p>
             </div>
           </div>
           <nav className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
-            {variant === 'supremo' && (
-              <Link
-                to="/panel/supremo"
-                className="flex-1 rounded-xl border border-kivo-200 bg-kivo-50 px-3 py-2 text-center text-xs font-semibold text-kivo-900 hover:bg-kivo-100 sm:flex-none sm:text-sm"
-              >
-                Control total
-              </Link>
-            )}
-            {(variant === 'admin' || variant === 'supremo') && (
-              <Link
-                to="/panel/asesor"
-                className="flex-1 rounded-xl border border-kivo-200 bg-kivo-50 px-3 py-2 text-center text-xs font-semibold text-kivo-900 hover:bg-kivo-100 sm:flex-none sm:text-sm"
-              >
-                Atención
-              </Link>
-            )}
             <Link
               to="/"
-              className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-center text-xs font-semibold text-zinc-800 hover:bg-zinc-50 sm:flex-none sm:text-sm"
+              className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-zinc-800 sm:flex-none sm:text-sm"
             >
               Público
             </Link>
             <button
               type="button"
               onClick={handleSalir}
-              className="flex-1 rounded-xl bg-zinc-900 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-zinc-800 sm:flex-none sm:text-sm"
+              className="flex-1 rounded-xl bg-white px-3 py-2 text-center text-xs font-semibold text-black hover:bg-zinc-200 sm:flex-none sm:text-sm"
             >
               Salir
             </button>

@@ -28,27 +28,27 @@ function StatCard({
 }) {
   const ring =
     accent === 'amber'
-      ? 'border-amber-100 bg-amber-50/50'
+      ? 'border-amber-500/20 bg-amber-500/5'
       : accent === 'emerald'
-        ? 'border-emerald-100 bg-emerald-50/50'
+        ? 'border-emerald-500/20 bg-emerald-500/5'
         : accent === 'rose'
-          ? 'border-rose-100 bg-rose-50/50'
-          : 'border-zinc-200 bg-white'
+          ? 'border-rose-500/20 bg-rose-500/5'
+          : 'border-zinc-800 bg-zinc-900/50'
   const text =
     accent === 'amber'
-      ? 'text-amber-600'
+      ? 'text-amber-400'
       : accent === 'emerald'
-        ? 'text-emerald-600'
+        ? 'text-emerald-400'
         : accent === 'rose'
-          ? 'text-rose-600'
-          : 'text-zinc-900'
+          ? 'text-rose-400'
+          : 'text-white'
   return (
-    <div className={`rounded-3xl border p-6 transition-all duration-300 hover:shadow-md ${ring}`}>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+    <div className={`rounded-3xl border p-6 transition-all duration-300 hover:shadow-xl ${ring}`}>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
         {label}
       </p>
-      <p className={`mt-2 text-4xl font-bold tabular-nums tracking-tight ${text}`}>{value}</p>
-      {hint && <p className="mt-2 text-xs text-zinc-500">{hint}</p>}
+      <p className={`mt-2 text-4xl font-black tabular-nums tracking-tight ${text}`}>{value}</p>
+      {hint && <p className="mt-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{hint}</p>}
     </div>
   )
 }
@@ -133,7 +133,7 @@ export default function PanelAdmin() {
   }>({ label: '', type: 'bool', options: '' })
 
   useEffect(() => {
-    if (!localStorage.getItem('kivo_token')) {
+    if (!localStorage.getItem('detaim_token')) {
       logoutPanel()
       navigate('/panel', { replace: true })
       return
@@ -309,27 +309,29 @@ export default function PanelAdmin() {
 
   return (
     <PanelShell variant="admin" empresaNombre={empresaNombre} empresaTipo={empresaTipo}>
-      <div className="space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="space-y-10 animate-in">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-900">Resumen del día</h1>
-            <p className="mt-1 text-sm text-zinc-600">{fechaLabel}</p>
+            <h1 className="text-3xl font-black tracking-tight text-white">Resumen Operativo</h1>
+            <p className="mt-1 text-sm text-zinc-500 font-medium">{fechaLabel}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="text-sm font-medium text-zinc-700" htmlFor="admin-fecha">
-              Fecha
-            </label>
-            <input
-              id="admin-fecha"
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900"
-            />
+          <div className="flex flex-wrap items-center gap-4 bg-zinc-900/50 p-4 rounded-[1.5rem] border border-zinc-800">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500" htmlFor="admin-fecha">
+                Filtrar por Fecha
+              </label>
+              <input
+                id="admin-fecha"
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="bg-transparent text-sm font-bold text-white outline-none"
+              />
+            </div>
             <button
               type="button"
               onClick={() => void cargar()}
-              className="rounded-xl border border-kivo-600 bg-kivo-50 px-4 py-2 text-sm font-semibold text-kivo-900 hover:bg-kivo-100"
+              className="rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-black hover:bg-zinc-200 transition shadow-lg shadow-white/5"
             >
               Actualizar
             </button>
@@ -337,162 +339,60 @@ export default function PanelAdmin() {
         </div>
 
         {loadError && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+          <p className="rounded-2xl bg-red-500/10 border border-red-500/20 px-6 py-4 text-sm font-bold text-red-400">
             {loadError}
           </p>
         )}
 
         {loading && !resumen ? (
-          <p className="text-zinc-500">Cargando estadísticas…</p>
+          <p className="text-zinc-500 font-bold text-center py-20">Cargando estadísticas…</p>
         ) : (
           <>
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard label="Pend. confirmación" value={tot?.pendientes ?? 0} />
               <StatCard label="En espera" value={tot?.en_espera ?? 0} accent="emerald" />
-              <StatCard label="Atendiendo ahora" value={tot?.atendiendo ?? 0} />
+              <StatCard label="Atendiendo ahora" value={tot?.atendiendo ?? 0} accent="amber" />
               <StatCard label="Completados" value={tot?.completados ?? 0} />
             </div>
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-              <StatCard label="Cancelados" value={tot?.cancelados ?? 0} />
-              <div className="rounded-3xl border border-zinc-200 bg-zinc-50/80 p-6">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+              <StatCard label="Cancelados" value={tot?.cancelados ?? 0} accent="rose" />
+              <div className="rounded-[2rem] border border-zinc-800 bg-zinc-900/50 p-8 shadow-xl">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
                   Total movimiento
                 </p>
-                <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight text-zinc-900">
+                <p className="mt-4 text-5xl font-black tabular-nums tracking-tighter text-white">
                   {(tot?.pendientes ?? 0) +
                     (tot?.en_espera ?? 0) +
                     (tot?.atendiendo ?? 0) +
                     (tot?.completados ?? 0) +
                     (tot?.cancelados ?? 0)}
                 </p>
-                <p className="mt-2 text-xs text-zinc-500">
-                  Suma de estados del día (tu empresa únicamente).
+                <p className="mt-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">
+                  Suma total de interacciones registradas en el sistema para la fecha seleccionada.
                 </p>
               </div>
             </div>
 
-            {bloquesTipo}
-
-            <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-zinc-900">
+            <section className="rounded-[2.5rem] border border-zinc-800 bg-zinc-900/30 p-8">
+              <h2 className="text-xl font-black text-white mb-2">
                 Personas en espera por sede
               </h2>
-              <p className="mt-1 text-sm text-zinc-600">
-                Compará carga entre puntos de atención de tu red.
+              <p className="text-sm text-zinc-500 font-medium mb-8">
+                Visualización de carga operativa por punto de atención.
               </p>
-              <ul className="mt-4 divide-y divide-zinc-100">
+              <ul className="divide-y divide-zinc-800">
                 {(resumen?.porSede ?? []).map((row) => (
                   <li
                     key={row.slug}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4 text-sm"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-6"
                   >
-                    <span className="font-semibold text-zinc-900">{row.nombre}</span>
-                    <span className="tabular-nums text-zinc-600 sm:text-right">
-                      <strong className="text-kivo-800 text-lg">{row.espera}</strong> personas en cola
+                    <span className="font-bold text-white text-lg">{row.nombre}</span>
+                    <span className="tabular-nums text-zinc-400 font-bold uppercase tracking-widest text-xs">
+                      <strong className="text-white text-2xl font-black mr-2">{row.espera}</strong> en espera
                     </span>
                   </li>
                 ))}
-                {resumen?.porSede?.length === 0 && (
-                  <li className="py-4 text-center text-sm text-zinc-500">
-                    No hay sedes registradas o no hay datos para esta fecha.
-                  </li>
-                )}
-              </ul>
-            </section>
-
-            <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-zinc-900">
-                Preguntas obligatorias al crear turno
-              </h2>
-              <p className="mt-1 text-sm text-zinc-600">
-                Se aplican a todas las sedes de tu empresa. Tipos permitidos: Bool,
-                Dropdown, 1 a 10.
-              </p>
-
-              <form
-                onSubmit={(e) => void crearPregunta(e)}
-                className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
-              >
-                <input
-                  value={pregForm.label}
-                  onChange={(e) => setPregForm((p) => ({ ...p, label: e.target.value }))}
-                  placeholder="Texto de la pregunta"
-                  className="rounded-2xl border border-zinc-200 px-4 py-3 text-sm text-zinc-900"
-                />
-                <select
-                  value={pregForm.type}
-                  onChange={(e) =>
-                    setPregForm((p) => ({
-                      ...p,
-                      type:
-                        e.target.value === 'dropdown'
-                          ? 'dropdown'
-                          : e.target.value === 'scale10'
-                            ? 'scale10'
-                            : 'bool',
-                    }))
-                  }
-                  className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900"
-                >
-                  <option value="bool">Bool (Sí/No)</option>
-                  <option value="dropdown">Dropdown</option>
-                  <option value="scale10">1 a 10</option>
-                </select>
-                <input
-                  value={pregForm.options}
-                  onChange={(e) => setPregForm((p) => ({ ...p, options: e.target.value }))}
-                  placeholder="Opciones (solo Dropdown): A, B, C"
-                  disabled={pregForm.type !== 'dropdown'}
-                  className="rounded-2xl border border-zinc-200 px-4 py-3 text-sm text-zinc-900 disabled:bg-zinc-50 sm:col-span-2 lg:col-span-1"
-                />
-
-                <div className="sm:col-span-2 lg:col-span-3">
-                  <QuestionPreview
-                    label={pregForm.label}
-                    type={pregForm.type}
-                    options={pregForm.options}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="rounded-2xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60 sm:col-span-2 lg:col-span-3"
-                >
-                  Crear pregunta
-                </button>
-              </form>
-
-              <ul className="mt-6 divide-y divide-zinc-100">
-                {preguntas.map((q) => (
-                  <li
-                    key={q.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-zinc-900">{q.label}</p>
-                      <p className="text-xs text-zinc-600">
-                        Key: <span className="font-mono">{q.key}</span> · Tipo: {q.type}
-                        {q.type === 'dropdown' && q.options?.length
-                          ? ` · Opciones: ${q.options.join(', ')}`
-                          : ''}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void borrarPregunta(q.id)}
-                      disabled={loading}
-                      className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-900 hover:bg-rose-100 disabled:opacity-60"
-                    >
-                      Eliminar
-                    </button>
-                  </li>
-                ))}
-                {preguntas.length === 0 && (
-                  <li className="py-6 text-center text-sm text-zinc-500">
-                    No hay preguntas configuradas.
-                  </li>
-                )}
               </ul>
             </section>
           </>

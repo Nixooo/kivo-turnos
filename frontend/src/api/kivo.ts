@@ -117,6 +117,8 @@ export async function reservarTurno(body: {
   telefono: string
   fechaTurno: string
   horaTurno: string
+  duracionMinutos?: number
+  planId?: string
   prioridad: string
   triageUrgenciaVital: boolean | null
   triageEfectivo: boolean | null

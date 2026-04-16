@@ -87,10 +87,12 @@ export async function initDb() {
       numero_publico TEXT NOT NULL,
       documento TEXT NOT NULL,
       nombre TEXT NOT NULL,
-      apellido TEXT NOT NULL,
+      apellido TEXT,
       telefono TEXT NOT NULL,
       fecha_turno DATE NOT NULL,
       hora_turno TIME NOT NULL,
+      duracion_minutos INT NOT NULL DEFAULT 15,
+      plan_id TEXT,
       prioridad TEXT,
       triage_urgencia_vital BOOLEAN,
       triage_efectivo BOOLEAN,
@@ -102,6 +104,10 @@ export async function initDb() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `)
+
+  await q(`ALTER TABLE turnos ADD COLUMN IF NOT EXISTS duracion_minutos INT NOT NULL DEFAULT 15;`)
+  await q(`ALTER TABLE turnos ADD COLUMN IF NOT EXISTS plan_id TEXT;`)
+  await q(`ALTER TABLE turnos ALTER COLUMN apellido DROP NOT NULL;`)
 
   await q(`ALTER TABLE turnos ADD COLUMN IF NOT EXISTS documento_norm TEXT;`)
   await q(`ALTER TABLE turnos ADD COLUMN IF NOT EXISTS codigo_seguro CHAR(4);`)
@@ -139,17 +145,14 @@ export async function initDb() {
   const { rows: ec } = await q('SELECT COUNT(*)::int AS c FROM empresas')
   if (ec[0].c === 0) {
     await q(`
-      INSERT INTO empresas (slug, nombre, tipo) VALUES
-        ('eps-salud', 'EPS Salud Chapinero', 'eps'),
-        ('banco-popular', 'Banco Popular', 'banco'),
-        ('taller-pro', 'Taller Pro Engativá', 'general'),
-        ('estudio-creativo', 'Estudio Creativo Suba', 'general');
+      INSERT INTO empresas (slug, nombre, tipo, color_hex) VALUES
+        ('detaim', 'DETAIM', 'general', '#ffffff');
     `)
   }
 
   await q(`
-    INSERT INTO empresas (slug, nombre, tipo)
-    VALUES ('kivo-core', 'KIVO Core', 'general')
+    INSERT INTO empresas (slug, nombre, tipo, color_hex)
+    VALUES ('detaim', 'DETAIM', 'general', '#ffffff')
     ON CONFLICT (slug) DO NOTHING
   `)
 
@@ -157,28 +160,10 @@ export async function initDb() {
   if (sc[0].c === 0) {
     const ins = [
       [
-        'eps-norte',
-        'EPS Salud Chapinero — Sede Norte',
-        'Calle 60 #7-20, Chapinero, Bogotá',
-        'eps-salud',
-      ],
-      [
-        'banco-centro',
-        'Banco Popular — Centro',
-        'Carrera 7 #12-50, La Candelaria, Bogotá',
-        'banco-popular',
-      ],
-      [
-        'taller-engativa',
-        'Taller Mecánico Engativá',
-        'Calle 80 #103-40, Engativá, Bogotá',
-        'taller-pro',
-      ],
-      [
-        'estudio-sub',
-        'Estudio Creativo — Suba',
-        'Calle 145 #91-20, Suba, Bogotá',
-        'estudio-creativo',
+        'detaim-sede-principal',
+        'DETAIM Sede Principal',
+        'Calle Principal #123, Bogotá',
+        'detaim',
       ],
     ]
     for (const [slug, nombre, dir, empSlug] of ins) {
@@ -193,69 +178,36 @@ export async function initDb() {
           slug,
           nombre,
           dir,
-          slug.startsWith('eps') ? '07:00' : slug.startsWith('banco') ? '08:00' : slug.startsWith('taller') ? '08:00' : '09:00',
-          slug.startsWith('eps') ? '18:00' : slug.startsWith('banco') ? '16:30' : slug.startsWith('taller') ? '18:00' : '19:00',
-          slug === 'eps-norte'
-            ? 4.6483
-            : slug === 'banco-centro'
-              ? 4.6097
-              : slug === 'taller-engativa'
-                ? 4.707
-                : 4.745,
-          slug === 'eps-norte'
-            ? -74.0618
-            : slug === 'banco-centro'
-              ? -74.0817
-              : slug === 'taller-engativa'
-                ? -74.112
-                : -74.034,
-          slug === 'eps-norte' ? 'eps' : slug === 'banco-centro' ? 'banco' : 'general',
-          slug === 'eps-norte' ? 15 : slug === 'banco-centro' ? 4 : slug === 'taller-engativa' ? 6 : 0,
-          slug === 'eps-norte' ? 'A-14' : slug === 'banco-centro' ? 'C-03' : slug === 'taller-engativa' ? 'T-07' : 'E-01',
+          '09:00',
+          '20:00',
+          4.6097,
+          -74.0817,
+          'general',
+          0,
+          'R-01',
           200,
           empSlug,
         ],
       )
     }
-  } else {
-    await q(`
-      UPDATE sedes s SET empresa_id = e.id
-      FROM empresas e
-      WHERE s.slug = 'eps-norte' AND e.slug = 'eps-salud' AND (s.empresa_id IS NULL);
-    `).catch(() => {})
-    await q(`
-      UPDATE sedes s SET empresa_id = e.id
-      FROM empresas e
-      WHERE s.slug = 'banco-centro' AND e.slug = 'banco-popular' AND (s.empresa_id IS NULL);
-    `).catch(() => {})
-    await q(`
-      UPDATE sedes s SET empresa_id = e.id
-      FROM empresas e
-      WHERE s.slug = 'taller-engativa' AND e.slug = 'taller-pro' AND (s.empresa_id IS NULL);
-    `).catch(() => {})
-    await q(`
-      UPDATE sedes s SET empresa_id = e.id
-      FROM empresas e
-      WHERE s.slug = 'estudio-sub' AND e.slug = 'estudio-creativo' AND (s.empresa_id IS NULL);
-    `).catch(() => {})
   }
 
   const { rows: stc } = await q('SELECT COUNT(*)::int AS c FROM staff')
   if (stc[0].c === 0) {
-    const { rows: eps } = await q(`SELECT id FROM empresas WHERE slug = 'eps-salud' LIMIT 1`)
-    const eid = eps[0]?.id
+    const { rows: detaim } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
+    const eid = detaim[0]?.id
     if (eid) {
       await q(
         `INSERT INTO staff (email, password_plain, role, empresa_id) VALUES
-          ('admin@kivo.com', '12345', 'admin', $1),
-          ('asesor@kivo.com', '12345', 'asesor', $1)
+          ('admin@detaim.com', '12345', 'admin', $1),
+          ('asesor@detaim.com', '12345', 'asesor', $1)
         ON CONFLICT (email) DO NOTHING`,
         [eid],
       )
     }
   }
 
-  const { rows: core } = await q(`SELECT id FROM empresas WHERE slug = 'kivo-core' LIMIT 1`)
+  const { rows: core } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
   const coreId = core[0]?.id
   if (coreId) {
     await q(`UPDATE staff SET is_supremo = false WHERE is_supremo = true AND email <> $1`, [
