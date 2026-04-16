@@ -634,9 +634,6 @@ export default function KivoPublic() {
         </div>
       </main>
 
-        </div>
-      </main>
-
       {/* Modals */}
       {showPlansComparison && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
