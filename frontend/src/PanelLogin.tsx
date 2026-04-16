@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getStoredIsSupremo, getStoredRole, loginPanel, logoutPanel, setStoredIsSupremo } from './api/panel'
+import { getStoredIsSupremo, getStoredRole, loginPanel, setStoredIsSupremo } from './api/panel'
 
 export default function PanelLogin() {
   const navigate = useNavigate()

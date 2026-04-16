@@ -4,14 +4,10 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import PanelShell from './PanelShell'
 import {
-  crearPreguntaTurnoAdmin,
-  eliminarPreguntaTurnoAdmin,
   fetchEmpresaPanel,
-  fetchPreguntasTurnoAdmin,
   fetchResumenAdmin,
   getStoredRole,
   logoutPanel,
-  type PreguntaTurno,
   type ResumenAdmin,
 } from './api/panel'
 
@@ -53,84 +49,15 @@ function StatCard({
   )
 }
 
-function QuestionPreview({
-  label,
-  type,
-  options,
-}: {
-  label: string
-  type: 'bool' | 'dropdown' | 'scale10'
-  options: string
-}) {
-  const opts = options
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean)
-
-  return (
-    <div className="mt-4 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-        Previsualización
-      </p>
-      <div className="mt-3">
-        <label className="mb-2 block text-sm font-medium text-zinc-900">
-          {label || 'Texto de la pregunta...'}
-        </label>
-        {type === 'bool' && (
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-zinc-700">
-              <input type="radio" disabled className="h-4 w-4" /> Sí
-            </label>
-            <label className="flex items-center gap-2 text-sm text-zinc-700">
-              <input type="radio" disabled className="h-4 w-4" /> No
-            </label>
-          </div>
-        )}
-        {type === 'dropdown' && (
-          <select disabled className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-400">
-            {opts.length > 0 ? (
-              opts.map((o, i) => (
-                <option key={i} value={o}>
-                  {o}
-                </option>
-              ))
-            ) : (
-              <option>Esperando opciones...</option>
-            )}
-          </select>
-        )}
-        {type === 'scale10' && (
-          <div className="flex flex-wrap gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-              <div
-                key={n}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-400"
-              >
-                {n}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 export default function PanelAdmin() {
   const navigate = useNavigate()
   const [empresaNombre, setEmpresaNombre] = useState('')
   const [empresaTipo, setEmpresaTipo] = useState('general')
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10))
   const [resumen, setResumen] = useState<ResumenAdmin | null>(null)
-  const [preguntas, setPreguntas] = useState<PreguntaTurno[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [authOk, setAuthOk] = useState(false)
-  const [pregForm, setPregForm] = useState<{
-    label: string
-    type: 'bool' | 'dropdown' | 'scale10'
-    options: string
-  }>({ label: '', type: 'bool', options: '' })
 
   useEffect(() => {
     if (!localStorage.getItem('detaim_token')) {
@@ -158,8 +85,6 @@ export default function PanelAdmin() {
       setEmpresaTipo(emp.empresa.tipo)
       const r = await fetchResumenAdmin(fecha)
       setResumen(r)
-      const qs = await fetchPreguntasTurnoAdmin()
-      setPreguntas(qs)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error al cargar'
       if (msg === 'Sesión expirada') {
@@ -171,56 +96,6 @@ export default function PanelAdmin() {
       setLoading(false)
     }
   }, [fecha, navigate])
-
-  const crearPregunta = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoadError(null)
-    const label = pregForm.label.trim()
-    if (!label) {
-      setLoadError('Ingresá el texto de la pregunta.')
-      return
-    }
-    const type = pregForm.type
-    const options =
-      type === 'dropdown'
-        ? pregForm.options
-            .split(',')
-            .map((x) => x.trim())
-            .filter(Boolean)
-        : undefined
-    if (type === 'dropdown' && (!options || !options.length)) {
-      setLoadError('Para Dropdown ingresá opciones separadas por coma.')
-      return
-    }
-    setLoading(true)
-    try {
-      await crearPreguntaTurnoAdmin({ label, type, options })
-      setPregForm({ label: '', type: 'bool', options: '' })
-      const qs = await fetchPreguntasTurnoAdmin()
-      setPreguntas(qs)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error'
-      setLoadError(msg)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const borrarPregunta = async (id: number) => {
-    if (!confirm('¿Eliminar esta pregunta?')) return
-    setLoading(true)
-    setLoadError(null)
-    try {
-      await eliminarPreguntaTurnoAdmin(id)
-      const qs = await fetchPreguntasTurnoAdmin()
-      setPreguntas(qs)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error'
-      setLoadError(msg)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     if (!authOk) return
@@ -238,66 +113,6 @@ export default function PanelAdmin() {
   }, [fecha])
 
   const tot = resumen?.totales
-
-  const bloquesTipo = useMemo(() => {
-    const t = empresaTipo
-    if (t === 'eps') {
-      return (
-        <section className="rounded-3xl border border-red-100 bg-red-50/50 p-6">
-          <h2 className="text-sm font-semibold text-red-900">EPS · Derivaciones</h2>
-          <p className="mt-1 text-sm text-red-950/90">
-            Seguimiento de turnos con posible triage de urgencia vital (derivación
-            a urgencias). Los números son del día seleccionado y solo de tu EPS.
-          </p>
-          <div className="mt-4 grid gap-3 grid-cols-1 sm:grid-cols-2">
-            <StatCard
-              label="Marcados urgencia vital"
-              value={tot?.triage_urgencia ?? 0}
-              hint="Revisar protocolo clínico"
-              accent="rose"
-            />
-            <StatCard
-              label="En espera de ventanilla"
-              value={tot?.en_espera ?? 0}
-              accent="default"
-            />
-          </div>
-        </section>
-      )
-    }
-    if (t === 'banco') {
-      return (
-        <section className="rounded-3xl border border-sky-100 bg-sky-50/50 p-6">
-          <h2 className="text-sm font-semibold text-sky-900">Banco · Caja</h2>
-          <p className="mt-1 text-sm text-sky-950/90">
-            Turnos con trámite de efectivo (caja) frente a asesoría sin efectivo.
-          </p>
-          <div className="mt-4 grid gap-3 grid-cols-1 sm:grid-cols-2">
-            <StatCard
-              label="Con efectivo / caja"
-              value={tot?.triage_efectivo ?? 0}
-              hint="Orientados a módulo de caja"
-              accent="amber"
-            />
-            <StatCard
-              label="En espera"
-              value={tot?.en_espera ?? 0}
-              accent="default"
-            />
-          </div>
-        </section>
-      )
-    }
-    return (
-      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold text-zinc-800">Servicios generales</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Vista resumida de colas por sede. Podés ampliar detalle en la cola de
-          atención.
-        </p>
-      </section>
-    )
-  }, [empresaTipo, tot])
 
   if (!authOk) {
     return (

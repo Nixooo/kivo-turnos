@@ -1,26 +1,21 @@
 import {
   useEffect,
-  useId,
   useMemo,
   useState,
   useRef,
-  type ReactNode,
 } from 'react'
 import { toPng } from 'html-to-image'
 import { DayPicker } from 'react-day-picker'
 import { es } from 'date-fns/locale'
 import { format, startOfToday } from 'date-fns'
-import type { SedeApi, EmpresaApi } from './api/kivo'
+import type { SedeApi } from './api/kivo'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   fetchSedes,
   fetchEmpresaPorSlug,
-  fetchEmpresasPublicas,
   reservarTurno,
   confirmarTurno,
 } from './api/kivo'
-
-type PrioridadId = 'ninguna' | 'adulto-mayor' | 'gestante' | 'discapacidad' | 'ninos-brazos'
 
 const PLANES = [
   {
@@ -86,14 +81,11 @@ export default function KivoPublic() {
   const ticketRef = useRef<HTMLDivElement>(null)
 
   const [sedes, setSedes] = useState<SedeApi[]>([])
-  const [sedesError, setSedesError] = useState<string | null>(null)
-  const [empresaCustom, setEmpresaCustom] = useState<EmpresaApi | null>(null)
 
   const [paso, setPaso] = useState<WizardStep>('inicio')
   const [fecha, setFecha] = useState<Date | undefined>(today)
   const [form, setForm] = useState<FormState>(() => emptyForm(''))
   const [turnoNumero, setTurnoNumero] = useState('')
-  const [turnoId, setTurnoId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [reservando, setReservando] = useState(false)
   const [codigoAsignado, setCodigoAsignado] = useState('')
@@ -110,17 +102,13 @@ export default function KivoPublic() {
   useEffect(() => {
     const load = async () => {
       try {
-        if (empresaSlug) {
-          const emp = await fetchEmpresaPorSlug(empresaSlug)
-          setEmpresaCustom(emp)
-        }
         const data = await fetchSedes(empresaSlug || 'detaim')
         setSedes(data)
         if (data.length) {
           setForm(f => ({ ...f, lugarId: data[0].id }))
         }
       } catch (err) {
-        setSedesError('No se pudieron cargar las sedes.')
+        console.error('No se pudieron cargar las sedes.', err)
       }
     }
     load()
@@ -203,7 +191,6 @@ export default function KivoPublic() {
     try {
       const r = await confirmarTurno(reservaTemporalId, c)
       setTurnoNumero(r.numeroPublico ?? '')
-      setTurnoId(reservaTemporalId)
       setPaso('confirmado')
       setModalCodigoOpen(false)
     } catch {
@@ -216,7 +203,6 @@ export default function KivoPublic() {
     setForm(emptyForm(sedes[0]?.id || ''))
     setFecha(today)
     setTurnoNumero('')
-    setTurnoId(null)
     setSubmitError(null)
   }
 

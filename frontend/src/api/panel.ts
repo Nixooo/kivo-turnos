@@ -106,6 +106,7 @@ export type ColaTurno = {
   numero_publico: string
   nombre: string
   apellido: string
+  telefono: string
   documento_norm: string
   hora_turno: string
   estado: string
