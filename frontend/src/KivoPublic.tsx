@@ -663,7 +663,7 @@ export default function KivoPublic() {
                   {PLANES.map((plan) => (
                     <tr key={plan.id} className="group hover:bg-white/[0.02] transition-colors">
                       <td className="py-8 px-4 font-black text-white text-xl tracking-tighter uppercase">{plan.descripcion}</td>
-                      <td className="py-8 px-4 text-zinc-400 font-bold uppercase tracking-widest text-[11px]">{plan.minutos} min {plan.diario && 'diarios'}</td>
+                      <td className="py-8 px-4 text-zinc-400 font-bold uppercase tracking-widest text-[11px]">{plan.minutos} min</td>
                       <td className="py-8 px-4 text-zinc-500 font-bold uppercase tracking-widest text-[11px]">{plan.fotos > 0 ? `${plan.fotos} Capturas HD` : 'Ilimitado'}</td>
                       <td className="py-8 px-4 font-black text-white text-2xl tracking-tighter">${plan.precio}</td>
                     </tr>
