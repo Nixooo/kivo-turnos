@@ -453,12 +453,24 @@ export default function KivoPublic() {
       <HeaderBar />
       
       {/* Banner de Marca */}
-      <div className="bg-zinc-900/50 border-b border-zinc-800 py-3">
-        <div className="mx-auto max-w-7xl px-6 flex items-center justify-center gap-3">
-          <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
-            Estás reservando en <span className="text-white">Alpha Training Simulator</span> — Sede Bogotá
-          </p>
+      <div className="bg-zinc-900/50 border-b border-zinc-800 py-3 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              Sede <span className="text-white">Bogotá / Cajicá</span> — <span className="text-green-500">Pista Abierta</span>
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-zinc-600 uppercase">Clima:</span>
+              <span className="text-[10px] font-black text-white uppercase">Seco / 18°C</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-zinc-600 uppercase">Latencia:</span>
+              <span className="text-[10px] font-black text-white uppercase">5ms (Fibra)</span>
+            </div>
+          </div>
         </div>
       </div>
 
