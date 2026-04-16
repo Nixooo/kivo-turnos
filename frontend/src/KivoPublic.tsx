@@ -528,7 +528,7 @@ export default function KivoPublic() {
         .selection-glow:hover::before {
           opacity: 1;
         }
-      `</style>
+      `}</style>
 
       <HeaderBar />
 
