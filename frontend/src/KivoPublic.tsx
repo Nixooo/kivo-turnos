@@ -99,10 +99,15 @@ export default function KivoPublic() {
         const data = await fetchSedes(empresaSlug || 'detaim')
         setSedes(data)
         if (data.length) {
+          // Aseguramos que el lugarId se establezca inmediatamente
           setForm(f => ({ ...f, lugarId: data[0].id }))
+        } else {
+          // Si no hay sedes del API, usamos un fallback para generar slots locales
+          setForm(f => ({ ...f, lugarId: 'default' }))
         }
       } catch (err) {
         console.error('No se pudieron cargar las sedes.', err)
+        setForm(f => ({ ...f, lugarId: 'default' }))
       }
     }
     load()
@@ -385,6 +390,58 @@ export default function KivoPublic() {
 
   return (
     <div className="relative flex min-h-svh flex-col bg-black text-white selection:bg-blue-500/30">
+      <style>{`
+        .detaim-calendar-pro {
+          --rdp-cell-size: 38px;
+          --rdp-accent-color: #ffffff;
+          --rdp-background-color: #27272a;
+          margin: 0;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+        .detaim-calendar-pro .rdp-months {
+          justify-content: center;
+        }
+        .detaim-calendar-pro .rdp-table {
+          max-width: 100%;
+        }
+        .detaim-calendar-pro .rdp-day_selected { 
+          background-color: var(--rdp-accent-color) !important; 
+          color: #000000 !important;
+          font-weight: 900 !important;
+          border-radius: 12px !important;
+        }
+        .detaim-calendar-pro .rdp-day:hover:not(.rdp-day_selected) {
+          background-color: rgba(255,255,255,0.1) !important;
+          border-radius: 12px !important;
+        }
+        .detaim-calendar-pro .rdp-nav_button {
+          color: #71717a !important;
+        }
+        .detaim-calendar-pro .rdp-head_cell {
+          font-size: 10px !important;
+          font-weight: 900 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.1em !important;
+          color: #52525b !important;
+          padding-bottom: 1rem !important;
+        }
+        .detaim-calendar-pro .rdp-day {
+          font-size: 13px !important;
+          font-weight: 600 !important;
+        }
+        .custom-scrollbar-pro::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar-pro::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar-pro::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+      `}</style>
       <HeaderBar />
       
       {/* Banner de Marca - Ultra Minimal */}
@@ -510,28 +567,28 @@ export default function KivoPublic() {
               </div>
 
               {/* Contenido Principal */}
-              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-16">
+              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-12">
                 {/* Calendario */}
-                <div className={`transition-all duration-1000 ease-in-out flex flex-col items-center justify-center ${form.hora ? 'opacity-10 scale-95 pointer-events-none blur-md' : 'opacity-100 scale-100'}`}>
-                  <div className="bg-black/20 p-10 rounded-[3.5rem] border border-white/5 shadow-inner w-full">
+                <div className={`transition-all duration-1000 ease-in-out flex flex-col items-center justify-start ${form.hora ? 'opacity-10 scale-95 pointer-events-none blur-md' : 'opacity-100 scale-100'}`}>
+                  <div className="bg-white/[0.02] p-6 rounded-[2.5rem] border border-white/5 shadow-inner w-full flex justify-center">
                     <DayPicker
                       mode="single"
                       selected={fecha}
                       onSelect={setFecha}
                       locale={es}
                       disabled={{ before: today }}
-                      className="detaim-calendar-pro mx-auto"
+                      className="detaim-calendar-pro"
                       modifiersClassNames={{ selected: 'rdp-selected' }}
                     />
                   </div>
-                  <div className="mt-12 flex gap-8">
+                  <div className="mt-8 flex gap-8">
                     <div className="flex items-center gap-3">
-                      <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Seleccionado</span>
+                      <div className="h-1 w-1 rounded-full bg-blue-600" />
+                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Seleccionado</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
-                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Disponible</span>
+                      <div className="h-1 w-1 rounded-full bg-white/10" />
+                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Disponible</span>
                     </div>
                   </div>
                 </div>
@@ -539,46 +596,46 @@ export default function KivoPublic() {
                 {/* Selector de Horas */}
                 <div className={`flex flex-col h-full transition-all duration-1000 ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
                   {!form.hora ? (
-                    <>
-                      <div className="flex items-center justify-between mb-8">
-                        <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em]">Horarios de Sesión</h4>
-                        {loadingSlots && <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-ping shadow-[0_0_10px_rgba(59,130,246,0.5)]" />}
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
+                        <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em]">Horarios de Sesión</h4>
+                        {loadingSlots && <span className="flex h-1 w-1 rounded-full bg-blue-500 animate-ping" />}
                       </div>
                       
-                      <div className="flex-1 overflow-y-auto pr-6 custom-scrollbar-pro">
+                      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar-pro" style={{ maxHeight: '400px' }}>
                         {loadingSlots ? (
                           <div className="h-full flex flex-col items-center justify-center space-y-6">
-                            <div className="h-12 w-12 border-2 border-white/5 border-t-white rounded-full animate-spin" />
-                            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Cargando...</p>
+                            <div className="h-10 w-10 border-2 border-white/5 border-t-white rounded-full animate-spin" />
+                            <p className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em]">Sincronizando...</p>
                           </div>
                         ) : availableSlots.length > 0 ? (
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-3 gap-3">
                             {availableSlots.map((slot) => (
                               <button
                                 key={slot.hora}
                                 disabled={slot.reservada}
                                 onClick={() => setForm({ ...form, hora: slot.hora })}
                                 className={`
-                                  relative overflow-hidden rounded-[1.25rem] py-7 text-sm font-black transition-all duration-500
+                                  relative overflow-hidden rounded-xl py-8 text-sm font-black transition-all duration-500
                                   ${slot.reservada 
-                                    ? 'bg-black/40 text-zinc-800 border border-white/5 cursor-not-allowed' 
-                                    : 'bg-white/[0.03] text-white hover:bg-white hover:text-black hover:scale-[1.05] border border-white/5 hover:border-white shadow-2xl'}
+                                    ? 'bg-black/40 text-zinc-800 border border-white/5 cursor-not-allowed opacity-20' 
+                                    : 'bg-white/[0.03] text-zinc-400 hover:bg-white hover:text-black hover:scale-[1.05] border border-white/5 hover:border-white shadow-2xl'}
                                 `}
                               >
                                 <span className="relative z-10">{slot.hora}</span>
-                                {!slot.reservada && (
-                                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                                )}
                               </button>
                             ))}
                           </div>
                         ) : (
-                          <div className="h-full flex flex-col items-center justify-center space-y-4 opacity-20">
-                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">No hay horarios disponibles</p>
+                          <div className="h-full flex flex-col items-center justify-center space-y-4 py-20">
+                            <div className="h-12 w-12 rounded-full border border-white/5 flex items-center justify-center opacity-20">
+                              <svg className="h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">No hay disponibilidad</p>
                           </div>
                         )}
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full animate-in zoom-in duration-1000">
                       <div className="relative group">
