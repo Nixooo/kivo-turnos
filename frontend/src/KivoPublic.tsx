@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { format, startOfToday } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -70,7 +70,6 @@ export default function KivoPublic() {
   const today = useMemo(() => startOfToday(), [])
   const ticketRef = useRef<HTMLDivElement>(null)
 
-  const [sedes, setSedes] = useState<SedeApi[]>([])
   const [paso, setPaso] = useState<WizardStep>('inicio')
   const [fecha, setFecha] = useState<Date | undefined>(today)
   const [form, setForm] = useState<FormState>(() => emptyForm(''))
@@ -86,13 +85,10 @@ export default function KivoPublic() {
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [selectedHour, setSelectedHour] = useState<string | null>(null)
 
-  const currentPlan = PLANES.find(p => p.id === form.planId) || PLANES[1]
-
   useEffect(() => {
     const load = async () => {
       try {
         const data = await fetchSedes(empresaSlug || 'detaim')
-        setSedes(data)
         if (data.length) {
           setForm(f => ({ ...f, lugarId: data[0].id }))
         } else {
