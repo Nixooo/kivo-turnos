@@ -53,9 +53,8 @@ const PLANES = [
   },
 ]
 
-const SIMULADORES = ['Racing GT', 'Formula 1', 'Flight Simulator', 'VR Space']
+const SIMULADORES = ['Simulador de tiro']
 const NIVELES = ['Principiante', 'Amateur', 'Profesional']
-const JUEGOS = ['Assetto Corsa', 'iRacing', 'F1 23', 'Microsoft Flight Sim', 'Project Cars']
 
 type WizardStep = 'inicio' | 'datos' | 'detalle' | 'confirmado'
 
@@ -68,8 +67,6 @@ type FormState = {
   // 10 nuevas opciones
   tipoSimulador: string
   nivelHabilidad: string
-  juegoPreferido: string
-  participantes: number
   extraHidratacion: boolean
   extraVR: boolean
   extraAccesorios: boolean
@@ -96,10 +93,8 @@ function emptyForm(slug: string): FormState {
     hora: '',
     lugarId: slug,
     planId: 'plan-15',
-    tipoSimulador: 'Racing GT',
+    tipoSimulador: 'Simulador de tiro',
     nivelHabilidad: 'Amateur',
-    juegoPreferido: 'Assetto Corsa',
-    participantes: 1,
     extraHidratacion: false,
     extraVR: false,
     extraAccesorios: false,
@@ -214,8 +209,6 @@ export default function KivoPublic() {
         respuestasExtra: {
           tipoSimulador: form.tipoSimulador,
           nivelHabilidad: form.nivelHabilidad,
-          juegoPreferido: form.juegoPreferido,
-          participantes: form.participantes,
           extraHidratacion: form.extraHidratacion,
           extraVR: form.extraVR,
           extraAccesorios: form.extraAccesorios,
@@ -285,14 +278,10 @@ export default function KivoPublic() {
     <header className="relative border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-xl">
-            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
+          <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded-lg shadow-lg" />
           <div className="flex flex-col">
-            <span className="text-xl font-black tracking-tighter text-white leading-none">ALPHA</span>
-            <span className="text-[10px] font-bold tracking-widest text-blue-500 uppercase">Training Simulator</span>
+            <span className="text-xl font-black tracking-tighter text-white leading-none">DETAIM</span>
+            <span className="text-[10px] font-bold tracking-widest text-blue-500 uppercase">Simulación Profesional</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -300,7 +289,7 @@ export default function KivoPublic() {
             onClick={() => setShowPlansComparison(true)}
             className="hidden md:block text-xs font-bold text-zinc-400 hover:text-white transition"
           >
-            Comparar Planes
+            Planes
           </button>
           <Link
             to="/legal/horario-atencion"
@@ -328,11 +317,11 @@ export default function KivoPublic() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl font-black text-white">ALPHA</span>
-              <span className="text-xs font-bold text-blue-500">SIMULATOR</span>
+              <img src="/logo.jpg" alt="DETAIM" className="h-8 w-auto rounded" />
+              <span className="text-2xl font-black text-white">DETAIM</span>
             </div>
             <p className="text-sm text-zinc-500 max-w-xs leading-relaxed mb-6">
-              La experiencia de simulación más avanzada de Colombia. Equipos profesionales y telemetría de alto nivel para pilotos exigentes.
+              Líderes en tecnología de simulación en Colombia. Experiencias inmersivas de alta precisión para entrenamiento y recreación.
             </p>
             <div className="space-y-2">
               <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Ubicación</p>
@@ -373,7 +362,7 @@ export default function KivoPublic() {
         </div>
         <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">
-            © 2026 Alpha Training Simulator. Todos los derechos reservados.
+            © 2026 DETAIM. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-zinc-600 font-bold uppercase">Powered by</span>
@@ -403,7 +392,7 @@ export default function KivoPublic() {
                 </div>
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] opacity-40">Reserva Confirmada</h2>
                 <p className="mt-4 text-7xl font-black tracking-tighter text-black">{turnoNumero}</p>
-                <p className="mt-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Alpha Training Simulator</p>
+                <p className="mt-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM Simulación Profesional</p>
               </div>
               <div className="p-8 text-left space-y-5 bg-zinc-900">
                 <div className="grid grid-cols-2 gap-4">
@@ -475,32 +464,6 @@ export default function KivoPublic() {
       </div>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
-        {/* Progress Steps */}
-        <div className="flex justify-between max-w-2xl mx-auto mb-12 relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-zinc-800 -translate-y-1/2 z-0" />
-          <div 
-            className="absolute top-1/2 left-0 h-0.5 bg-blue-600 -translate-y-1/2 z-0 transition-all duration-1000" 
-            style={{ width: form.hora ? '100%' : fecha ? '50%' : '10%' }}
-          />
-          {[
-            { step: 1, label: 'Piloto', active: true },
-            { step: 2, label: 'Sesión', active: !!fecha },
-            { step: 3, label: 'Extras', active: !!form.hora }
-          ].map((s) => (
-            <div key={s.step} className="relative z-10 flex flex-col items-center gap-2">
-              <div className={`
-                w-10 h-10 rounded-full flex items-center justify-center font-black text-sm transition-all duration-500
-                ${s.active ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20 scale-110' : 'bg-zinc-900 text-zinc-600 border border-zinc-800'}
-              `}>
-                {s.step}
-              </div>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${s.active ? 'text-white' : 'text-zinc-600'}`}>
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
           
           {/* Columna Izquierda: Datos y Configuración */}
@@ -535,13 +498,9 @@ export default function KivoPublic() {
                 <div className="pt-4 border-t border-zinc-800 space-y-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Tipo de Simulador</label>
-                    <select
-                      value={form.tipoSimulador}
-                      onChange={(e) => setForm({ ...form, tipoSimulador: e.target.value })}
-                      className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white outline-none"
-                    >
-                      {SIMULADORES.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                    <div className="p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black text-center uppercase tracking-widest">
+                      {form.tipoSimulador}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Nivel de Habilidad</label>
@@ -557,63 +516,60 @@ export default function KivoPublic() {
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Juego / Software</label>
-                    <select
-                      value={form.juegoPreferido}
-                      onChange={(e) => setForm({ ...form, juegoPreferido: e.target.value })}
-                      className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white outline-none"
-                    >
-                      {JUEGOS.map(j => <option key={j} value={j}>{j}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Participantes (Slots)</label>
-                    <input
-                      type="range" min="1" max="4" step="1"
-                      value={form.participantes}
-                      onChange={(e) => setForm({ ...form, participantes: Number(e.target.value) })}
-                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                    />
-                    <div className="flex justify-between mt-1 text-[10px] font-bold text-zinc-500">
-                      <span>1</span><span>2</span><span>3</span><span>4+</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Columna Centro: Calendario y Hora */}
+          {/* Columna Centro: Calendario y Hora (Más grande y profesional) */}
           <div className="lg:col-span-6 space-y-6 animate-in" style={{ animationDelay: '0.1s' }}>
-            <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-zinc-800 overflow-hidden min-h-[550px] shadow-2xl relative">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-black flex items-center gap-3 text-white">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black text-xs font-black">2</span>
-                  {form.hora ? `Sesión: ${form.hora}` : 'Selecciona Fecha'}
-                </h3>
-                {fecha && <span className="text-xs font-bold text-blue-500 px-3 py-1 bg-blue-500/10 rounded-full">{format(fecha, 'dd MMM yyyy')}</span>}
+            <div className="p-10 rounded-[3rem] bg-zinc-900 border border-zinc-800 overflow-hidden min-h-[600px] shadow-2xl relative flex flex-col">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <h3 className="text-2xl font-black flex items-center gap-4 text-white tracking-tighter">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-black text-sm font-black shadow-lg">2</span>
+                    {form.hora ? `Confirmado: ${form.hora}` : 'Agenda tu Sesión'}
+                  </h3>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-2 ml-14">
+                    Selecciona disponibilidad en tiempo real
+                  </p>
+                </div>
+                {fecha && (
+                  <div className="flex flex-col items-end animate-in">
+                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Fecha Seleccionada</span>
+                    <span className="text-sm font-black text-white px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                      {format(fecha, 'dd MMMM yyyy', { locale: es })}
+                    </span>
+                  </div>
+                )}
               </div>
               
-              <div className="relative">
-                <div className={`transition-all duration-700 ${form.hora ? 'opacity-0 scale-90 pointer-events-none absolute inset-0' : 'opacity-100 scale-100'}`}>
-                  <DayPicker
-                    mode="single"
-                    selected={fecha}
-                    onSelect={setFecha}
-                    locale={es}
-                    disabled={{ before: today }}
-                    className="detaim-calendar mx-auto scale-110"
-                    modifiersClassNames={{ selected: 'rdp-selected' }}
-                  />
+              <div className="relative flex-1 flex flex-col justify-center">
+                <div className={`transition-all duration-1000 ease-in-out ${form.hora ? 'opacity-0 -translate-y-10 pointer-events-none absolute inset-0' : 'opacity-100 translate-y-0'}`}>
+                  <div className="bg-zinc-800/30 p-8 rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-sm shadow-inner">
+                    <DayPicker
+                      mode="single"
+                      selected={fecha}
+                      onSelect={setFecha}
+                      locale={es}
+                      disabled={{ before: today }}
+                      className="detaim-calendar-pro mx-auto"
+                      modifiersClassNames={{ selected: 'rdp-selected' }}
+                    />
+                  </div>
                 </div>
 
-                <div className={`transition-all duration-700 delay-100 ${!form.hora && fecha ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none absolute inset-0'}`}>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-3">
+                <div className={`transition-all duration-1000 delay-200 ease-in-out ${!form.hora && fecha ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 max-h-[450px] overflow-y-auto custom-scrollbar-pro pr-4 py-2">
                     {loadingSlots ? (
                       <div className="col-span-full py-20 text-center">
-                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-                        <p className="mt-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">Escaneando pista...</p>
+                        <div className="relative inline-block">
+                          <div className="h-16 w-16 rounded-full border-4 border-zinc-800 border-t-blue-500 animate-spin" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-full bg-blue-500/10 animate-pulse" />
+                          </div>
+                        </div>
+                        <p className="mt-6 text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Sincronizando Agenda...</p>
                       </div>
                     ) : (
                       availableSlots.map((slot) => (
@@ -622,30 +578,42 @@ export default function KivoPublic() {
                           disabled={slot.reservada}
                           onClick={() => setForm({ ...form, hora: slot.hora })}
                           className={`
-                            rounded-2xl py-4 text-sm font-black transition-all duration-300
+                            group relative overflow-hidden rounded-[1.25rem] py-6 text-sm font-black transition-all duration-500
                             ${slot.reservada 
-                              ? 'bg-red-500/5 text-red-900 border border-red-500/10 cursor-not-allowed opacity-40' 
-                              : 'bg-zinc-800 text-white hover:bg-blue-600 hover:scale-105 border border-zinc-700 hover:border-blue-400 shadow-lg'}
+                              ? 'bg-zinc-950/50 text-zinc-800 border border-zinc-900 cursor-not-allowed' 
+                              : 'bg-zinc-800 text-white hover:bg-white hover:text-black hover:scale-105 border border-zinc-700 hover:border-white shadow-xl'}
                           `}
                         >
-                          {slot.hora}
-                          {slot.reservada && <span className="block text-[7px] uppercase mt-1">Ocupado</span>}
+                          <span className="relative z-10">{slot.hora}</span>
+                          {!slot.reservada && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          )}
+                          {slot.reservada && (
+                            <div className="absolute top-1 right-1">
+                              <div className="h-1.5 w-1.5 rounded-full bg-zinc-800" />
+                            </div>
+                          )}
                         </button>
                       ))
                     )}
                   </div>
                 </div>
+
                 {form.hora && (
-                  <div className="mt-12 flex flex-col items-center animate-in">
-                    <div className="bg-zinc-800/50 p-6 rounded-[2rem] border border-zinc-700 mb-8 text-center w-full max-w-sm">
-                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Hora Confirmada</p>
-                      <p className="text-4xl font-black text-white">{form.hora}</p>
+                  <div className="flex flex-col items-center justify-center h-full animate-in zoom-in duration-700">
+                    <div className="relative mb-10">
+                      <div className="absolute -inset-8 bg-blue-600/20 rounded-full blur-3xl animate-pulse" />
+                      <div className="relative bg-white p-12 rounded-[3rem] border border-white shadow-2xl text-center min-w-[300px]">
+                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-4">Hora de Ingreso</p>
+                        <p className="text-7xl font-black text-black tracking-tighter">{form.hora}</p>
+                        <div className="mt-6 h-1 w-12 bg-blue-600 mx-auto rounded-full" />
+                      </div>
                     </div>
                     <button 
                       onClick={() => setForm({ ...form, hora: '' })}
-                      className="text-xs font-black text-zinc-500 hover:text-white transition flex items-center gap-2 uppercase tracking-widest"
+                      className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-zinc-800 text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] hover:bg-zinc-700 hover:text-white transition-all duration-500"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+                      <svg className="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                       Cambiar Horario
                     </button>
                   </div>
@@ -785,7 +753,7 @@ export default function KivoPublic() {
                 </button>
                 {submitError && <p className="mt-4 text-center text-[10px] text-red-500 font-black uppercase tracking-widest">{submitError}</p>}
                 <p className="mt-4 text-[9px] text-zinc-600 text-center leading-relaxed">
-                  Al confirmar, aceptas los <Link to="/legal/terminos-condiciones" className="text-zinc-400 underline">Términos de Alpha Simulator</Link>.
+                  Al confirmar, aceptas los <Link to="/legal/terminos-condiciones" className="text-zinc-400 underline">Términos de DETAIM</Link>.
                 </p>
               </div>
             </div>
@@ -801,8 +769,8 @@ export default function KivoPublic() {
           <div className="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 overflow-hidden animate-in">
             <div className="flex justify-between items-center mb-10">
               <div>
-                <h2 className="text-3xl font-black text-white tracking-tighter">Comparativa de Pista</h2>
-                <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest mt-1">Alpha Training Simulator</p>
+                <h2 className="text-3xl font-black text-white tracking-tighter">Comparativa de Sesiones</h2>
+                <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest mt-1">DETAIM Simulación Profesional</p>
               </div>
               <button onClick={() => setShowPlansComparison(false)} className="p-3 rounded-full bg-zinc-800 text-white hover:bg-zinc-700 transition">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -860,7 +828,7 @@ export default function KivoPublic() {
             </div>
             
             <div className="p-6 rounded-[2rem] bg-white/5 border border-white/10 mb-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">Tu Código Alpha</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">Código de Seguridad</p>
               <p className="text-4xl font-black tracking-[0.2em] text-white">{codigoAsignado}</p>
             </div>
 
