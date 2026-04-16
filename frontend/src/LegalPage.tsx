@@ -279,47 +279,59 @@ export default function LegalPage() {
   }
 
   return (
-    <div className="min-h-svh bg-zinc-50 flex flex-col">
-      <header className="bg-white border-b border-zinc-200 py-6 px-6">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/logo.jpg" alt="DETAIM" className="h-8 w-auto rounded" />
-            <span className="font-black text-xl text-zinc-900 tracking-tighter">DETAIM</span>
+    <div className="min-h-svh bg-black flex flex-col selection:bg-white selection:text-black">
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto w-full flex items-center justify-between px-8 py-6">
+          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('/')}>
+            <img src="/logo.jpg" alt="DETAIM" className="h-8 w-auto rounded-lg grayscale group-hover:grayscale-0 transition-all duration-500" />
+            <span className="font-black text-xl text-white tracking-tighter uppercase">DETAIM</span>
           </div>
           <button 
             onClick={() => navigate(-1)}
-            className="text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition"
+            className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-white transition-colors"
           >
             ← Volver
           </button>
         </div>
       </header>
 
-      <main className="flex-1 py-12 px-6">
-        <article className="max-w-3xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 p-8 sm:p-12">
-          <h1 className="text-3xl font-black text-zinc-900 mb-8 border-b border-zinc-100 pb-6 tracking-tighter">
-            {data.title}
-          </h1>
-          <div className="prose prose-zinc max-w-none text-zinc-600 leading-relaxed">
+      <main className="flex-1 py-20 px-8">
+        <article className="max-w-3xl mx-auto">
+          <header className="mb-16 space-y-4">
+            <div className="h-1 w-12 bg-blue-600 rounded-full" />
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-tight">
+              {data.title}
+            </h1>
+          </header>
+          
+          <div className="prose prose-invert prose-zinc max-w-none text-zinc-400 leading-relaxed font-medium">
             {data.content}
           </div>
           
-          <div className="mt-12 pt-8 border-t border-zinc-100 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-            Última actualización: Abril 2026 · DETAIM
+          <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-1.5 w-1.5 rounded-full bg-zinc-800" />
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-600">
+                Última revisión: Abril 2026
+              </p>
+            </div>
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-800">
+              DETAIM Legal Framework
+            </p>
           </div>
         </article>
       </main>
 
-      <footer className="py-12 flex flex-col items-center gap-4 bg-zinc-50 border-t border-zinc-200">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Powered by</span>
-          <a href="https://detaim.com" target="_blank" rel="noopener noreferrer">
-            <span className="text-xs font-black text-zinc-900 hover:text-blue-600 transition">DETAIM</span>
-          </a>
+      <footer className="py-20 border-t border-white/5 bg-black">
+        <div className="max-w-4xl mx-auto px-8 flex flex-col items-center gap-8">
+          <div className="flex items-center gap-4 opacity-20 grayscale">
+            <img src="/logo.jpg" alt="DETAIM" className="h-6 w-auto rounded" />
+            <span className="font-black text-sm tracking-tighter text-white">DETAIM</span>
+          </div>
+          <p className="text-[9px] text-zinc-700 font-black uppercase tracking-[0.5em] text-center">
+            © 2026 DETAIM GLOBAL · Cajicá, Colombia
+          </p>
         </div>
-        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">
-          © 2026 DETAIM · Cajicá, Colombia
-        </p>
       </footer>
     </div>
   )
