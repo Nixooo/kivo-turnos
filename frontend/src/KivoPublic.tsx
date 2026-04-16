@@ -768,21 +768,12 @@ export default function KivoPublic() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full animate-scale-in absolute inset-0 xl:relative">
-                      <div className="relative group">
-                        <div className="absolute -inset-40 bg-white/[0.02] rounded-full blur-[120px] animate-pulse" />
-                        <div className="relative bg-white p-20 rounded-[5rem] border border-white shadow-[0_0_80px_rgba(255,255,255,0.15)] text-center min-w-[380px] transition-all hover:scale-105 duration-1000">
-                          <p className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.7em] mb-8">Hora de Inicio</p>
-                          <p className="text-[9rem] font-black text-black tracking-tighter leading-none">{form.hora}</p>
-                          <div className="mt-12 h-1.5 w-20 bg-black mx-auto rounded-full opacity-5" />
-                        </div>
-                      </div>
-                      
-                      <div className="mt-20 space-y-5 w-full max-w-sm relative z-10">
+                      <div className="space-y-5 w-full max-w-sm relative z-10">
                         <button
                           onClick={handleSubmitTurno}
                           disabled={!form.nombre || !form.telefono || reservando}
                           className={`
-                            w-full py-7 rounded-[2.5rem] font-black text-[12px] uppercase tracking-[0.4em] transition-all duration-700 shadow-2xl
+                            w-full py-10 rounded-[2.5rem] font-black text-[14px] uppercase tracking-[0.5em] transition-all duration-700 shadow-2xl
                             ${(!form.nombre || !form.telefono || reservando)
                               ? 'bg-zinc-900 text-zinc-800 cursor-not-allowed border border-white/5'
                               : 'bg-white text-black hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] shadow-[0_25px_60px_rgba(255,255,255,0.15)]'}
@@ -791,15 +782,20 @@ export default function KivoPublic() {
                           {reservando ? 'Procesando...' : 'Confirmar Reserva'}
                         </button>
                         
-                        <button 
-                          onClick={() => {
-                            setForm({ ...form, hora: '' });
-                            setSelectedHour(null);
-                          }}
-                          className="w-full py-5 rounded-3xl bg-transparent text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] hover:text-white transition-all duration-500"
-                        >
-                          Cambiar Horario
-                        </button>
+                        <div className="text-center">
+                          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-4">
+                            Sesión programada para las <span className="text-white">{form.hora}</span>
+                          </p>
+                          <button 
+                            onClick={() => {
+                              setForm({ ...form, hora: '' });
+                              setSelectedHour(null);
+                            }}
+                            className="w-full py-5 rounded-3xl bg-transparent text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] hover:text-white transition-all duration-500"
+                          >
+                            Cambiar Horario
+                          </button>
+                        </div>
                       </div>
                       
                       {submitError && <p className="mt-10 text-center text-[11px] text-red-500 font-black uppercase tracking-[0.4em] animate-pulse">{submitError}</p>}
