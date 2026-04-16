@@ -63,26 +63,8 @@ type FormState = {
   hora: string
   lugarId: string
   planId: string
-  // 10 nuevas opciones
   tipoSimulador: string
   nivelHabilidad: string
-  extraHidratacion: boolean
-  extraVR: boolean
-  extraAccesorios: boolean
-  transmitirEnVivo: boolean
-  telemetriaAvanzada: boolean
-  seguroCancelacion: boolean
-  // 10 nuevas opciones adicionales
-  coachPersonalizado: boolean
-  grabacion4K: boolean
-  guantesProfesionales: boolean
-  setupPersonalizado: boolean
-  accesoLounge: boolean
-  bebidaEnergizante: boolean
-  camaraOnboard: boolean
-  simuladorMovimiento: boolean
-  auricularesHiFi: boolean
-  certificadoParticipacion: boolean
 }
 
 function emptyForm(slug: string): FormState {
@@ -94,22 +76,6 @@ function emptyForm(slug: string): FormState {
     planId: 'plan-15',
     tipoSimulador: 'Simulador de tiro',
     nivelHabilidad: 'Amateur',
-    extraHidratacion: false,
-    extraVR: false,
-    extraAccesorios: false,
-    transmitirEnVivo: false,
-    telemetriaAvanzada: false,
-    seguroCancelacion: false,
-    coachPersonalizado: false,
-    grabacion4K: false,
-    guantesProfesionales: false,
-    setupPersonalizado: false,
-    accesoLounge: false,
-    bebidaEnergizante: false,
-    camaraOnboard: false,
-    simuladorMovimiento: false,
-    auricularesHiFi: false,
-    certificadoParticipacion: false,
   }
 }
 
@@ -208,22 +174,6 @@ export default function KivoPublic() {
         respuestasExtra: {
           tipoSimulador: form.tipoSimulador,
           nivelHabilidad: form.nivelHabilidad,
-          extraHidratacion: form.extraHidratacion,
-          extraVR: form.extraVR,
-          extraAccesorios: form.extraAccesorios,
-          transmitirEnVivo: form.transmitirEnVivo,
-          telemetriaAvanzada: form.telemetriaAvanzada,
-          seguroCancelacion: form.seguroCancelacion,
-          coachPersonalizado: form.coachPersonalizado,
-          grabacion4K: form.grabacion4K,
-          guantesProfesionales: form.guantesProfesionales,
-          setupPersonalizado: form.setupPersonalizado,
-          accesoLounge: form.accesoLounge,
-          bebidaEnergizante: form.bebidaEnergizante,
-          camaraOnboard: form.camaraOnboard,
-          simuladorMovimiento: form.simuladorMovimiento,
-          auricularesHiFi: form.auricularesHiFi,
-          certificadoParticipacion: form.certificadoParticipacion,
         },
         idempotencyKey,
       })
@@ -265,7 +215,7 @@ export default function KivoPublic() {
     try {
       const dataUrl = await toPng(ticketRef.current, { cacheBust: true })
       const link = document.createElement('a')
-      link.download = `Reserva-Alpha-${turnoNumero}.png`
+      link.download = `Reserva-DETAIM-${turnoNumero}.png`
       link.href = dataUrl
       link.click()
     } catch (err) {
@@ -465,87 +415,108 @@ export default function KivoPublic() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
           
-          {/* Columna Izquierda: Datos y Configuración */}
-          <div className="lg:col-span-3 space-y-6 animate-in">
-            <div className="p-6 rounded-[2rem] bg-zinc-900 border border-zinc-800 shadow-xl">
-              <h3 className="text-lg font-black mb-6 flex items-center gap-3 text-white">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black text-xs font-black">1</span>
-                Configuración
+          {/* Columna Izquierda: Piloto y Plan */}
+          <div className="lg:col-span-4 space-y-6 animate-in">
+            {/* Piloto */}
+            <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-zinc-800 shadow-xl">
+              <h3 className="text-xl font-black mb-8 flex items-center gap-4 text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-black text-xs font-black shadow-lg">1</span>
+                Tu Perfil
               </h3>
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Nombre del Piloto</label>
+              <div className="space-y-6">
+                <div className="group">
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3 group-focus-within:text-blue-500 transition-colors">Nombre Completo</label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition"
-                    placeholder="Tu nombre"
+                    className="w-full rounded-2xl bg-zinc-800/50 border border-zinc-700/50 px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:bg-zinc-800 transition-all placeholder:text-zinc-600"
+                    placeholder="Ej: Juan Pérez"
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">WhatsApp / Celular</label>
+                <div className="group">
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-3 group-focus-within:text-blue-500 transition-colors">WhatsApp de Contacto</label>
                   <input
                     type="tel"
                     value={form.telefono}
                     onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition"
+                    className="w-full rounded-2xl bg-zinc-800/50 border border-zinc-700/50 px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:bg-zinc-800 transition-all placeholder:text-zinc-600"
                     placeholder="300 000 0000"
                   />
                 </div>
-                
-                <div className="pt-4 border-t border-zinc-800 space-y-4">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Tipo de Simulador</label>
-                    <div className="p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black text-center uppercase tracking-widest">
-                      {form.tipoSimulador}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Nivel de Habilidad</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {NIVELES.map(n => (
-                        <button
-                          key={n}
-                          onClick={() => setForm({ ...form, nivelHabilidad: n })}
-                          className={`py-2 rounded-lg text-[10px] font-bold border transition ${form.nivelHabilidad === n ? 'bg-blue-600 border-blue-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-400'}`}
-                        >
-                          {n}
-                        </button>
-                      ))}
-                    </div>
+                <div className="pt-6 border-t border-zinc-800">
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">Nivel de Habilidad</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {NIVELES.map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setForm({ ...form, nivelHabilidad: n })}
+                        className={`py-3 rounded-xl text-[10px] font-black border uppercase tracking-widest transition-all ${form.nivelHabilidad === n ? 'bg-white border-white text-black shadow-lg' : 'bg-zinc-800/30 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}
+                      >
+                        {n}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Plan Selector */}
+            <div className="p-8 rounded-[2.5rem] bg-zinc-900 border border-zinc-800 shadow-xl">
+              <h3 className="text-xl font-black mb-8 flex items-center gap-4 text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-black text-xs font-black shadow-lg">2</span>
+                Elige tu Plan
+              </h3>
+              <div className="space-y-3">
+                {PLANES.map((plan) => (
+                  <button
+                    key={plan.id}
+                    onClick={() => setForm({ ...form, planId: plan.id })}
+                    className={`
+                      group w-full text-left p-5 rounded-[1.5rem] border transition-all duration-500
+                      ${form.planId === plan.id 
+                        ? 'bg-blue-600 border-blue-400 scale-[1.02] shadow-2xl shadow-blue-600/20 text-white' 
+                        : 'bg-zinc-800/30 text-zinc-500 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/50'}
+                    `}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${form.planId === plan.id ? 'text-blue-100' : 'text-zinc-600'}`}>{plan.minutos} min</span>
+                      <span className="text-lg font-black">${plan.precio}</span>
+                    </div>
+                    <p className={`font-black text-sm ${form.planId === plan.id ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>{plan.descripcion}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Columna Centro: Calendario y Hora (Más grande y profesional) */}
-          <div className="lg:col-span-6 space-y-6 animate-in" style={{ animationDelay: '0.1s' }}>
-            <div className="p-10 rounded-[3rem] bg-zinc-900 border border-zinc-800 overflow-hidden min-h-[600px] shadow-2xl relative flex flex-col">
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <h3 className="text-2xl font-black flex items-center gap-4 text-white tracking-tighter">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-black text-sm font-black shadow-lg">2</span>
-                    {form.hora ? `Confirmado: ${form.hora}` : 'Agenda tu Sesión'}
+          {/* Columna Derecha: Calendario y Hora Integrados (9/12) */}
+          <div className="lg:col-span-8 space-y-6 animate-in" style={{ animationDelay: '0.1s' }}>
+            <div className="p-10 rounded-[3.5rem] bg-zinc-900 border border-zinc-800 shadow-2xl min-h-[750px] relative overflow-hidden flex flex-col">
+              {/* Header de la sección */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div className="space-y-2">
+                  <h3 className="text-4xl font-black tracking-tighter text-white flex items-center gap-5">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-black text-lg font-black shadow-2xl">3</span>
+                    {form.hora ? 'Sesión Confirmada' : 'Selecciona tu Sesión'}
                   </h3>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-2 ml-14">
-                    Selecciona disponibilidad en tiempo real
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-[0.3em] ml-16">
+                    Reserva tu cupo en tiempo real
                   </p>
                 </div>
                 {fecha && (
-                  <div className="flex flex-col items-end animate-in">
-                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Fecha Seleccionada</span>
-                    <span className="text-sm font-black text-white px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                      {format(fecha, 'dd MMMM yyyy', { locale: es })}
-                    </span>
+                  <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 backdrop-blur-md animate-in fade-in slide-in-from-right-4">
+                    <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1 text-right">Fecha Seleccionada</p>
+                    <p className="text-xl font-black text-white">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
                   </div>
                 )}
               </div>
-              
-              <div className="relative flex-1 flex flex-col justify-center">
-                <div className={`transition-all duration-1000 ease-in-out ${form.hora ? 'opacity-0 -translate-y-10 pointer-events-none absolute inset-0' : 'opacity-100 translate-y-0'}`}>
-                  <div className="bg-zinc-800/30 p-8 rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-sm shadow-inner">
+
+              {/* Contenido Principal: Calendario e Integración de Horas */}
+              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-10">
+                {/* Calendario */}
+                <div className={`transition-all duration-700 ease-in-out flex flex-col items-center justify-center ${form.hora ? 'opacity-20 scale-95 pointer-events-none blur-sm' : 'opacity-100 scale-100'}`}>
+                  <div className="bg-zinc-950/50 p-8 rounded-[3rem] border border-zinc-800 shadow-inner w-full">
                     <DayPicker
                       mode="single"
                       selected={fecha}
@@ -556,207 +527,112 @@ export default function KivoPublic() {
                       modifiersClassNames={{ selected: 'rdp-selected' }}
                     />
                   </div>
+                  <div className="mt-8 flex gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-600" />
+                      <span className="text-[9px] font-black text-zinc-600 uppercase">Seleccionado</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-zinc-800" />
+                      <span className="text-[9px] font-black text-zinc-600 uppercase">Disponible</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className={`transition-all duration-1000 delay-200 ease-in-out ${!form.hora && fecha ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 max-h-[450px] overflow-y-auto custom-scrollbar-pro pr-4 py-2">
-                    {loadingSlots ? (
-                      <div className="col-span-full py-20 text-center">
-                        <div className="relative inline-block">
-                          <div className="h-16 w-16 rounded-full border-4 border-zinc-800 border-t-blue-500 animate-spin" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="h-8 w-8 rounded-full bg-blue-500/10 animate-pulse" />
-                          </div>
-                        </div>
-                        <p className="mt-6 text-xs font-black text-zinc-500 uppercase tracking-[0.3em]">Sincronizando Agenda...</p>
+                {/* Selector de Horas */}
+                <div className={`flex flex-col h-full transition-all duration-700 ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
+                  {!form.hora ? (
+                    <>
+                      <div className="flex items-center justify-between mb-6">
+                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Horarios Disponibles</h4>
+                        {loadingSlots && <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-ping" />}
                       </div>
-                    ) : (
-                      availableSlots.map((slot) => (
+                      
+                      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar-pro">
+                        {loadingSlots ? (
+                          <div className="h-full flex flex-col items-center justify-center space-y-4">
+                            <div className="h-10 w-10 border-2 border-zinc-800 border-t-blue-500 rounded-full animate-spin" />
+                            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Cargando Agenda...</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-3 gap-3">
+                            {availableSlots.map((slot) => (
+                              <button
+                                key={slot.hora}
+                                disabled={slot.reservada}
+                                onClick={() => setForm({ ...form, hora: slot.hora })}
+                                className={`
+                                  relative overflow-hidden rounded-2xl py-6 text-sm font-black transition-all duration-500
+                                  ${slot.reservada 
+                                    ? 'bg-zinc-950/50 text-zinc-800 border border-zinc-900/50 cursor-not-allowed' 
+                                    : 'bg-zinc-800/40 text-white hover:bg-white hover:text-black hover:scale-[1.05] border border-zinc-800 hover:border-white shadow-xl'}
+                                `}
+                              >
+                                <span className="relative z-10">{slot.hora}</span>
+                                {!slot.reservada && (
+                                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full animate-in zoom-in duration-700">
+                      <div className="relative group">
+                        <div className="absolute -inset-10 bg-blue-600/30 rounded-full blur-[100px] animate-pulse group-hover:bg-blue-600/40 transition-all duration-1000" />
+                        <div className="relative bg-white p-16 rounded-[4rem] border border-white shadow-2xl text-center min-w-[320px] transition-transform hover:scale-105 duration-700">
+                          <p className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.5em] mb-6">Confirmado para las</p>
+                          <p className="text-8xl font-black text-black tracking-tighter">{form.hora}</p>
+                          <div className="mt-8 h-1.5 w-16 bg-blue-600 mx-auto rounded-full shadow-lg shadow-blue-600/50" />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-16 space-y-4 w-full max-w-xs">
                         <button
-                          key={slot.hora}
-                          disabled={slot.reservada}
-                          onClick={() => setForm({ ...form, hora: slot.hora })}
+                          onClick={handleSubmitTurno}
+                          disabled={!form.nombre || !form.telefono || reservando}
                           className={`
-                            group relative overflow-hidden rounded-[1.25rem] py-6 text-sm font-black transition-all duration-500
-                            ${slot.reservada 
-                              ? 'bg-zinc-950/50 text-zinc-800 border border-zinc-900 cursor-not-allowed' 
-                              : 'bg-zinc-800 text-white hover:bg-white hover:text-black hover:scale-105 border border-zinc-700 hover:border-white shadow-xl'}
+                            w-full py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] transition-all duration-500 shadow-2xl
+                            ${(!form.nombre || !form.telefono || reservando)
+                              ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
+                              : 'bg-blue-600 text-white hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] shadow-blue-600/30'}
                           `}
                         >
-                          <span className="relative z-10">{slot.hora}</span>
-                          {!slot.reservada && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                          )}
-                          {slot.reservada && (
-                            <div className="absolute top-1 right-1">
-                              <div className="h-1.5 w-1.5 rounded-full bg-zinc-800" />
-                            </div>
-                          )}
+                          {reservando ? 'Procesando...' : 'Confirmar Reserva'}
                         </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {form.hora && (
-                  <div className="flex flex-col items-center justify-center h-full animate-in zoom-in duration-700">
-                    <div className="relative mb-10">
-                      <div className="absolute -inset-8 bg-blue-600/20 rounded-full blur-3xl animate-pulse" />
-                      <div className="relative bg-white p-12 rounded-[3rem] border border-white shadow-2xl text-center min-w-[300px]">
-                        <p className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-4">Hora de Ingreso</p>
-                        <p className="text-7xl font-black text-black tracking-tighter">{form.hora}</p>
-                        <div className="mt-6 h-1 w-12 bg-blue-600 mx-auto rounded-full" />
+                        
+                        <button 
+                          onClick={() => setForm({ ...form, hora: '' })}
+                          className="w-full py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] hover:bg-zinc-800 hover:text-white transition-all duration-500"
+                        >
+                          Cambiar Horario
+                        </button>
                       </div>
+                      
+                      {submitError && <p className="mt-6 text-center text-[10px] text-red-500 font-black uppercase tracking-widest animate-bounce">{submitError}</p>}
                     </div>
-                    <button 
-                      onClick={() => setForm({ ...form, hora: '' })}
-                      className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-zinc-800 text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] hover:bg-zinc-700 hover:text-white transition-all duration-500"
-                    >
-                      <svg className="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
-                      Cambiar Horario
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Columna Derecha: Plan y Extras */}
-          <div className="lg:col-span-3 space-y-6 animate-in" style={{ animationDelay: '0.2s' }}>
-            <div className="p-6 rounded-[2rem] bg-zinc-900 border border-zinc-800 shadow-xl">
-              <h3 className="text-lg font-black mb-6 flex items-center gap-3 text-white">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-black text-xs font-black">3</span>
-                Plan & Extras
-              </h3>
-              <div className="space-y-3 mb-8">
-                {PLANES.map((plan) => (
-                  <button
-                    key={plan.id}
-                    onClick={() => setForm({ ...form, planId: plan.id })}
-                    className={`
-                      w-full text-left p-4 rounded-2xl border transition-all duration-300
-                      ${form.planId === plan.id 
-                        ? 'bg-blue-600 border-blue-400 scale-[1.02] shadow-xl shadow-blue-500/20 text-white' 
-                        : 'bg-zinc-800/50 text-zinc-400 border-zinc-700 hover:border-zinc-500'}
-                    `}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">{plan.minutos} min</span>
-                      <span className="text-xs font-black">${plan.precio}</span>
-                    </div>
-                    <p className="font-black text-sm">{plan.descripcion}</p>
-                  </button>
-                ))}
-              </div>
-
-              {/* Extras Grouped */}
-              <div className="pt-6 border-t border-zinc-800">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">Mejorar mi experiencia</p>
-                
-                <div className="space-y-6">
-                  {/* Categoría: Equipamiento */}
-                  <div>
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase mb-3 tracking-wider">Equipamiento Pro</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {[
-                        { id: 'extraVR', label: 'Gafas VR Pro', icon: '🥽' },
-                        { id: 'extraAccesorios', label: 'Guantes & Botas', icon: '🧤' },
-                        { id: 'guantesProfesionales', label: 'Guantes Carrera', icon: '🏎️' },
-                        { id: 'auricularesHiFi', label: 'Audio Hi-Fi', icon: '🎧' },
-                        { id: 'simuladorMovimiento', label: 'Movimiento Activo', icon: '🏃' },
-                      ].map(ex => (
-                        <label key={ex.id} className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/30 border border-zinc-800 hover:bg-zinc-800 transition cursor-pointer group">
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm">{ex.icon}</span>
-                            <span className="text-[11px] font-bold text-zinc-300 group-hover:text-white transition">{ex.label}</span>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={(form as any)[ex.id]}
-                            onChange={(e) => setForm({ ...form, [ex.id]: e.target.checked })}
-                            className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500/20"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Categoría: Media & Servicios */}
-                  <div>
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase mb-3 tracking-wider">Media & Servicios</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {[
-                        { id: 'transmitirEnVivo', label: 'Streaming Twitch', icon: '🎥' },
-                        { id: 'telemetriaAvanzada', label: 'Telemetría Pro', icon: '📊' },
-                        { id: 'coachPersonalizado', label: 'Coach Privado', icon: '👨‍🏫' },
-                        { id: 'grabacion4K', label: 'Video 4K Onboard', icon: '📹' },
-                        { id: 'setupPersonalizado', label: 'Setup a Medida', icon: '🔧' },
-                      ].map(ex => (
-                        <label key={ex.id} className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/30 border border-zinc-800 hover:bg-zinc-800 transition cursor-pointer group">
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm">{ex.icon}</span>
-                            <span className="text-[11px] font-bold text-zinc-300 group-hover:text-white transition">{ex.label}</span>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={(form as any)[ex.id]}
-                            onChange={(e) => setForm({ ...form, [ex.id]: e.target.checked })}
-                            className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500/20"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Categoría: Hospitalidad */}
-                  <div>
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase mb-3 tracking-wider">Hospitalidad</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {[
-                        { id: 'extraHidratacion', label: 'Pack Hidratación', icon: '🥤' },
-                        { id: 'bebidaEnergizante', label: 'Energy Drink', icon: '⚡' },
-                        { id: 'accesoLounge', label: 'Acceso Lounge', icon: '🛋️' },
-                        { id: 'certificadoParticipacion', label: 'Diploma Alpha', icon: '📜' },
-                        { id: 'seguroCancelacion', label: 'Seguro Reembolso', icon: '🛡️' },
-                      ].map(ex => (
-                        <label key={ex.id} className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/30 border border-zinc-800 hover:bg-zinc-800 transition cursor-pointer group">
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm">{ex.icon}</span>
-                            <span className="text-[11px] font-bold text-zinc-300 group-hover:text-white transition">{ex.label}</span>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={(form as any)[ex.id]}
-                            onChange={(e) => setForm({ ...form, [ex.id]: e.target.checked })}
-                            className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500/20"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-zinc-800">
-                <button
-                  onClick={handleSubmitTurno}
-                  disabled={!form.nombre || !form.telefono || !form.hora || reservando}
-                  className={`
-                    w-full py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-500
-                    ${(!form.nombre || !form.telefono || !form.hora || reservando)
-                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                      : 'bg-white text-black hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-white/10'}
-                  `}
-                >
-                  {reservando ? 'Sincronizando...' : 'Confirmar Reserva'}
-                </button>
-                {submitError && <p className="mt-4 text-center text-[10px] text-red-500 font-black uppercase tracking-widest">{submitError}</p>}
-                <p className="mt-4 text-[9px] text-zinc-600 text-center leading-relaxed">
-                  Al confirmar, aceptas los <Link to="/legal/terminos-condiciones" className="text-zinc-400 underline">Términos de DETAIM</Link>.
-                </p>
-              </div>
+              {/* Disclaimer minimalista en el centro */}
+              {!form.hora && (
+                <div className="mt-10 pt-10 border-t border-zinc-800/50 flex items-center justify-between">
+                  <p className="text-[10px] text-zinc-600 font-medium">
+                    Al reservar, aceptas nuestra <Link to="/legal/politica-privacidad" className="text-zinc-400 underline hover:text-white transition-colors">Política de Privacidad</Link>.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">DETAIM Cloud Sync</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+        </div>
+      </main>
 
         </div>
       </main>
