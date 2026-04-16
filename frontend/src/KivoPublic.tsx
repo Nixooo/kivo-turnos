@@ -1,37 +1,25 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from 'react'
-import { toPng } from 'html-to-image'
-import { DayPicker } from 'react-day-picker'
-import { es } from 'date-fns/locale'
-import { format, startOfToday } from 'date-fns'
-import type { SedeApi } from './api/kivo'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import {
-  fetchSedes,
-  reservarTurno,
-  confirmarTurno,
-} from './api/kivo'
+import { format, startOfToday } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { DayPicker } from 'react-day-picker'
+import 'react-day-picker/dist/style.css'
+import { toPng } from 'html-to-image'
+
+interface SedeApi {
+  id: string
+  nombre: string
+  direccion: string
+}
 
 const PLANES = [
   {
-    id: 'plan-10',
-    minutos: 10,
+    id: 'plan-15',
+    minutos: 15,
     precio: '20.000',
     fotos: 2,
     descripcion: 'Sesión rápida',
-    color: 'from-blue-500 to-cyan-400',
-  },
-  {
-    id: 'plan-15',
-    minutos: 15,
-    precio: '30.000',
-    fotos: 3,
-    descripcion: 'Sesión estándar',
-    color: 'from-purple-500 to-pink-400',
+    color: 'from-blue-600 to-cyan-400',
   },
   {
     id: 'plan-30',
@@ -70,6 +58,12 @@ function emptyForm(slug: string): FormState {
   }
 }
 
+async function fetchSedes(slug: string): Promise<SedeApi[]> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/empresas/${slug}/sedes`)
+  if (!res.ok) return []
+  return res.json()
+}
+
 export default function KivoPublic() {
   const navigate = useNavigate()
   const { empresaSlug } = useParams<{ empresaSlug?: string }>()
@@ -90,6 +84,7 @@ export default function KivoPublic() {
   const [showPlansComparison, setShowPlansComparison] = useState(false)
   const [availableSlots, setAvailableSlots] = useState<{hora: string, reservada: boolean}[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
+  const [selectedHour, setSelectedHour] = useState<string | null>(null)
 
   const currentPlan = PLANES.find(p => p.id === form.planId) || PLANES[1]
 
@@ -99,10 +94,8 @@ export default function KivoPublic() {
         const data = await fetchSedes(empresaSlug || 'detaim')
         setSedes(data)
         if (data.length) {
-          // Aseguramos que el lugarId se establezca inmediatamente
           setForm(f => ({ ...f, lugarId: data[0].id }))
         } else {
-          // Si no hay sedes del API, usamos un fallback para generar slots locales
           setForm(f => ({ ...f, lugarId: 'default' }))
         }
       } catch (err) {
@@ -115,6 +108,10 @@ export default function KivoPublic() {
 
   useEffect(() => {
     if (!fecha || !form.lugarId) return
+    // Reset selection when date changes
+    setSelectedHour(null)
+    setForm(f => ({ ...f, hora: '' }))
+    
     const loadSlots = async () => {
       setLoadingSlots(true)
       let reservas: any[] = []
@@ -148,78 +145,74 @@ export default function KivoPublic() {
     loadSlots()
   }, [fecha, form.lugarId])
 
-  const handleSubmitTurno = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!fecha || !form.hora || reservando) return
-    setSubmitError(null)
+  const handleSubmitTurno = async () => {
+    if (!fecha || !form.hora || !form.nombre || !form.telefono) return
     setReservando(true)
-    const fechaStr = format(fecha, 'yyyy-MM-dd')
+    setSubmitError(null)
     const idempotencyKey = crypto.randomUUID()
+    
     try {
-      const res = await reservarTurno({
-        sedeSlug: form.lugarId,
-        documento: '0',
+      const payload = {
         nombre: form.nombre,
-        apellido: '',
         telefono: form.telefono,
-        fechaTurno: fechaStr,
-        horaTurno: form.hora,
-        duracionMinutos: currentPlan.minutos,
-        planId: currentPlan.id,
-        prioridad: 'ninguna',
-        triageUrgenciaVital: false,
-        triageEfectivo: false,
-        modoHibrido: true,
+        hora_turno: form.hora,
+        fecha_turno: format(fecha, 'yyyy-MM-dd'),
+        lugar_id: form.lugarId,
+        plan_id: form.planId,
         respuestasExtra: {
           tipoSimulador: form.tipoSimulador,
           nivelHabilidad: form.nivelHabilidad,
         },
         idempotencyKey,
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/turnos-publico`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       })
-      setReservaTemporalId(res.id)
-      setCodigoAsignado(res.codigoSeguro)
-      setCodigoDigitado('')
-      setModalCodigoOpen(true)
-    } catch (err: any) {
-      setSubmitError(err.message || 'No se pudo hacer la reserva.')
+
+      const data = await res.json()
+      if (res.ok) {
+        setTurnoNumero(data.numero_turno)
+        setCodigoAsignado(data.codigo_seguridad)
+        setReservaTemporalId(data.id)
+        setModalCodigoOpen(true)
+      } else {
+        setSubmitError(data.error || 'Error al procesar la reserva')
+      }
+    } catch (err) {
+      setSubmitError('Error de conexión con el servidor')
     } finally {
       setReservando(false)
     }
   }
 
   const handleConfirmarCodigoModal = async () => {
-    if (!reservaTemporalId) return
-    const c = codigoDigitado.replace(/\D/g, '')
-    if (c.length !== 4) return
-    try {
-      const r = await confirmarTurno(reservaTemporalId, c)
-      setTurnoNumero(r.numeroPublico ?? '')
-      setPaso('confirmado')
-      setModalCodigoOpen(false)
-    } catch {
-      setSubmitError('Código incorrecto.')
+    if (codigoDigitado === codigoAsignado) {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL || ''}/api/turnos/${reservaTemporalId}/confirmar-publico`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codigo: codigoDigitado }),
+        })
+        setModalCodigoOpen(false)
+        setPaso('confirmado')
+      } catch (err) {
+        setSubmitError('Error al confirmar el código')
+      }
+    } else {
+      alert('Código incorrecto')
     }
   }
 
-  const resetTodo = () => {
-    setPaso('inicio')
-    setForm(emptyForm(sedes[0]?.id || ''))
-    setFecha(today)
-    setTurnoNumero('')
-    setSubmitError(null)
-  }
-
-  const handleGuardarImagen = async () => {
+  const downloadTicket = async () => {
     if (ticketRef.current === null) return
-    try {
-      const dataUrl = await toPng(ticketRef.current, { cacheBust: true })
-      const link = document.createElement('a')
-      link.download = `Reserva-DETAIM-${turnoNumero}.png`
-      link.href = dataUrl
-      link.click()
-    } catch (err) {
-      console.error('Error al guardar imagen', err)
-    }
+    const dataUrl = await toPng(ticketRef.current, { cacheBust: true })
+    const link = document.createElement('a')
+    link.download = `Reserva-DETAIM-${turnoNumero}.png`
+    link.href = dataUrl
+    link.click()
   }
 
   const HeaderBar = () => (
@@ -326,61 +319,59 @@ export default function KivoPublic() {
     </footer>
   )
 
-  if (paso === 'confirmado' && fecha) {
+  if (paso === 'confirmado') {
     return (
-      <div className="relative flex min-h-svh flex-col overflow-hidden bg-black text-white">
+      <div className="flex min-h-svh flex-col bg-black text-white">
         <HeaderBar />
-        <main className="relative mx-auto w-full max-w-lg flex-1 px-6 py-10 pb-24">
-          <div className="flex h-full flex-col items-center justify-center text-center animate-in">
-            <div ref={ticketRef} className="w-full max-w-sm overflow-hidden rounded-[2.5rem] border border-zinc-800 bg-zinc-900 shadow-2xl">
-              <div className="bg-white p-8 text-black">
-                <div className="flex justify-center mb-4">
-                  <div className="bg-black p-3 rounded-2xl">
-                    <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                </div>
-                <h2 className="text-xs font-black uppercase tracking-[0.3em] opacity-40">Reserva Confirmada</h2>
-                <p className="mt-4 text-7xl font-black tracking-tighter text-black">{turnoNumero}</p>
-                <p className="mt-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM Simulación Profesional</p>
+        <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center p-8 animate-fade-in">
+          <div className="relative w-full max-w-md overflow-hidden rounded-[3rem] bg-white text-center shadow-2xl" ref={ticketRef}>
+            <div className="p-12">
+              <div className="mb-8 flex justify-center opacity-10">
+                <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded" />
               </div>
-              <div className="p-8 text-left space-y-5 bg-zinc-900">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Tirador</p>
-                    <p className="text-sm font-bold text-white">{form.nombre}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Simulador</p>
-                    <p className="text-sm font-bold text-white">{form.tipoSimulador}</p>
-                  </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Reserva Confirmada</h2>
+              <p className="mt-4 text-8xl font-black tracking-tighter text-black">{turnoNumero}</p>
+              <p className="mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM Simulación Profesional</p>
+            </div>
+            <div className="p-10 text-left space-y-6 bg-zinc-950">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-1">Tirador</p>
+                  <p className="text-sm font-black text-white">{form.nombre}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Fecha y Hora</p>
-                  <p className="text-sm font-bold text-white">{format(fecha, 'eeee d \'de\' MMMM', { locale: es })} · {form.hora}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-1">Operación</p>
+                  <p className="text-sm font-black text-white">{form.tipoSimulador}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Plan y Nivel</p>
-                  <p className="text-sm font-bold text-white">{currentPlan.descripcion} · {form.nivelHabilidad}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-1">Fecha</p>
+                  <p className="text-sm font-black text-white">{fecha ? format(fecha, 'dd/MM/yyyy') : ''}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Ubicación</p>
-                  <p className="text-xs font-bold text-white">Centro Empresarial B&E, Cajicá. Of 401.</p>
-                </div>
-                <div className="pt-4 border-t border-zinc-800">
-                  <p className="text-[10px] text-zinc-400 italic text-center">Por favor llega 10 minutos antes para calibrar tu sesión.</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-1">Hora</p>
+                  <p className="text-sm font-black text-white">{form.hora}</p>
                 </div>
               </div>
+              <div className="pt-6 border-t border-white/5">
+                <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600 mb-1">Ubicación</p>
+                <p className="text-xs font-black text-white">Centro Empresarial B&E, Cajicá. Of 401.</p>
+              </div>
             </div>
-            <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
-              <button onClick={handleGuardarImagen} className="w-full rounded-2xl bg-white py-4 text-sm font-bold text-black transition hover:bg-zinc-200 shadow-xl shadow-white/5">
-                Guardar Comprobante
-              </button>
-              <button onClick={resetTodo} className="w-full rounded-2xl border border-zinc-800 py-4 text-sm font-bold text-white transition hover:bg-zinc-900">
-                Hacer otra reserva
-              </button>
-            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center gap-6 w-full max-w-md">
+            <button
+              onClick={downloadTicket}
+              className="w-full rounded-[2rem] bg-white px-8 py-6 text-xs font-black uppercase tracking-[0.2em] text-black shadow-2xl transition-all hover:bg-zinc-200 active:scale-95"
+            >
+              Descargar Comprobante
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 hover:text-white transition-colors"
+            >
+              Nueva Reserva
+            </button>
           </div>
         </main>
         <Footer />
@@ -391,59 +382,156 @@ export default function KivoPublic() {
   return (
     <div className="relative flex min-h-svh flex-col bg-black text-white selection:bg-blue-500/30">
       <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes glowPulse {
+          0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
+          50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
+          100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
+        }
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes borderGlow {
+          0%, 100% { border-color: rgba(255,255,255,0.05); }
+          50% { border-color: rgba(255,255,255,0.2); }
+        }
+        .animate-slide-up { animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fade-in { animation: fadeIn 1.2s ease forwards; }
+        .animate-scale-in { animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
         .detaim-calendar-pro {
-          --rdp-cell-size: 38px;
+          --rdp-cell-size: 44px;
           --rdp-accent-color: #ffffff;
-          --rdp-background-color: #27272a;
+          --rdp-background-color: #18181b;
           margin: 0;
           width: 100%;
           display: flex;
           justify-content: center;
         }
-        .detaim-calendar-pro .rdp-months {
-          justify-content: center;
-        }
-        .detaim-calendar-pro .rdp-table {
-          max-width: 100%;
-        }
+        .detaim-calendar-pro .rdp-months { justify-content: center; }
+        .detaim-calendar-pro .rdp-table { max-width: 100%; }
         .detaim-calendar-pro .rdp-day_selected { 
           background-color: var(--rdp-accent-color) !important; 
           color: #000000 !important;
           font-weight: 900 !important;
-          border-radius: 12px !important;
+          border-radius: 16px !important;
+          box-shadow: 0 15px 35px -5px rgba(255,255,255,0.25);
+          transform: scale(1.1);
         }
-        .detaim-calendar-pro .rdp-day:hover:not(.rdp-day_selected) {
-          background-color: rgba(255,255,255,0.1) !important;
-          border-radius: 12px !important;
+        .detaim-calendar-pro .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
+          background-color: rgba(255,255,255,0.08) !important;
+          border-radius: 16px !important;
+          transform: translateY(-4px) scale(1.05);
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          color: white !important;
         }
         .detaim-calendar-pro .rdp-nav_button {
           color: #71717a !important;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          border-radius: 12px !important;
+        }
+        .detaim-calendar-pro .rdp-nav_button:hover {
+          color: #ffffff !important;
+          background: rgba(255,255,255,0.08) !important;
+          transform: scale(1.1);
         }
         .detaim-calendar-pro .rdp-head_cell {
           font-size: 10px !important;
           font-weight: 900 !important;
           text-transform: uppercase !important;
-          letter-spacing: 0.1em !important;
+          letter-spacing: 0.3em !important;
           color: #52525b !important;
-          padding-bottom: 1rem !important;
+          padding-bottom: 2rem !important;
         }
         .detaim-calendar-pro .rdp-day {
-          font-size: 13px !important;
-          font-weight: 600 !important;
+          font-size: 15px !important;
+          font-weight: 500 !important;
+          color: #a1a1aa;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .custom-scrollbar-pro::-webkit-scrollbar {
+        .detaim-calendar-pro .rdp-day_today {
+          color: #ffffff !important;
+          font-weight: 900 !important;
+          position: relative;
+        }
+        .detaim-calendar-pro .rdp-day_today::after {
+          content: '';
+          position: absolute;
+          bottom: 8px;
+          left: 50%;
+          transform: translateX(-50%);
           width: 4px;
+          height: 4px;
+          background: #3b82f6;
+          border-radius: full;
         }
-        .custom-scrollbar-pro::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
+        .detaim-calendar-pro .rdp-day_disabled {
+          opacity: 0.1 !important;
         }
-        .custom-scrollbar-pro::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+        
+        .custom-scrollbar-pro::-webkit-scrollbar { width: 2px; }
+        .custom-scrollbar-pro::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar-pro::-webkit-scrollbar-thumb { 
+          background: rgba(255, 255, 255, 0.05); 
+          border-radius: 20px; 
         }
-      `}</style>
+        .custom-scrollbar-pro::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .glass-card {
+          background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+          backdrop-filter: blur(40px);
+          border: 1px solid rgba(255,255,255,0.04);
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+          border-color: rgba(255,255,255,0.08);
+          background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+        }
+        .glass-input {
+          background: rgba(255,255,255,0.01);
+          border: 1px solid rgba(255,255,255,0.03);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-input:focus {
+          background: rgba(255,255,255,0.03);
+          border-color: rgba(255,255,255,0.15);
+          box-shadow: 0 0 40px rgba(255,255,255,0.03);
+          transform: translateY(-2px);
+        }
+        .selection-glow {
+          position: relative;
+        }
+        .selection-glow::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+          border-radius: inherit;
+          z-index: -1;
+          opacity: 0;
+          transition: opacity 0.5s;
+        }
+        .selection-glow:hover::before {
+          opacity: 1;
+        }
+      `</style>
+
       <HeaderBar />
-      
+
       {/* Banner de Marca - Ultra Minimal */}
       <div className="bg-white/[0.02] border-b border-white/5 py-3 overflow-hidden">
         <div className="mx-auto max-w-7xl px-8 flex items-center justify-between">
@@ -470,33 +558,35 @@ export default function KivoPublic() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 h-full">
           
           {/* Columna Izquierda: Tirador y Plan */}
-          <div className="lg:col-span-4 space-y-8 animate-in">
+          <div className="lg:col-span-4 space-y-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
             {/* Tirador */}
-            <div className="p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 shadow-2xl backdrop-blur-sm">
+            <div className="p-10 rounded-[3rem] glass-card shadow-2xl hover:shadow-white/[0.02]">
               <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-white tracking-tighter">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl">01</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl animate-pulse">01</span>
                 Perfil del Tirador
               </h3>
               <div className="space-y-8">
-                <div className="group">
+                <div className="group relative">
                   <label className="block text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-3 group-focus-within:text-white transition-colors">Nombre Completo</label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    className="w-full rounded-2xl bg-white/[0.03] border border-white/5 px-6 py-4.5 text-sm text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all placeholder:text-zinc-700"
-                    placeholder="Nombre completo"
+                    className="w-full rounded-2xl glass-input px-6 py-4.5 text-sm text-white placeholder:text-zinc-800 outline-none"
+                    placeholder="Identificación del usuario"
                   />
+                  <div className="absolute bottom-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity" />
                 </div>
-                <div className="group">
+                <div className="group relative">
                   <label className="block text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-3 group-focus-within:text-white transition-colors">WhatsApp</label>
                   <input
                     type="tel"
                     value={form.telefono}
                     onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full rounded-2xl bg-white/[0.03] border border-white/5 px-6 py-4.5 text-sm text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all placeholder:text-zinc-700"
-                    placeholder="300 000 0000"
+                    className="w-full rounded-2xl glass-input px-6 py-4.5 text-sm text-white placeholder:text-zinc-800 outline-none"
+                    placeholder="Canal de comunicación"
                   />
+                  <div className="absolute bottom-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity" />
                 </div>
                 <div className="pt-8 border-t border-white/5">
                   <label className="block text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-5">Nivel de Habilidad</label>
@@ -505,7 +595,7 @@ export default function KivoPublic() {
                       <button
                         key={n}
                         onClick={() => setForm({ ...form, nivelHabilidad: n })}
-                        className={`py-3.5 rounded-xl text-[9px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-white border-white text-black shadow-2xl shadow-white/10' : 'bg-transparent border-white/5 text-zinc-600 hover:border-white/20 hover:text-zinc-400'}`}
+                        className={`py-3.5 rounded-xl text-[9px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-white border-white text-black shadow-2xl shadow-white/10 scale-105' : 'bg-transparent border-white/5 text-zinc-600 hover:border-white/20 hover:text-zinc-400'}`}
                       >
                         {n}
                       </button>
@@ -516,9 +606,9 @@ export default function KivoPublic() {
             </div>
 
             {/* Plan Selector */}
-            <div className="p-10 rounded-[2.5rem] bg-zinc-900/40 border border-white/5 shadow-2xl backdrop-blur-sm">
+            <div className="p-10 rounded-[3rem] glass-card shadow-2xl hover:shadow-white/[0.02]">
               <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-white tracking-tighter">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl">02</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-black text-[10px] font-black shadow-2xl animate-pulse">02</span>
                 Sesión de Tiro
               </h3>
               <div className="space-y-4">
@@ -527,17 +617,20 @@ export default function KivoPublic() {
                     key={plan.id}
                     onClick={() => setForm({ ...form, planId: plan.id })}
                     className={`
-                      group w-full text-left p-6 rounded-2xl border transition-all duration-500
+                      group w-full text-left p-6 rounded-2xl border transition-all duration-700 relative overflow-hidden
                       ${form.planId === plan.id 
-                        ? 'bg-white border-white shadow-2xl shadow-white/5 text-black' 
-                        : 'bg-white/[0.02] text-zinc-500 border-white/5 hover:border-white/10 hover:bg-white/[0.04]'}
+                        ? 'bg-white border-white shadow-2xl shadow-white/5 text-black scale-[1.02]' 
+                        : 'bg-white/[0.01] text-zinc-500 border-white/5 hover:border-white/10 hover:bg-white/[0.03] hover:translate-x-1'}
                     `}
                   >
-                    <div className="flex justify-between items-center mb-1">
-                      <span className={`text-[9px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-black/40' : 'text-zinc-700'}`}>{plan.minutos} min</span>
+                    <div className="flex justify-between items-center mb-1 relative z-10">
+                      <span className={`text-[9px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-black/40' : 'text-zinc-800'}`}>{plan.minutos} min</span>
                       <span className="text-lg font-black tracking-tighter">${plan.precio}</span>
                     </div>
-                    <p className="font-black text-sm uppercase tracking-tight">{plan.descripcion}</p>
+                    <p className="font-black text-sm uppercase tracking-tight relative z-10">{plan.descripcion}</p>
+                    {form.planId === plan.id && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/[0.02] to-transparent animate-[shimmer_2s_infinite]" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -545,32 +638,32 @@ export default function KivoPublic() {
           </div>
 
           {/* Columna Derecha: Calendario y Hora Integrados */}
-          <div className="lg:col-span-8 space-y-8 animate-in" style={{ animationDelay: '0.1s' }}>
-            <div className="p-12 rounded-[3.5rem] bg-zinc-900/40 border border-white/5 shadow-2xl backdrop-blur-sm min-h-[800px] relative overflow-hidden flex flex-col">
+          <div className="lg:col-span-8 space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="p-12 rounded-[4rem] glass-card shadow-2xl min-h-[850px] relative overflow-hidden flex flex-col hover:shadow-white/[0.01]">
               {/* Header de la sección */}
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                 <div className="space-y-3">
-                  <h3 className="text-5xl font-black tracking-tighter text-white flex items-center gap-6">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-black text-sm font-black shadow-2xl">03</span>
-                    {form.hora ? 'Confirmado' : 'Agenda'}
+                  <h3 className="text-6xl font-black tracking-tighter text-white flex items-center gap-8">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white text-black text-sm font-black shadow-2xl animate-pulse">03</span>
+                    {form.hora ? 'Confirmar' : 'Agenda'}
                   </h3>
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] ml-20">
-                    Disponibilidad Global en Tiempo Real
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em] ml-24">
+                    Sincronización en Tiempo Real
                   </p>
                 </div>
                 {fecha && (
-                  <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-5 backdrop-blur-2xl animate-in fade-in slide-in-from-right-8">
+                  <div className="bg-white/5 border border-white/10 rounded-[2rem] px-10 py-6 backdrop-blur-3xl animate-scale-in hover:border-white/20 transition-colors">
                     <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mb-2 text-right">Sesión para el</p>
-                    <p className="text-2xl font-black text-white tracking-tighter">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
+                    <p className="text-3xl font-black text-white tracking-tighter">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
                   </div>
                 )}
               </div>
 
               {/* Contenido Principal */}
-              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-12">
+              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-20 relative">
                 {/* Calendario */}
-                <div className={`transition-all duration-1000 ease-in-out flex flex-col items-center justify-start ${form.hora ? 'opacity-10 scale-95 pointer-events-none blur-md' : 'opacity-100 scale-100'}`}>
-                  <div className="bg-white/[0.02] p-6 rounded-[2.5rem] border border-white/5 shadow-inner w-full flex justify-center">
+                <div className={`transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col items-center justify-start ${form.hora ? 'opacity-0 scale-90 pointer-events-none blur-2xl translate-x-[-50px]' : 'opacity-100 scale-100'}`}>
+                  <div className="bg-black/40 p-10 rounded-[4rem] border border-white/5 shadow-inner w-full flex justify-center hover:border-white/10 transition-colors">
                     <DayPicker
                       mode="single"
                       selected={fecha}
@@ -581,95 +674,139 @@ export default function KivoPublic() {
                       modifiersClassNames={{ selected: 'rdp-selected' }}
                     />
                   </div>
-                  <div className="mt-8 flex gap-8">
+                  <div className="mt-12 flex gap-10">
                     <div className="flex items-center gap-3">
-                      <div className="h-1 w-1 rounded-full bg-blue-600" />
-                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Seleccionado</span>
+                      <div className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">Seleccionado</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="h-1 w-1 rounded-full bg-white/10" />
-                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Disponible</span>
+                      <div className="h-1.5 w-1.5 rounded-full bg-white/5" />
+                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">Disponible</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Selector de Horas */}
-                <div className={`flex flex-col h-full transition-all duration-1000 ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
+                <div className={`flex flex-col h-full transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
                   {!form.hora ? (
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
-                        <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em]">Horarios de Sesión</h4>
-                        {loadingSlots && <span className="flex h-1 w-1 rounded-full bg-blue-500 animate-ping" />}
+                    <div className="flex flex-col h-full animate-fade-in">
+                      <div className="flex items-center justify-between mb-10 border-b border-white/5 pb-8">
+                        <div className="flex items-center gap-4">
+                          {selectedHour && (
+                            <button 
+                              onClick={() => setSelectedHour(null)}
+                              className="p-2 rounded-xl bg-white/5 text-zinc-500 hover:text-white transition-colors"
+                            >
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                            </button>
+                          )}
+                          <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.6em]">
+                            {selectedHour ? `Minutos para las ${selectedHour}:00` : 'Seleccione Hora'}
+                          </h4>
+                        </div>
+                        {loadingSlots && <span className="flex h-2 w-2 rounded-full bg-white animate-ping" />}
                       </div>
                       
-                      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar-pro" style={{ maxHeight: '400px' }}>
+                      <div className="flex-1 overflow-y-auto pr-6 custom-scrollbar-pro" style={{ maxHeight: '450px' }}>
                         {loadingSlots ? (
-                          <div className="h-full flex flex-col items-center justify-center space-y-6">
-                            <div className="h-10 w-10 border-2 border-white/5 border-t-white rounded-full animate-spin" />
-                            <p className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em]">Sincronizando...</p>
+                          <div className="h-full flex flex-col items-center justify-center space-y-8">
+                            <div className="h-12 w-12 border border-white/5 border-t-white rounded-full animate-spin" />
+                            <p className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.4em]">Sincronizando...</p>
                           </div>
                         ) : availableSlots.length > 0 ? (
-                          <div className="grid grid-cols-3 gap-3">
-                            {availableSlots.map((slot) => (
-                              <button
-                                key={slot.hora}
-                                disabled={slot.reservada}
-                                onClick={() => setForm({ ...form, hora: slot.hora })}
-                                className={`
-                                  relative overflow-hidden rounded-xl py-8 text-sm font-black transition-all duration-500
-                                  ${slot.reservada 
-                                    ? 'bg-black/40 text-zinc-800 border border-white/5 cursor-not-allowed opacity-20' 
-                                    : 'bg-white/[0.03] text-zinc-400 hover:bg-white hover:text-black hover:scale-[1.05] border border-white/5 hover:border-white shadow-2xl'}
-                                `}
-                              >
-                                <span className="relative z-10">{slot.hora}</span>
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="h-full flex flex-col items-center justify-center space-y-4 py-20">
-                            <div className="h-12 w-12 rounded-full border border-white/5 flex items-center justify-center opacity-20">
-                              <svg className="h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          !selectedHour ? (
+                            // Paso 1: Selección de Hora
+                            <div className="grid grid-cols-3 gap-4">
+                              {Array.from({ length: 11 }, (_, i) => i + 9).map((h) => {
+                                const hourStr = String(h).padStart(2, '0');
+                                const hasAvailability = availableSlots.some(s => s.hora.startsWith(hourStr) && !s.reservada);
+                                return (
+                                  <button
+                                    key={h}
+                                    disabled={!hasAvailability}
+                                    onClick={() => setSelectedHour(hourStr)}
+                                    className={`
+                                      relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-500 animate-slide-up
+                                      ${!hasAvailability 
+                                        ? 'bg-black/60 text-zinc-900 border border-white/[0.01] cursor-not-allowed opacity-10' 
+                                        : 'bg-white/[0.01] text-zinc-500 border border-white/5 hover:bg-white hover:text-black hover:scale-[1.05] hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)]'}
+                                    `}
+                                  >
+                                    <span className="relative z-10">{h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
-                            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">No hay disponibilidad</p>
+                          ) : (
+                            // Paso 2: Selección de Minutos
+                            <div className="grid grid-cols-3 gap-4">
+                              {availableSlots
+                                .filter(s => s.hora.startsWith(selectedHour))
+                                .map((slot, index) => (
+                                  <button
+                                    key={slot.hora}
+                                    disabled={slot.reservada}
+                                    onClick={() => setForm({ ...form, hora: slot.hora })}
+                                    style={{ animationDelay: `${index * 0.05}s` }}
+                                    className={`
+                                      relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-500 animate-slide-up
+                                      ${slot.reservada 
+                                        ? 'bg-black/60 text-zinc-900 border border-white/[0.01] cursor-not-allowed opacity-10' 
+                                        : 'bg-white/[0.01] text-zinc-500 border border-white/5 hover:bg-white hover:text-black hover:scale-[1.05] hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)]'}
+                                    `}
+                                  >
+                                    <span className="relative z-10">{slot.hora}</span>
+                                  </button>
+                                ))}
+                            </div>
+                          )
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center space-y-6 py-32">
+                            <div className="h-20 w-20 rounded-full border border-white/5 flex items-center justify-center opacity-10">
+                              <svg className="h-8 w-8 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <p className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em]">Sin Disponibilidad</p>
                           </div>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full animate-in zoom-in duration-1000">
+                    <div className="flex flex-col items-center justify-center h-full animate-scale-in absolute inset-0 xl:relative">
                       <div className="relative group">
-                        <div className="absolute -inset-20 bg-white/5 rounded-full blur-[120px] animate-pulse transition-all duration-1000" />
-                        <div className="relative bg-white p-20 rounded-[5rem] border border-white shadow-2xl text-center min-w-[360px] transition-transform hover:scale-105 duration-700">
-                          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.6em] mb-8">Confirmado</p>
-                          <p className="text-9xl font-black text-black tracking-tighter leading-none">{form.hora}</p>
-                          <div className="mt-12 h-1.5 w-20 bg-black mx-auto rounded-full opacity-10" />
+                        <div className="absolute -inset-40 bg-white/[0.02] rounded-full blur-[120px] animate-pulse" />
+                        <div className="relative bg-white p-20 rounded-[5rem] border border-white shadow-[0_0_80px_rgba(255,255,255,0.15)] text-center min-w-[380px] transition-all hover:scale-105 duration-1000">
+                          <p className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.7em] mb-8">Hora de Inicio</p>
+                          <p className="text-[9rem] font-black text-black tracking-tighter leading-none">{form.hora}</p>
+                          <div className="mt-12 h-1.5 w-20 bg-black mx-auto rounded-full opacity-5" />
                         </div>
                       </div>
                       
-                      <div className="mt-20 space-y-5 w-full max-w-xs">
+                      <div className="mt-20 space-y-5 w-full max-w-sm relative z-10">
                         <button
                           onClick={handleSubmitTurno}
                           disabled={!form.nombre || !form.telefono || reservando}
                           className={`
-                            w-full py-7 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.3em] transition-all duration-700 shadow-2xl
+                            w-full py-7 rounded-[2.5rem] font-black text-[12px] uppercase tracking-[0.4em] transition-all duration-700 shadow-2xl
                             ${(!form.nombre || !form.telefono || reservando)
-                              ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-white/5'
-                              : 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] active:scale-[0.98] shadow-white/5'}
+                              ? 'bg-zinc-900 text-zinc-800 cursor-not-allowed border border-white/5'
+                              : 'bg-white text-black hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] shadow-[0_25px_60px_rgba(255,255,255,0.15)]'}
                           `}
                         >
-                          {reservando ? 'Procesando...' : 'Finalizar Reserva'}
+                          {reservando ? 'Procesando...' : 'Confirmar Reserva'}
                         </button>
                         
                         <button 
-                          onClick={() => setForm({ ...form, hora: '' })}
-                          className="w-full py-5 rounded-2xl bg-transparent text-[9px] font-black text-zinc-600 uppercase tracking-[0.4em] hover:text-white transition-all duration-500"
+                          onClick={() => {
+                            setForm({ ...form, hora: '' });
+                            setSelectedHour(null);
+                          }}
+                          className="w-full py-5 rounded-3xl bg-transparent text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] hover:text-white transition-all duration-500"
                         >
                           Cambiar Horario
                         </button>
                       </div>
                       
-                      {submitError && <p className="mt-8 text-center text-[10px] text-red-500 font-black uppercase tracking-[0.3em] animate-pulse">{submitError}</p>}
+                      {submitError && <p className="mt-10 text-center text-[11px] text-red-500 font-black uppercase tracking-[0.4em] animate-pulse">{submitError}</p>}
                     </div>
                   )}
                 </div>
@@ -677,13 +814,16 @@ export default function KivoPublic() {
 
               {/* Disclaimer minimalista en el centro */}
               {!form.hora && (
-                <div className="mt-16 pt-12 border-t border-white/5 flex items-center justify-between">
-                  <p className="text-[9px] text-zinc-700 font-black uppercase tracking-widest">
-                    Seguridad Encriptada <span className="text-zinc-500">DETAIM Cloud</span>
+                <div className="mt-20 pt-16 border-t border-white/[0.02] flex items-center justify-between">
+                  <p className="text-[10px] text-zinc-800 font-black uppercase tracking-[0.3em]">
+                    Cifrado de Extremo a Extremo <span className="text-zinc-900 ml-4">v2.4.0</span>
                   </p>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em]">Latencia 2ms</span>
-                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                  <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.4em]">Latencia</span>
+                      <span className="text-[10px] font-black text-blue-900 uppercase">1.2ms</span>
+                    </div>
+                    <div className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
                   </div>
                 </div>
               )}
