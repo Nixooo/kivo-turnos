@@ -148,6 +148,34 @@ export async function completarTurno(id: string): Promise<void> {
   if (!r.ok) throw new Error('Error')
 }
 
+export async function cancelarTurno(id: string): Promise<void> {
+  const r = await authFetch(
+    `/api/panel/turno/${encodeURIComponent(id)}/cancelar`,
+    {
+      method: 'PATCH',
+    },
+  )
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function reasignarTurno(id: string, fecha: string, hora: string): Promise<void> {
+  const r = await authFetch(
+    `/api/panel/turno/${encodeURIComponent(id)}/reasignar`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ fecha_turno: fecha, hora_turno: hora }),
+    },
+  )
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function fetchTurnosEmpresa(fecha?: string): Promise<any[]> {
+  const q = fecha ? `?fecha=${encodeURIComponent(fecha)}` : ''
+  const r = await authFetch(`/api/panel/turnos-empresa${q}`)
+  if (!r.ok) throw new Error('Error')
+  return r.json()
+}
+
 export type EmpresaGlobal = {
   id: number
   slug: string

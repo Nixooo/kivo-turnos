@@ -970,6 +970,72 @@ app.patch(
   },
 )
 
+app.patch(
+  '/api/panel/turno/:id/cancelar',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { rows: t } = await pool.query(
+        `SELECT t.id FROM turnos t JOIN sedes s ON s.id = t.sede_id
+         WHERE t.id = $1::uuid AND s.empresa_id = $2`,
+        [req.params.id, req.staff.empresaId],
+      )
+      if (!t.length) return res.status(404).json({ error: 'Turno no encontrado' })
+      await pool.query(`UPDATE turnos SET estado = 'cancelado' WHERE id = $1::uuid`, [
+        req.params.id,
+      ])
+      res.json({ ok: true })
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: 'Error' })
+    }
+  },
+)
+
+app.patch(
+  '/api/panel/turno/:id/reasignar',
+  authMiddleware,
+  async (req, res) => {
+    const { fecha_turno, hora_turno } = req.body
+    if (!fecha_turno || !hora_turno) return res.status(400).json({ error: 'Faltan datos' })
+    try {
+      const { rows: t } = await pool.query(
+        `SELECT t.id FROM turnos t JOIN sedes s ON s.id = t.sede_id
+         WHERE t.id = $1::uuid AND s.empresa_id = $2`,
+        [req.params.id, req.staff.empresaId],
+      )
+      if (!t.length) return res.status(404).json({ error: 'Turno no encontrado' })
+      await pool.query(
+        `UPDATE turnos SET fecha_turno = $1::date, hora_turno = $2::time, estado = 'espera' 
+         WHERE id = $3::uuid`,
+        [fecha_turno, hora_turno, req.params.id],
+      )
+      res.json({ ok: true })
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: 'Error' })
+    }
+  },
+)
+
+app.get('/api/panel/turnos-empresa', authMiddleware, async (req, res) => {
+  const { fecha } = req.query
+  try {
+    const { rows } = await pool.query(
+      `SELECT t.*, s.nombre as sede_nombre, s.slug as sede_slug
+       FROM turnos t
+       JOIN sedes s ON s.id = t.sede_id
+       WHERE s.empresa_id = $1 ${fecha ? 'AND t.fecha_turno = $2::date' : ''}
+       ORDER BY t.fecha_turno DESC, t.hora_turno DESC`,
+      fecha ? [req.staff.empresaId, fecha] : [req.staff.empresaId]
+    )
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error' })
+  }
+})
+
 app.get('/api/supremo/empresas', authMiddleware, requireSupremo, async (_req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM empresas ORDER BY nombre`)
@@ -979,6 +1045,131 @@ app.get('/api/supremo/empresas', authMiddleware, requireSupremo, async (_req, re
     res.status(500).json({ error: 'Error al listar empresas' })
   }
 })
+
+/** Reserva turno público para DETAIM (simulador) */
+app.post('/api/turnos-publico', async (req, res) => {
+  const {
+    lugar_id,
+    nombre,
+    telefono,
+    fecha_turno,
+    hora_turno,
+    plan_id,
+    respuestasExtra,
+    idempotencyKey,
+  } = req.body || {}
+
+  if (!lugar_id || !nombre || !telefono || !fecha_turno || !hora_turno) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios' })
+  }
+
+  const client = await pool.connect()
+  try {
+    const sedeR = await client.query('SELECT * FROM sedes WHERE id = $1 OR slug = $1', [lugar_id])
+    if (!sedeR.rows.length) {
+      return res.status(404).json({ error: 'Sede no encontrada' })
+    }
+    const sede = sedeR.rows[0]
+
+    if (idempotencyKey) {
+      const ex = await client.query(
+        `SELECT id, numero_publico, codigo_seguro, estado FROM turnos WHERE idempotency_key = $1`,
+        [idempotencyKey],
+      )
+      if (ex.rows.length) {
+        const t = ex.rows[0]
+        return res.json({
+          id: t.id,
+          numero_turno: t.numero_publico,
+          codigo_seguridad: t.codigo_seguro,
+          estado: t.estado,
+        })
+      }
+    }
+
+    await client.query('BEGIN')
+
+    const maxOrden = await client.query(
+      `SELECT COALESCE(MAX(orden_atencion), 0)::int AS m FROM turnos
+       WHERE sede_id = $1 AND fecha_turno = $2::date`,
+      [sede.id, fecha_turno],
+    )
+    const orden = maxOrden.rows[0].m + 1
+
+    const n = Math.floor(1 + Math.random() * 99)
+    const numero_publico = `T-${String(n).padStart(2, '0')}`
+
+    let codigo = randomCodigo()
+    const plan = PLANES.find(p => p.id === plan_id) || PLANES[0]
+    const duracion = plan.minutos
+
+    const ins = await client.query(
+      `
+      INSERT INTO turnos (
+        sede_id, numero_publico, documento, documento_norm, nombre, telefono,
+        fecha_turno, hora_turno, duracion_minutos, plan_id, estado, orden_atencion, 
+        codigo_seguro, idempotency_key, respuestas_extra
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7::date,$8::time,$9,$10,'pendiente_confirmacion',$11,$12,$13,$14::jsonb)
+      RETURNING id, numero_publico, codigo_seguro
+    `,
+      [
+        sede.id,
+        numero_publico,
+        'PUBL-000', // Documento genérico para público
+        '000',
+        nombre.trim(),
+        telefono,
+        fecha_turno,
+        hora_turno,
+        duracion,
+        plan_id,
+        orden,
+        codigo,
+        idempotencyKey || null,
+        JSON.stringify(respuestasExtra || {}),
+      ],
+    )
+
+    await client.query('COMMIT')
+    res.status(201).json({
+      id: ins.rows[0].id,
+      numero_turno: ins.rows[0].numero_publico,
+      codigo_seguridad: ins.rows[0].codigo_seguro,
+      estado: 'pendiente_confirmacion',
+    })
+  } catch (e) {
+    await client.query('ROLLBACK')
+    console.error(e)
+    res.status(500).json({ error: 'No se pudo procesar la reserva' })
+  } finally {
+    client.release()
+  }
+})
+
+app.post('/api/turnos/:id/confirmar-publico', async (req, res) => {
+  const { codigo } = req.body || {}
+  if (!codigo) return res.status(400).json({ error: 'Código requerido' })
+  try {
+    const u = await pool.query(
+      `UPDATE turnos SET estado = 'espera'
+       WHERE id = $1::uuid AND estado = 'pendiente_confirmacion' AND codigo_seguro = $2
+       RETURNING id, numero_publico`,
+      [req.params.id, codigo],
+    )
+    if (!u.rowCount) {
+      return res.status(400).json({ error: 'Código incorrecto o turno no válido' })
+    }
+    res.json({ ok: true, numero_turno: u.rows[0].numero_publico })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al confirmar' })
+  }
+})
+
+const PLANES = [
+  { id: 'plan-15', minutos: 15 },
+  { id: 'plan-30', minutos: 30 }
+]
 
 app.post('/api/supremo/empresas', authMiddleware, requireSupremo, async (req, res) => {
   const slug = normSlug(req.body?.slug)
