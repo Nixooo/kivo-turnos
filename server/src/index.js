@@ -365,7 +365,11 @@ app.post('/api/turnos/reservar', async (req, res) => {
       respuestasExtra && typeof respuestasExtra === 'object' && !Array.isArray(respuestasExtra)
         ? respuestasExtra
         : {}
-    const respuestasGuardadas = {}
+    
+    // Guardamos todas las respuestas extra por defecto (flexibilidad para simuladores)
+    const respuestasGuardadas = { ...respuestasInput }
+    
+    // Pero validamos estrictamente las que estén configuradas en la DB
     for (const q of preguntas) {
       const v = respuestasInput[q.key]
       if (q.type === 'bool') {
