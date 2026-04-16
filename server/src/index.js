@@ -242,35 +242,6 @@ app.get('/api/sedes/:slug/reservas-dia', async (req, res) => {
     res.status(500).json({ error: 'Error al consultar reservas' })
   }
 })
-  try {
-    const { rows: sede } = await pool.query(`SELECT empresa_id FROM sedes WHERE slug = $1`, [
-      req.params.slug,
-    ])
-    if (!sede.length) return res.status(404).json({ error: 'Sede no encontrada' })
-    const empresaId = sede[0].empresa_id
-    const { rows } = await pool.query(
-      `
-      SELECT key, label, type, options_json, orden
-      FROM empresa_preguntas
-      WHERE empresa_id = $1 AND active = true
-      ORDER BY orden ASC, id ASC
-    `,
-      [empresaId],
-    )
-    res.json(
-      rows.map((r) => ({
-        key: r.key,
-        label: r.label,
-        type: r.type,
-        options: r.options_json,
-        orden: r.orden,
-      })),
-    )
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ error: 'Error al listar preguntas' })
-  }
-})
 
 app.get('/api/turnos', async (req, res) => {
   const documento = normDoc(req.query.documento)
