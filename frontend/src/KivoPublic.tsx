@@ -12,7 +12,6 @@ import type { SedeApi } from './api/kivo'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   fetchSedes,
-  fetchEmpresaPorSlug,
   reservarTurno,
   confirmarTurno,
 } from './api/kivo'
