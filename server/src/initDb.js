@@ -191,6 +191,7 @@ export async function initDb() {
     }
   }
 
+  await q(`
     CREATE TABLE IF NOT EXISTS membresias (
       id TEXT PRIMARY KEY,
       empresa_id INT REFERENCES empresas(id) ON DELETE CASCADE,
