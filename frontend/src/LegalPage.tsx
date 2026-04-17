@@ -5,64 +5,157 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
   'tratamiento-datos': {
     title: 'Política de Tratamiento de Datos Personales (Habeas Data)',
     content: (
-      <div className="space-y-6">
-        <p>De conformidad con la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, <strong>DETAIM</strong> (en adelante, "La Compañía"), en su calidad de Responsable del Tratamiento de datos personales, informa a los usuarios sobre su política para la recolección, almacenamiento, uso, circulación y supresión de la información personal.</p>
+      <div className="space-y-8">
+        <p>De conformidad con la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, <strong>DETAIM GLOBAL ALPHA</strong> (en adelante, "La Compañía"), en su calidad de Responsable del Tratamiento de datos personales, informa a los usuarios sobre su política para la recolección, almacenamiento, uso, circulación y supresión de la información personal.</p>
         
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">1. Finalidades del Tratamiento</h3>
-        <p>Los datos personales proporcionados por los tiradores serán tratados para:</p>
-        <ul className="list-disc pl-6 space-y-3 text-zinc-600">
-          <li><strong>Gestión de Reservas:</strong> Asignación de líneas de tiro y control de flujo en el polígono.</li>
-          <li><strong>Seguridad y Control:</strong> Verificación de identidad obligatoria para el uso de simuladores tácticos.</li>
-          <li><strong>Comunicaciones Técnicas:</strong> Notificaciones sobre estado de calibración, cambios de horario o alertas de sesión.</li>
-        </ul>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">1. Marco Legal y Alcance</h3>
+          <p>Esta política se aplica a todos los datos personales registrados en nuestras bases de datos, ya sea a través de nuestra plataforma web, presencialmente en nuestras sedes o mediante canales digitales de atención. El tratamiento se rige por los principios de legalidad, finalidad, libertad, veracidad, transparencia, acceso y circulación restringida, seguridad y confidencialidad.</p>
+        </section>
 
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">2. Derechos de los Titulares</h3>
-        <p>Usted tiene derecho a conocer, actualizar y rectificar su información personal en cualquier momento a través de nuestros canales oficiales.</p>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">2. Finalidades Específicas del Tratamiento</h3>
+          <p>Los datos personales proporcionados por los tiradores y personal operativo serán tratados para las siguientes finalidades primordiales:</p>
+          <ul className="grid gap-4 text-zinc-600">
+            <li className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 flex gap-4">
+              <span className="text-red-600 font-black">A.</span>
+              <div>
+                <strong className="text-black">Gestión Operativa de Reservas:</strong>
+                <p className="text-sm mt-1">Administración de agendas, asignación de líneas de tiro y control de flujo de usuarios en el simulador ALPHA.</p>
+              </div>
+            </li>
+            <li className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 flex gap-4">
+              <span className="text-red-600 font-black">B.</span>
+              <div>
+                <strong className="text-black">Protocolos de Seguridad Táctica:</strong>
+                <p className="text-sm mt-1">Verificación obligatoria de identidad para el uso de equipos láser profesionales y cumplimiento de normativas de seguridad interna.</p>
+              </div>
+            </li>
+            <li className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 flex gap-4">
+              <span className="text-red-600 font-black">C.</span>
+              <div>
+                <strong className="text-black">Análisis de Desempeño y Balística:</strong>
+                <p className="text-sm mt-1">Seguimiento estadístico del progreso del tirador, precisión y tiempos de reacción para la mejora continua del entrenamiento.</p>
+              </div>
+            </li>
+            <li className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 flex gap-4">
+              <span className="text-red-600 font-black">D.</span>
+              <div>
+                <strong className="text-black">Comunicaciones de Emergencia:</strong>
+                <p className="text-sm mt-1">Notificaciones inmediatas sobre cambios operativos, alertas técnicas o reprogramaciones urgentes.</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">3. Derechos de los Titulares</h3>
+          <p>Usted, como titular de los datos, tiene los siguientes derechos inalienables:</p>
+          <ul className="list-disc pl-6 space-y-2 text-zinc-600">
+            <li>Acceder de forma gratuita a sus datos personales tratados.</li>
+            <li>Solicitar la actualización y rectificación de sus datos frente a información parcial, inexacta o incompleta.</li>
+            <li>Solicitar prueba de la autorización otorgada, salvo excepciones legales.</li>
+            <li>Revocar la autorización y/o solicitar la supresión del dato cuando en el tratamiento no se respeten los principios, derechos y garantías constitucionales.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">4. Canales de Ejercicio de Derechos</h3>
+          <p>Para ejercer sus derechos de Habeas Data, puede contactar a nuestro Oficial de Privacidad a través de:</p>
+          <div className="bg-zinc-900 text-white p-6 rounded-3xl space-y-2">
+            <p className="font-bold">Oficina de Protección de Datos:</p>
+            <p className="text-zinc-400 text-sm">Correo: legal@detaim.com</p>
+            <p className="text-zinc-400 text-sm">WhatsApp: +57 312 476 9501</p>
+            <p className="text-zinc-400 text-sm">Dirección: C.E. B&E, Cajicá. Oficina 401.</p>
+          </div>
+        </section>
       </div>
     )
   },
   'terminos-condiciones': {
-    title: 'Términos y Condiciones de Uso',
+    title: 'Términos y Condiciones de Operación',
     content: (
-      <div className="space-y-6">
-        <p>El uso de la plataforma de simulación táctica <strong>DETAIM</strong> implica la aceptación de los siguientes términos:</p>
+      <div className="space-y-8">
+        <p>El acceso y uso de la infraestructura de simulación <strong>DETAIM ALPHA</strong> conlleva la aceptación vinculante de este reglamento operativo.</p>
         
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">1. Compromisos del Tirador</h3>
-        <ul className="list-disc pl-6 space-y-3 text-zinc-600">
-          <li>Presentarse 10 minutos antes de la sesión para el briefing de seguridad.</li>
-          <li>Seguir estrictamente las instrucciones del instructor a cargo.</li>
-          <li>Hacer uso responsable del equipo láser de alta precisión.</li>
-        </ul>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">1. Normas de Seguridad en el Polígono Digital</h3>
+          <ul className="grid gap-4">
+            <li className="bg-red-50 p-6 rounded-3xl border border-red-100">
+              <h4 className="font-black text-red-600 mb-2 uppercase tracking-widest text-xs">Regla de Oro</h4>
+              <p className="text-zinc-700 text-sm font-bold">Toda réplica de entrenamiento debe ser tratada como si fuera real en todo momento, independientemente de ser un sistema láser.</p>
+            </li>
+            <li className="text-zinc-600 space-y-2">
+              <p>• Es obligatorio el uso de protección ocular si el instructor lo indica.</p>
+              <p>• No se permite apuntar fuera de las zonas de impacto designadas.</p>
+              <p>• El dedo debe permanecer fuera del disparador hasta que el objetivo esté alineado.</p>
+            </li>
+          </ul>
+        </section>
 
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">2. Seguridad en el Polígono</h3>
-        <p>Nuestros simuladores utilizan tecnología láser Clase 1 (segura para la vista). Sin embargo, se requiere el uso de protección visual si el instructor lo indica para fines de inmersión.</p>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">2. Requisitos de Acceso</h3>
+          <p>Para participar en las sesiones de entrenamiento ALPHA, el usuario debe:</p>
+          <ul className="list-disc pl-6 space-y-2 text-zinc-600">
+            <li>Ser mayor de edad (18+) o contar con autorización firmada y presencia de un tutor legal.</li>
+            <li>Presentar documento de identidad original para el check-in.</li>
+            <li>Completar el briefing de seguridad inicial de 5 minutos.</li>
+            <li>No presentar signos de intoxicación por alcohol o sustancias psicoactivas.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">3. Propiedad y Responsabilidad del Equipo</h3>
+          <p>El usuario es responsable del manejo cuidadoso de los simuladores, sensores y dispositivos hapticos. El daño intencional o por negligencia manifiesta del equipo resultará en el cobro de la reparación o reposición del mismo.</p>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">4. Política de Sesiones</h3>
+          <ul className="space-y-3 text-zinc-600">
+            <li><strong>Puntualidad:</strong> Si el tirador llega más de 10 minutos tarde, el tiempo se descontará de su sesión para no afectar la agenda.</li>
+            <li><strong>Cancelaciones:</strong> Deben realizarse con 4 horas de anticipación para ser reprogramadas sin costo.</li>
+            <li><strong>No-Show:</strong> La inasistencia sin aviso previo conlleva la pérdida del valor de la reserva.</li>
+          </ul>
+        </section>
       </div>
     )
   },
   'politica-privacidad': {
-    title: 'Política Global de Privacidad',
+    title: 'Política de Privacidad y Seguridad Digital',
     content: (
-      <div className="space-y-6">
-        <p>En <strong>DETAIM</strong>, protegemos su privacidad como si fuera la nuestra. Esta política detalla cómo manejamos su información en el ecosistema de nuestra plataforma.</p>
+      <div className="space-y-8">
+        <p>En <strong>DETAIM ALPHA</strong>, la privacidad de su entrenamiento y sus datos es una prioridad táctica. Implementamos protocolos de seguridad de grado militar para proteger su información.</p>
         
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">1. Qué información recolectamos</h3>
-        <p>Para la correcta prestación del servicio de turnos, solicitamos:</p>
-        <ul className="list-disc pl-6 space-y-2 text-zinc-600">
-          <li>Nombres y Apellidos.</li>
-          <li>Número de documento de identidad (para validación en sede).</li>
-          <li>Número de teléfono celular (para envío de avisos de turno).</li>
-          <li>Ubicación geográfica aproximada (únicamente al momento del Check-In vía GPS).</li>
-        </ul>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">1. Recolección de Datos de Entrenamiento</h3>
+          <p>Además de sus datos básicos, nuestro sistema captura datos técnicos de su sesión:</p>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            <li className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+              <strong className="block text-black text-sm mb-1 uppercase">Métricas de Tiro</strong>
+              <p className="text-[11px] text-zinc-500">Precisión, agrupación, tiempos de reacción y control de retroceso.</p>
+            </li>
+            <li className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+              <strong className="block text-black text-sm mb-1 uppercase">Multimedia</strong>
+              <p className="text-[11px] text-zinc-500">Grabaciones de video de los escenarios para análisis post-acción (AAR).</p>
+            </li>
+          </ul>
+        </section>
 
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">2. Con quién compartimos sus datos</h3>
-        <p>Su información es tratada bajo estrictos estándares de confidencialidad. <strong>Nunca</strong> vendemos sus datos a terceros. La información se comparte únicamente con:</p>
-        <ul className="list-disc pl-6 space-y-3 text-zinc-600">
-          <li><strong>Empresa Prestadora:</strong> La entidad (EPS, Banco, Notaría, etc.) en la cual usted solicitó el turno, con el fin de que puedan llamarlo a atención.</li>
-          <li><strong>Proveedores de Infraestructura:</strong> Servicios de alojamiento web y envío de mensajes (SMS) que cumplen con certificaciones de seguridad internacional.</li>
-        </ul>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">2. Seguridad y Cifrado</h3>
+          <p>Toda la información es transmitida mediante protocolos <strong>SSL/TLS de 256 bits</strong>. Los registros de entrenamiento se almacenan en servidores locales y en la nube con acceso restringido mediante autenticación de dos factores (2FA).</p>
+        </section>
 
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">3. Retención de Datos</h3>
-        <p>Los datos de los turnos se conservan por un periodo máximo necesario para cumplir con los análisis de calidad y auditoría de las empresas aliadas, tras lo cual son anonimizados para fines estadísticos.</p>
+        <section className="space-y-4">
+          <h3 className="text-xl font-black text-black border-l-4 border-red-600 pl-4 uppercase tracking-tighter">3. Uso de la Información</h3>
+          <p>Sus datos de desempeño se utilizan exclusivamente para:</p>
+          <ul className="list-disc pl-6 space-y-2 text-zinc-600">
+            <li>Generar reportes de progreso personalizados.</li>
+            <li>Nivelar la dificultad de los escenarios de simulación.</li>
+            <li>Validar el cumplimiento de estándares de seguridad en el polígono.</li>
+          </ul>
+          <p className="mt-4 font-bold text-black italic">DETAIM no comparte ni comercializa perfiles de tiradores con terceras partes bajo ninguna circunstancia.</p>
+        </section>
       </div>
     )
   },
@@ -70,30 +163,13 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
     title: 'Política de Cookies y Almacenamiento Local',
     content: (
       <div className="space-y-6">
-        <p>Nuestra plataforma utiliza tecnologías de almacenamiento para garantizar que el sistema de turnos funcione de manera fluida en su dispositivo.</p>
+        <p>Nuestra plataforma utiliza tecnologías de almacenamiento para garantizar que el sistema de reservas ALPHA funcione de manera fluida.</p>
         
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">1. Tipos de tecnologías utilizadas</h3>
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm">
-            <p className="font-bold text-black">Cookies Técnicas (Esenciales)</p>
-            <p className="text-sm text-zinc-600">Permiten la navegación y el uso de las diferentes opciones o servicios que existen en la web, como controlar el tráfico y la comunicación de datos o identificar la sesión.</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm">
-            <p className="font-bold text-black">LocalStorage (Preferencias)</p>
-            <p className="text-sm text-zinc-600">Utilizamos el almacenamiento local de su navegador para recordar el último turno solicitado. Esto permite que, si cierra la ventana por error, pueda recuperar su código seguro rápidamente sin tener que contactar a soporte.</p>
-          </div>
-        </div>
+        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">1. Cookies Técnicas</h3>
+        <p className="text-sm text-zinc-600">Permiten la navegación segura y el mantenimiento de la sesión activa del usuario durante el proceso de reserva.</p>
 
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">2. Ausencia de Rastreo Publicitario</h3>
-        <p>En DETAIM valoramos su tiempo y su privacidad. Por ello:</p>
-        <ul className="list-disc pl-6 space-y-2 text-zinc-600">
-          <li><strong>NO</strong> utilizamos cookies de seguimiento (tracking).</li>
-          <li><strong>NO</strong> compartimos información con redes sociales para perfiles publicitarios.</li>
-          <li><strong>NO</strong> permitimos que terceros inserten anuncios en nuestra plataforma.</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">3. Cómo gestionar estas tecnologías</h3>
-        <p>Usted puede restringir, bloquear o borrar las cookies de DETAIM utilizando la configuración de su navegador. Si decide desactivar las tecnologías esenciales, es posible que no pueda completar la solicitud de un turno de manera exitosa.</p>
+        <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">2. LocalStorage</h3>
+        <p className="text-sm text-zinc-600">Utilizamos el almacenamiento local para recordar sus preferencias de visualización y agilizar el ingreso de datos en futuras reservas.</p>
       </div>
     )
   },
@@ -101,7 +177,7 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
     title: 'Horarios de Atención y Disponibilidad',
     content: (
       <div className="space-y-6">
-        <p>En <strong>DETAIM</strong>, nos esforzamos por ofrecerte la mejor experiencia de simulación. A continuación, detallamos nuestros horarios de operación:</p>
+        <p>En <strong>DETAIM ALPHA</strong>, operamos bajo un esquema de disponibilidad total para garantizar tu entrenamiento:</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-zinc-50 text-black p-6 rounded-3xl border border-zinc-100 shadow-xl">
@@ -113,16 +189,12 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
             </h4>
             <ul className="space-y-2 text-sm">
               <li className="flex justify-between border-b border-zinc-100 pb-2">
-                <span className="text-zinc-500">Lunes a Viernes</span>
+                <span className="text-zinc-500">Lunes a Domingo</span>
                 <span className="font-bold">09:00 AM - 08:00 PM</span>
               </li>
-              <li className="flex justify-between border-b border-zinc-100 pb-2">
-                <span className="text-zinc-500">Sábados</span>
-                <span className="font-bold">10:00 AM - 06:00 PM</span>
-              </li>
               <li className="flex justify-between">
-                <span className="text-zinc-500">Domingos y Festivos</span>
-                <span className="font-bold text-red-600">Cerrado</span>
+                <span className="text-zinc-500">Festivos</span>
+                <span className="font-bold text-red-600">09:00 AM - 08:00 PM</span>
               </li>
             </ul>
           </div>
@@ -135,15 +207,15 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
               Notas Importantes
             </h4>
             <ul className="space-y-3 text-sm text-zinc-600">
-              <li>• Las reservas deben realizarse con al menos <strong>2 horas de antelación</strong>.</li>
-              <li>• Se recomienda llegar <strong>10 minutos antes</strong> de la sesión de tiro.</li>
-              <li>• En caso de retraso superior a 15 minutos, la reserva podrá ser reasignada.</li>
+              <li>• Disponibilidad total de lunes a domingo incluyendo días festivos.</li>
+              <li>• Reservas con mínimo 2 horas de antelación sugeridas.</li>
+              <li>• Briefing de seguridad obligatorio antes de cada sesión.</li>
             </ul>
           </div>
         </div>
 
         <h3 className="text-xl font-semibold text-black border-l-4 border-blue-600 pl-3">Atención al Cliente</h3>
-        <p>Para consultas sobre horarios especiales o eventos corporativos, por favor contáctanos:</p>
+        <p>Para soporte inmediato, consultas sobre membresías o eventos corporativos:</p>
         <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 flex items-center gap-4">
           <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,8 +223,8 @@ const LEGAL_CONTENT: Record<string, { title: string; content: React.ReactNode }>
             </svg>
           </div>
           <div>
-            <p className="font-bold text-black">Línea de Atención</p>
-            <p className="text-sm text-zinc-600">+57 (300) 123-4567</p>
+            <p className="font-bold text-black">Línea de Atención Directa</p>
+            <p className="text-sm text-zinc-600">+57 312 476 9501</p>
           </div>
         </div>
       </div>

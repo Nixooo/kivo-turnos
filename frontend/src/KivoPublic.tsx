@@ -90,6 +90,7 @@ export default function KivoPublic() {
   const [availableSlots, setAvailableSlots] = useState<{hora: string, reservada: boolean}[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [selectedHour, setSelectedHour] = useState<string | null>(null)
+  const [dbPlanes, setDbPlanes] = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -100,8 +101,16 @@ export default function KivoPublic() {
         } else {
           setForm(f => ({ ...f, lugarId: 'default' }))
         }
+
+        // Cargar planes desde DB
+        const resP = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/planes`)
+        if (resP.ok) {
+          const p = await resP.json()
+          setDbPlanes(p)
+          if (p.length > 0) setForm(f => ({ ...f, planId: p[0].id }))
+        }
       } catch (err) {
-        console.error('No se pudieron cargar las sedes.', err)
+        console.error('No se pudieron cargar los datos iniciales.', err)
         setForm(f => ({ ...f, lugarId: 'default' }))
       }
     }
@@ -276,7 +285,7 @@ export default function KivoPublic() {
               <ul className="space-y-4 text-[11px] font-bold text-zinc-600 uppercase tracking-widest">
                 <li><a href="https://detaim.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Sitio Web</a></li>
                 <li><a href="https://www.instagram.com/detaim_studies/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a></li>
-                <li><a href="https://wa.me/573133693983" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">WhatsApp</a></li>
+                <li><a href="https://wa.me/573124769501" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">WhatsApp</a></li>
               </ul>
             </div>
           </div>
@@ -561,7 +570,7 @@ export default function KivoPublic() {
                 Sesión
               </h3>
               <div className="space-y-4">
-                {PLANES.map((plan) => (
+                {(dbPlanes.length > 0 ? dbPlanes : PLANES).map((plan) => (
                   <button
                     key={plan.id}
                     onClick={() => setForm({ ...form, planId: plan.id })}
@@ -576,7 +585,7 @@ export default function KivoPublic() {
                       <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-red-600' : 'text-zinc-600'}`}>{plan.minutos} min</span>
                       <span className="text-xl font-black tracking-tighter">${plan.precio}</span>
                     </div>
-                    <p className="font-black text-sm uppercase tracking-tight relative z-10">{plan.descripcion}</p>
+                    <p className="font-black text-sm uppercase tracking-tight relative z-10">{plan.nombre || plan.descripcion}</p>
                     <p className={`text-[9px] font-bold uppercase tracking-wider mt-1 relative z-10 ${form.planId === plan.id ? 'text-zinc-300' : 'text-zinc-500'}`}>{plan.detalle}</p>
                   </button>
                 ))}
@@ -803,7 +812,7 @@ export default function KivoPublic() {
                 <ul className="space-y-5 text-[12px] font-black text-zinc-600 uppercase tracking-widest">
                   <li><a href="https://detaim.com" className="hover:text-red-600 transition-colors">Web Oficial</a></li>
                   <li><a href="https://www.instagram.com/detaim_studies/" className="hover:text-red-600 transition-colors">Instagram</a></li>
-                  <li><a href="https://wa.me/573133693983" className="hover:text-red-600 transition-colors">WhatsApp</a></li>
+                  <li><a href="https://wa.me/573124769501" className="hover:text-red-600 transition-colors">WhatsApp</a></li>
                 </ul>
               </div>
             </div>

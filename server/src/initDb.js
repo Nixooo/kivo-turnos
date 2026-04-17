@@ -142,6 +142,55 @@ export async function initDb() {
     );
   `).catch(() => {})
 
+  await q(`
+    CREATE TABLE IF NOT EXISTS planes (
+      id TEXT PRIMARY KEY,
+      empresa_id INT REFERENCES empresas(id) ON DELETE CASCADE,
+      nombre TEXT NOT NULL,
+      descripcion TEXT,
+      detalle TEXT,
+      minutos INT NOT NULL DEFAULT 15,
+      precio TEXT NOT NULL,
+      activo BOOLEAN DEFAULT TRUE,
+      orden INT DEFAULT 0
+    );
+  `)
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS logs_actividad (
+      id SERIAL PRIMARY KEY,
+      staff_id INT REFERENCES staff(id) ON DELETE SET NULL,
+      empresa_id INT REFERENCES empresas(id) ON DELETE CASCADE,
+      accion TEXT NOT NULL,
+      detalle TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `)
+
+  const { rows: detaimEmp } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
+  const dId = detaimEmp[0]?.id
+  if (dId) {
+    const defaultPlanes = [
+      ['basico-express', 'Básico Express', 'Pistola/Revólver ilimitado. Fases 1 y 2.', 'Fases 1 y 2.', 15, '20.000', 1],
+      ['tactico-express', 'Táctico Express', 'Pistola + 1 Proveedor M4. Fases 1 y 2.', 'Fases 1 y 2.', 15, '30.000', 2],
+      ['basico-30', "Básico 30'", 'Acceso Total Fases 1-4. Video + PDF incl.', 'Fases 1-4.', 30, '40.000', 3],
+      ['tactico-30', "Táctico 30'", 'Acceso Total + 2 Prov M4. Video + PDF incl.', 'Acceso Total.', 30, '50.000', 4]
+    ]
+    for (const [id, nom, desc, det, min, pre, ord] of defaultPlanes) {
+      await q(`
+        INSERT INTO planes (id, empresa_id, nombre, descripcion, detalle, minutos, precio, orden)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id) DO UPDATE SET
+          nombre = EXCLUDED.nombre,
+          descripcion = EXCLUDED.descripcion,
+          detalle = EXCLUDED.detalle,
+          minutos = EXCLUDED.minutos,
+          precio = EXCLUDED.precio,
+          orden = EXCLUDED.orden
+      `, [id, dId, nom, desc, det, min, pre, ord])
+    }
+  }
+
   const { rows: ec } = await q('SELECT COUNT(*)::int AS c FROM empresas')
   if (ec[0].c === 0) {
     await q(`

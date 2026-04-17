@@ -160,7 +160,7 @@ export async function cancelarTurno(id: string): Promise<void> {
 
 export async function reasignarTurno(id: string, fecha: string, hora: string): Promise<void> {
   const r = await authFetch(
-    `/api/panel/turno/${encodeURIComponent(id)}/reasignar`,
+    `/api/panel/turno/${encodeURIComponent(id)}/asignar`,
     {
       method: 'PATCH',
       body: JSON.stringify({ fecha_turno: fecha, hora_turno: hora }),
@@ -171,7 +171,65 @@ export async function reasignarTurno(id: string, fecha: string, hora: string): P
 
 export async function fetchTurnosEmpresa(fecha?: string): Promise<any[]> {
   const q = fecha ? `?fecha=${encodeURIComponent(fecha)}` : ''
-  const r = await authFetch(`/api/panel/turnos-empresa${q}`)
+  const r = await authFetch(`/api/panel/cola/detaim-cajica${q}`) // Usamos la sede por defecto para ALPHA
+  if (!r.ok) throw new Error('Error')
+  const j = await r.json()
+  return j.turnos || []
+}
+
+// --- NUEVAS FUNCIONES PARA PANEL ADMIN 10+ OPCIONES ---
+
+export async function fetchPlanes(): Promise<any[]> {
+  const r = await fetch('/api/planes')
+  if (!r.ok) throw new Error('Error al cargar planes')
+  return r.json()
+}
+
+export async function updatePrecioPlan(id: string, precio: string): Promise<void> {
+  const r = await authFetch(`/api/panel/planes/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ precio }),
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function updateConfigSede(id: number, config: any): Promise<void> {
+  const r = await authFetch(`/api/panel/sedes/${id}/config`, {
+    method: 'PATCH',
+    body: JSON.stringify(config),
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function fetchLogs(): Promise<any[]> {
+  const r = await authFetch('/api/panel/logs')
+  if (!r.ok) throw new Error('Error')
+  return r.json()
+}
+
+export async function fetchStaff(): Promise<any[]> {
+  const r = await authFetch('/api/panel/staff')
+  if (!r.ok) throw new Error('Error')
+  return r.json()
+}
+
+export async function crearStaff(data: any): Promise<void> {
+  const r = await authFetch('/api/panel/staff', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function eliminarStaff(id: number): Promise<void> {
+  const r = await authFetch(`/api/panel/staff/${id}`, {
+    method: 'DELETE',
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function fetchReporteHoy(): Promise<any> {
+  const r = await authFetch('/api/panel/reporte/hoy')
   if (!r.ok) throw new Error('Error')
   return r.json()
 }

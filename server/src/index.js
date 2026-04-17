@@ -22,6 +22,18 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// Helper para registrar actividad
+async function logActividad(staffId, empresaId, accion, detalle) {
+  try {
+    await pool.query(
+      `INSERT INTO logs_actividad (staff_id, empresa_id, accion, detalle) VALUES ($1, $2, $3, $4)`,
+      [staffId, empresaId, accion, detalle],
+    )
+  } catch (e) {
+    console.error('Error al registrar log:', e)
+  }
+}
+
 // Servir archivos estáticos del frontend en producción
 const frontendDist = path.join(__dirname, '../../frontend/dist')
 app.use(express.static(frontendDist))
@@ -959,7 +971,7 @@ app.patch(
   async (req, res) => {
     try {
       const { rows: t } = await pool.query(
-        `SELECT t.id FROM turnos t JOIN sedes s ON s.id = t.sede_id
+        `SELECT t.id, t.numero_publico FROM turnos t JOIN sedes s ON s.id = t.sede_id
          WHERE t.id = $1::uuid AND s.empresa_id = $2`,
         [req.params.id, req.staff.empresaId],
       )
@@ -967,6 +979,7 @@ app.patch(
       await pool.query(`UPDATE turnos SET estado = 'completado' WHERE id = $1::uuid`, [
         req.params.id,
       ])
+      await logActividad(req.staff.sid, req.staff.empresaId, 'COMPLETE_TURNO', `Turno ${t[0].numero_publico} completado`)
       res.json({ ok: true })
     } catch (e) {
       console.error(e)
@@ -981,7 +994,7 @@ app.patch(
   async (req, res) => {
     try {
       const { rows: t } = await pool.query(
-        `SELECT t.id FROM turnos t JOIN sedes s ON s.id = t.sede_id
+        `SELECT t.id, t.numero_publico FROM turnos t JOIN sedes s ON s.id = t.sede_id
          WHERE t.id = $1::uuid AND s.empresa_id = $2`,
         [req.params.id, req.staff.empresaId],
       )
@@ -989,6 +1002,7 @@ app.patch(
       await pool.query(`UPDATE turnos SET estado = 'cancelado' WHERE id = $1::uuid`, [
         req.params.id,
       ])
+      await logActividad(req.staff.sid, req.staff.empresaId, 'CANCEL_TURNO', `Turno ${t[0].numero_publico} cancelado`)
       res.json({ ok: true })
     } catch (e) {
       console.error(e)
@@ -1105,8 +1119,10 @@ app.post('/api/turnos-publico', async (req, res) => {
     const numero_publico = `T-${String(n).padStart(2, '0')}`
 
     let codigo = randomCodigo()
-    const plan = PLANES.find(p => p.id === plan_id) || PLANES[0]
-    const duracion = plan.minutos
+    
+    // Obtener duración del plan desde la DB
+    const planRes = await client.query('SELECT minutos FROM planes WHERE id = $1', [plan_id])
+    const duracion = planRes.rows[0]?.minutos || 15
 
     const ins = await client.query(
       `
@@ -1801,6 +1817,176 @@ app.get('*', (req, res) => {
 })
 
 // Iniciar servidor primero para que Render lo detecte vivo
+// --- ENDPOINTS PANEL ADMIN (10+ OPCIONES) ---
+
+// 1. Listar Planes (Público y Admin)
+app.get('/api/planes', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM planes WHERE activo = true ORDER BY orden ASC')
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al listar planes' })
+  }
+})
+
+// 2. Actualizar Precio/Plan (Admin)
+app.patch('/api/panel/planes/:id', authMiddleware, requireAdmin, async (req, res) => {
+  const { precio, nombre, descripcion, detalle, minutos, activo, orden } = req.body
+  try {
+    const { rows } = await pool.query(
+      `UPDATE planes SET 
+        precio = COALESCE($1, precio),
+        nombre = COALESCE($2, nombre),
+        descripcion = COALESCE($3, descripcion),
+        detalle = COALESCE($4, detalle),
+        minutos = COALESCE($5, minutos),
+        activo = COALESCE($6, activo),
+        orden = COALESCE($7, orden)
+      WHERE id = $8 AND empresa_id = $9
+      RETURNING *`,
+      [precio, nombre, descripcion, detalle, minutos, activo, orden, req.params.id, req.staff.empresaId]
+    )
+    if (!rows.length) return res.status(404).json({ error: 'Plan no encontrado' })
+    
+    await logActividad(req.staff.sid, req.staff.empresaId, 'UPDATE_PLAN', `Plan ${req.params.id} actualizado`)
+    res.json(rows[0])
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al actualizar plan' })
+  }
+})
+
+// 3. Actualizar Configuración de Sede (Horarios, etc.) (Admin)
+app.patch('/api/panel/sedes/:id/config', authMiddleware, requireAdmin, async (req, res) => {
+  const { hora_apertura, hora_cierre, geocerca_metros } = req.body
+  try {
+    const { rows } = await pool.query(
+      `UPDATE sedes SET 
+        hora_apertura = COALESCE($1, hora_apertura),
+        hora_cierre = COALESCE($2, hora_cierre),
+        geocerca_metros = COALESCE($3, geocerca_metros)
+      WHERE id = $4 AND empresa_id = $5
+      RETURNING *`,
+      [hora_apertura, hora_cierre, geocerca_metros, req.params.id, req.staff.empresaId]
+    )
+    if (!rows.length) return res.status(404).json({ error: 'Sede no encontrada' })
+    
+    await logActividad(req.staff.sid, req.staff.empresaId, 'UPDATE_SEDE_CONFIG', `Configuración de sede ${req.params.id} actualizada`)
+    res.json(mapSede(rows[0]))
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al actualizar configuración' })
+  }
+})
+
+// 4. Ver Logs de Actividad (Admin)
+app.get('/api/panel/logs', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT l.*, s.email as staff_email 
+       FROM logs_actividad l 
+       LEFT JOIN staff s ON s.id = l.staff_id 
+       WHERE l.empresa_id = $1 
+       ORDER BY l.created_at DESC LIMIT 100`,
+      [req.staff.empresaId]
+    )
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al cargar logs' })
+  }
+})
+
+// 5. Gestión de Staff (Listar) (Admin)
+app.get('/api/panel/staff', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, email, role, is_supremo FROM staff WHERE empresa_id = $1 ORDER BY email',
+      [req.staff.empresaId]
+    )
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al listar staff' })
+  }
+})
+
+// 6. Crear Staff (Admin)
+app.post('/api/panel/staff', authMiddleware, requireAdmin, async (req, res) => {
+  const { email, password, role } = req.body
+  if (!email || !password || !role) return res.status(400).json({ error: 'Faltan datos' })
+  try {
+    const ph = hashPassword(password)
+    const { rows } = await pool.query(
+      `INSERT INTO staff (email, password_hash, role, empresa_id) 
+       VALUES ($1, $2, $3, $4) RETURNING id, email, role`,
+      [email.toLowerCase().trim(), ph, role, req.staff.empresaId]
+    )
+    await logActividad(req.staff.sid, req.staff.empresaId, 'CREATE_STAFF', `Staff ${email} creado`)
+    res.status(201).json(rows[0])
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al crear staff' })
+  }
+})
+
+// 7. Eliminar Staff (Admin)
+app.delete('/api/panel/staff/:id', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { rowCount } = await pool.query(
+      'DELETE FROM staff WHERE id = $1 AND empresa_id = $2 AND is_supremo = false',
+      [req.params.id, req.staff.empresaId]
+    )
+    if (!rowCount) return res.status(404).json({ error: 'Staff no encontrado o no eliminable' })
+    await logActividad(req.staff.sid, req.staff.empresaId, 'DELETE_STAFF', `Staff ID ${req.params.id} eliminado`)
+    res.json({ ok: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al eliminar staff' })
+  }
+})
+
+// 8. Completar Turno (Admin/Asesor) - Ya existe pero agregamos log
+// (Se asume que ya existe /api/panel/turno/:id/completar, lo buscaremos para inyectar el log)
+
+// 9. Reasignar Turno (Admin/Asesor)
+app.patch('/api/panel/turno/:id/asignar', authMiddleware, async (req, res) => {
+  const { fecha_turno, hora_turno } = req.body
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE turnos SET fecha_turno = $1::date, hora_turno = $2::time 
+       WHERE id = $3::uuid AND (SELECT empresa_id FROM sedes WHERE id = sede_id) = $4`,
+      [fecha_turno, hora_turno, req.params.id, req.staff.empresaId]
+    )
+    if (!rowCount) return res.status(404).json({ error: 'Turno no encontrado' })
+    await logActividad(req.staff.sid, req.staff.empresaId, 'REASSIGN_TURNO', `Turno ${req.params.id} reasignado a ${fecha_turno} ${hora_turno}`)
+    res.json({ ok: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al reasignar turno' })
+  }
+})
+
+// 10. Exportar Reporte de Hoy (Admin)
+app.get('/api/panel/reporte/hoy', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const fecha = new Date().toISOString().slice(0, 10)
+    const { rows } = await pool.query(
+      `SELECT t.*, s.nombre as sede_nombre 
+       FROM turnos t 
+       JOIN sedes s ON s.id = t.sede_id 
+       WHERE s.empresa_id = $1 AND t.fecha_turno = $2::date
+       ORDER BY t.hora_turno ASC`,
+      [req.staff.empresaId, fecha]
+    )
+    res.json({ fecha, data: rows })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al generar reporte' })
+  }
+})
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`DETAIM API ejecutándose en puerto ${PORT} (0.0.0.0)`)
   console.log(`Frontend servido desde: ${frontendDist}`)
