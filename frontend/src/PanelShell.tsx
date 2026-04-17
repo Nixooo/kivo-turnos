@@ -23,50 +23,50 @@ export default function PanelShell({
   }
 
   return (
-    <div className="min-h-svh bg-black text-white">
-      <header className="border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-4 sm:flex-row sm:gap-3">
-          <div className="flex w-full min-w-0 items-center justify-center gap-3 sm:w-auto sm:justify-start">
+    <div className="min-h-svh bg-zinc-50 text-black">
+      <header className="border-b border-zinc-100 bg-white/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-8 py-5 sm:flex-row sm:gap-3">
+          <div className="flex w-full min-w-0 items-center justify-center gap-5 sm:w-auto sm:justify-start">
             <img
               src="/logo.jpg"
               alt="DETAIM"
-              className="h-8 w-auto shrink-0 object-contain sm:h-9 rounded-lg"
+              className="h-10 w-auto shrink-0 object-contain sm:h-12 rounded-xl shadow-sm"
               width={120}
               height={40}
             />
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 sm:text-[11px]">
+              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-red-600 sm:text-[12px]">
                 {variant === 'supremo'
                   ? 'Panel supremo'
                   : variant === 'admin'
-                    ? 'Panel de administración'
-                    : 'Panel de asesores'}
+                    ? 'Administración'
+                    : 'Asesores'}
               </p>
-              <p className="truncate text-sm font-semibold text-white sm:text-base">{empresaNombre}</p>
-              <p className="text-[10px] text-zinc-500 sm:text-xs">
-                Empresa ·{' '}
-                <span className="font-medium text-zinc-400">{empresaTipo}</span>
+              <p className="truncate text-lg font-black text-black sm:text-xl tracking-tighter">{empresaNombre}</p>
+              <p className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest">
+                Sector ·{' '}
+                <span className="text-zinc-500">{empresaTipo}</span>
               </p>
             </div>
           </div>
-          <nav className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
+          <nav className="flex w-full flex-wrap items-center justify-center gap-4 sm:w-auto sm:justify-end">
             <Link
               to="/"
-              className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-zinc-800 sm:flex-none sm:text-sm"
+              className="flex-1 rounded-2xl border border-zinc-100 bg-zinc-50 px-6 py-2.5 text-center text-[11px] font-black uppercase tracking-widest text-zinc-500 hover:bg-white hover:text-black hover:border-zinc-200 transition-all sm:flex-none"
             >
-              Público
+              Ver Público
             </Link>
             <button
               type="button"
               onClick={handleSalir}
-              className="flex-1 rounded-xl bg-white px-3 py-2 text-center text-xs font-semibold text-black hover:bg-zinc-200 sm:flex-none sm:text-sm"
+              className="flex-1 rounded-2xl bg-black px-6 py-2.5 text-center text-[11px] font-black uppercase tracking-widest text-white hover:bg-zinc-800 transition-all shadow-xl shadow-black/10 sm:flex-none"
             >
-              Salir
+              Cerrar Sesión
             </button>
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-8 py-10 sm:py-12">{children}</main>
     </div>
   )
 }

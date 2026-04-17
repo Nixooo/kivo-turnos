@@ -13,6 +13,11 @@ const __dirname = path.dirname(__filename)
 const PORT = process.env.PORT || 3001
 const JWT_SECRET = process.env.JWT_SECRET || 'kivo-dev-secret-cambiar-en-produccion'
 
+const PLANES = [
+  { id: 'plan-15', minutos: 15 },
+  { id: 'plan-30', minutos: 30 }
+]
+
 const app = express()
 app.use(cors())
 app.use(express.json())

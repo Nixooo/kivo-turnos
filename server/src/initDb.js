@@ -160,9 +160,9 @@ export async function initDb() {
   if (sc[0].c === 0) {
     const ins = [
       [
-        'detaim-sede-principal',
-        'DETAIM Sede Principal',
-        'Calle Principal #123, Bogotá',
+        'detaim-cajica',
+        'DETAIM Sede Cajicá',
+        'Centro Empresarial B&E. a 0-50,, Cra. 6 #0-2, Cajicá. Oficina 401.',
         'detaim',
       ],
     ]
@@ -180,8 +180,8 @@ export async function initDb() {
           dir,
           '09:00',
           '20:00',
-          4.6097,
-          -74.0817,
+          4.9192,
+          -74.0278,
           'general',
           0,
           'R-01',

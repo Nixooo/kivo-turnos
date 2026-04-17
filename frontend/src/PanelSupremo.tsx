@@ -41,8 +41,8 @@ function TabButton({
       onClick={onClick}
       className={
         active
-          ? 'rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white'
-          : 'rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50'
+          ? 'rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow-lg'
+          : 'rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-black transition-all'
       }
     >
       {label}

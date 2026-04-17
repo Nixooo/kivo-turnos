@@ -41,7 +41,7 @@ export default function PanelLogin() {
   }
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-black text-white">
+    <div className="relative min-h-svh overflow-hidden bg-zinc-50 text-black">
       <div className="relative mx-auto flex min-h-svh max-w-md flex-col justify-center px-6 py-12">
         <div className="mb-8 text-center animate-in">
           <img
@@ -59,12 +59,12 @@ export default function PanelLogin() {
           </p>
         </div>
 
-        <div className="rounded-[2.5rem] border border-zinc-800 bg-zinc-900/50 p-10 backdrop-blur-xl animate-in" style={{ animationDelay: '0.1s' }}>
+        <div className="rounded-[2.5rem] border border-zinc-200 bg-white/80 p-10 backdrop-blur-xl animate-in shadow-xl shadow-black/5" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
             <div>
               <label
                 htmlFor="panel-email"
-                className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500"
+                className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-400"
               >
                 Correo Electrónico
               </label>
@@ -74,14 +74,14 @@ export default function PanelLogin() {
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-2xl bg-zinc-800 border border-zinc-700 px-5 py-4 text-white outline-none focus:ring-2 focus:ring-white/20 transition"
+                className="w-full rounded-2xl bg-zinc-50 border border-zinc-200 px-5 py-4 text-black outline-none focus:ring-2 focus:ring-black/5 transition"
                 placeholder="admin@detaim.com"
               />
             </div>
             <div>
               <label
                 htmlFor="panel-pass"
-                className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500"
+                className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-400"
               >
                 Contraseña
               </label>
@@ -91,32 +91,32 @@ export default function PanelLogin() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-2xl bg-zinc-800 border border-zinc-700 px-5 py-4 text-white outline-none focus:ring-2 focus:ring-white/20 transition"
+                className="w-full rounded-2xl bg-zinc-50 border border-zinc-200 px-5 py-4 text-black outline-none focus:ring-2 focus:ring-black/5 transition"
               />
             </div>
             {error && (
-              <p className="rounded-2xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-xs font-bold text-red-400">
+              <p className="rounded-2xl bg-red-500/5 border border-red-500/10 px-4 py-3 text-xs font-bold text-red-500">
                 {error}
               </p>
             )}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-white py-4 text-sm font-bold text-black hover:bg-zinc-200 transition disabled:opacity-50 shadow-xl shadow-white/5"
+              className="w-full rounded-2xl bg-black py-4 text-sm font-bold text-white hover:bg-zinc-800 transition disabled:opacity-50 shadow-xl shadow-black/10"
             >
               {loading ? 'Iniciando...' : 'Entrar al Panel'}
             </button>
           </form>
-          <p className="mt-8 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+          <p className="mt-8 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-400">
             Credenciales de acceso: <br/>
-            <span className="text-zinc-400">admin@detaim.com / 12345</span>
+            <span className="text-zinc-500">admin@detaim.com / 12345</span>
           </p>
         </div>
 
         <p className="mt-10 text-center">
           <Link
             to="/"
-            className="text-sm font-bold text-zinc-500 hover:text-white transition flex items-center justify-center gap-2"
+            className="text-sm font-bold text-zinc-400 hover:text-black transition flex items-center justify-center gap-2"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7" /></svg>
             Volver al sitio público
