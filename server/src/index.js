@@ -1171,11 +1171,6 @@ app.post('/api/turnos/:id/confirmar-publico', async (req, res) => {
   }
 })
 
-const PLANES = [
-  { id: 'plan-15', minutos: 15 },
-  { id: 'plan-30', minutos: 30 }
-]
-
 app.post('/api/supremo/empresas', authMiddleware, requireSupremo, async (req, res) => {
   const slug = normSlug(req.body?.slug)
   const nombre = String(req.body?.nombre || '').trim()
