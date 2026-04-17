@@ -14,21 +14,32 @@ interface SedeApi {
 
 const PLANES = [
   {
-    id: 'plan-15',
+    id: 'basico-express',
     minutos: 15,
     precio: '20.000',
-    fotos: 2,
-    descripcion: 'Sesión rápida',
-    color: 'from-blue-600 to-cyan-400',
+    descripcion: 'Básico Express',
+    detalle: 'Pistola/Revólver ilimitado. Fases 1 y 2.',
   },
   {
-    id: 'plan-30',
+    id: 'tactico-express',
+    minutos: 15,
+    precio: '30.000',
+    descripcion: 'Táctico Express',
+    detalle: 'Pistola + 1 Proveedor M4. Fases 1 y 2.',
+  },
+  {
+    id: 'basico-30',
+    minutos: 30,
+    precio: '40.000',
+    descripcion: "Básico 30'",
+    detalle: 'Acceso Total Fases 1-4. Video + PDF incl.',
+  },
+  {
+    id: 'tactico-30',
     minutos: 30,
     precio: '50.000',
-    fotos: 5,
-    usuario: true,
-    descripcion: 'Sesión extendida',
-    color: 'from-orange-500 to-yellow-400',
+    descripcion: "Táctico 30'",
+    detalle: 'Acceso Total + 2 Prov M4. Video + PDF incl.',
   },
 ]
 
@@ -52,7 +63,7 @@ function emptyForm(slug: string): FormState {
     telefono: '',
     hora: '',
     lugarId: slug,
-    planId: 'plan-15',
+    planId: 'basico-express',
     tipoSimulador: 'Simulador de tiro',
     nivelHabilidad: 'Amateur',
   }
@@ -193,13 +204,13 @@ export default function KivoPublic() {
           <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500 shadow-2xl" />
           <div className="flex flex-col">
             <span className="text-xl font-black tracking-tighter text-black">DETAIM</span>
-            <span className="text-[9px] font-bold tracking-[0.3em] text-zinc-400 uppercase group-hover:text-red-600 transition-colors">ALPHA TRAINING SIMULATOR</span>
+            <span className="text-[9px] font-bold tracking-[0.3em] text-zinc-600 uppercase group-hover:text-red-600 transition-colors">ALPHA TRAINING SIMULATOR</span>
           </div>
         </div>
         <nav className="flex items-center gap-10">
           <Link
             to="/legal/horario-atencion"
-            className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
+            className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-black transition-colors"
           >
             Horarios
           </Link>
@@ -226,18 +237,18 @@ export default function KivoPublic() {
               <img src="/logo.jpg" alt="DETAIM" className="h-8 w-auto rounded-lg grayscale" />
               <span className="text-2xl font-black tracking-tighter text-black">DETAIM</span>
             </div>
-            <p className="text-sm text-zinc-500 max-w-sm leading-relaxed font-medium">
+            <p className="text-sm text-zinc-600 max-w-sm leading-relaxed font-bold">
               Redefiniendo el entrenamiento de precisión a través de simuladores tácticos de última generación en Colombia.
             </p>
             <div className="pt-4">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-4">Sede Principal</p>
+              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-4">Sede Principal</p>
               <a 
                 href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs text-zinc-500 hover:text-black transition-colors leading-loose flex items-start gap-3 group"
+                className="text-xs text-zinc-600 hover:text-black transition-colors leading-loose flex items-start gap-3 group"
               >
-                <div className="mt-1 h-1 w-1 rounded-full bg-blue-500 group-hover:scale-150 transition-transform" />
+                <div className="mt-1 h-1 w-1 rounded-full bg-red-600 group-hover:scale-150 transition-transform" />
                 <span>Centro Empresarial B&E, Cajicá. Oficina 401.</span>
               </a>
             </div>
@@ -246,7 +257,7 @@ export default function KivoPublic() {
           <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-12">
             <div className="space-y-6">
               <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Legal</h4>
-              <ul className="space-y-4 text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
+              <ul className="space-y-4 text-[11px] font-bold text-zinc-600 uppercase tracking-widest">
                 <li><Link to="/legal/terminos-condiciones" className="hover:text-black transition-colors">Términos</Link></li>
                 <li><Link to="/legal/politica-privacidad" className="hover:text-black transition-colors">Privacidad</Link></li>
                 <li><Link to="/legal/tratamiento-datos" className="hover:text-black transition-colors">Habeas Data</Link></li>
@@ -254,7 +265,7 @@ export default function KivoPublic() {
             </div>
             <div className="space-y-6">
               <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Soporte</h4>
-              <ul className="space-y-4 text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
+              <ul className="space-y-4 text-[11px] font-bold text-zinc-600 uppercase tracking-widest">
                 <li><Link to="/legal/preguntas-frecuentes" className="hover:text-black transition-colors">FAQ</Link></li>
                 <li><Link to="/legal/horario-atencion" className="hover:text-black transition-colors">Horarios</Link></li>
                 <li><Link to="/panel" className="hover:text-black transition-colors">Staff</Link></li>
@@ -262,21 +273,21 @@ export default function KivoPublic() {
             </div>
             <div className="space-y-6">
               <h4 className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Conecta</h4>
-              <ul className="space-y-4 text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
+              <ul className="space-y-4 text-[11px] font-bold text-zinc-600 uppercase tracking-widest">
                 <li><a href="https://detaim.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Sitio Web</a></li>
-                <li><a href="#" className="hover:text-black transition-colors">Instagram</a></li>
-                <li><a href="#" className="hover:text-black transition-colors">WhatsApp</a></li>
+                <li><a href="https://www.instagram.com/detaim_studies/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a></li>
+                <li><a href="https://wa.me/573133693983" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">WhatsApp</a></li>
               </ul>
             </div>
           </div>
         </div>
         
         <div className="pt-12 border-t border-black/5 flex flex-col sm:flex-row justify-between items-center gap-8">
-          <p className="text-[9px] text-zinc-400 font-black uppercase tracking-[0.4em]">
+          <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.4em]">
             © 2026 DETAIM GLOBAL. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">Powered by</span>
+            <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Powered by</span>
             <span className="text-[11px] font-black text-black tracking-tighter">ALPHA CLOUD</span>
           </div>
         </div>
@@ -294,31 +305,31 @@ export default function KivoPublic() {
               <div className="mb-8 flex justify-center opacity-10">
                 <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded" />
               </div>
-              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Reserva Confirmada</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Reserva Confirmada</h2>
               <p className="mt-4 text-8xl font-black tracking-tighter text-black">{turnoNumero}</p>
-              <p className="mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM ALPHA TRAINING SIMULATOR</p>
+              <p className="mt-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">DETAIM ALPHA TRAINING SIMULATOR</p>
             </div>
             <div className="p-10 text-left space-y-6 bg-zinc-50">
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">Tirador</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Tirador</p>
                   <p className="text-sm font-black text-black">{form.nombre}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">Operación</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Operación</p>
                   <p className="text-sm font-black text-black">{form.tipoSimulador}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">Fecha</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Fecha</p>
                   <p className="text-sm font-black text-black">{fecha ? format(fecha, 'dd/MM/yyyy') : ''}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">Hora</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Hora</p>
                   <p className="text-sm font-black text-black">{form.hora}</p>
                 </div>
               </div>
               <div className="pt-6 border-t border-black/5">
-                <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">Ubicación</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Ubicación</p>
                 <p className="text-xs font-black text-black">Centro Empresarial B&E, Cajicá. Of 401.</p>
               </div>
             </div>
@@ -333,7 +344,7 @@ export default function KivoPublic() {
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-black transition-colors"
+              className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 hover:text-black transition-colors"
             >
               Nueva Reserva
             </button>
@@ -402,13 +413,13 @@ export default function KivoPublic() {
           font-weight: 800 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.2em !important;
-          color: #94a3b8 !important;
+          color: #475569 !important;
           padding-bottom: 1.5rem !important;
         }
         .detaim-calendar-pro .rdp-day {
           font-size: 16px !important;
-          font-weight: 600 !important;
-          color: #334155;
+          font-weight: 700 !important;
+          color: #000000;
         }
         
         .glass-card {
@@ -465,7 +476,7 @@ export default function KivoPublic() {
             </div>
           </div>
           <nav className="flex items-center gap-12">
-            <Link to="/legal/horario-atencion" className="text-[12px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">Horarios</Link>
+            <Link to="/legal/horario-atencion" className="text-[12px] font-black uppercase tracking-widest text-zinc-600 hover:text-black transition-colors">Horarios</Link>
             <a href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica" target="_blank" rel="noopener noreferrer" className="btn-black flex items-center gap-3 rounded-full px-8 py-3.5 text-[11px] font-black uppercase tracking-widest shadow-2xl active:scale-95">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               Ubicación
@@ -478,18 +489,18 @@ export default function KivoPublic() {
       <div className="bg-zinc-50 border-b border-zinc-100 py-4">
         <div className="mx-auto max-w-7xl px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-2 w-2 rounded-full bg-red-600 shadow-[0_0_12px_rgba(225,29,72,0.4)] animate-pulse" />
-            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
+            <div className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_12px_rgba(225,29,72,0.4)] animate-pulse" />
+            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-600">
               Sede <span className="text-black font-black">Cajicá</span> — <span className="text-red-600">Polígono Activo</span>
             </p>
           </div>
           <div className="hidden md:flex items-center gap-10">
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Calibración:</span>
+              <span className="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Calibración:</span>
               <span className="text-[11px] font-black text-black uppercase tracking-widest">Óptima</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Status:</span>
+              <span className="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Status:</span>
               <span className="text-[11px] font-black text-red-600 uppercase tracking-widest">Online</span>
             </div>
           </div>
@@ -508,33 +519,33 @@ export default function KivoPublic() {
               </h3>
               <div className="space-y-8">
                 <div className="group relative">
-                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3 group-focus-within:text-red-600 transition-colors">Nombre Completo</label>
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-3 group-focus-within:text-red-600 transition-colors">Nombre Completo</label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm placeholder:text-zinc-300 outline-none"
+                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm font-bold text-black placeholder:text-zinc-400 outline-none"
                     placeholder="Escribe tu nombre"
                   />
                 </div>
                 <div className="group relative">
-                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3 group-focus-within:text-red-600 transition-colors">WhatsApp</label>
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-3 group-focus-within:text-red-600 transition-colors">WhatsApp</label>
                   <input
                     type="tel"
                     value={form.telefono}
                     onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm placeholder:text-zinc-300 outline-none"
+                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm font-bold text-black placeholder:text-zinc-400 outline-none"
                     placeholder="Tu número de contacto"
                   />
                 </div>
-                <div className="pt-8 border-t border-zinc-50">
-                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-5">Nivel de Habilidad</label>
+                <div className="pt-8 border-t border-zinc-100">
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-5">Nivel de Habilidad</label>
                   <div className="grid grid-cols-3 gap-3">
                     {NIVELES.map(n => (
                       <button
                         key={n}
                         onClick={() => setForm({ ...form, nivelHabilidad: n })}
-                        className={`py-3 rounded-xl text-[9px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-red-600 border-red-600 text-white shadow-lg scale-105' : 'bg-transparent border-zinc-100 text-zinc-400 hover:border-red-600/30 hover:text-red-600'}`}
+                        className={`py-3 rounded-xl text-[9px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-red-600 border-red-600 text-white shadow-lg scale-105' : 'bg-transparent border-zinc-200 text-zinc-600 hover:border-red-600/30 hover:text-red-600'}`}
                       >
                         {n}
                       </button>
@@ -558,14 +569,15 @@ export default function KivoPublic() {
                       group w-full text-left p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden
                       ${form.planId === plan.id 
                         ? 'bg-black border-black shadow-xl text-white scale-[1.02]' 
-                        : 'bg-zinc-50 text-zinc-400 border-transparent hover:border-red-600/20 hover:bg-white hover:translate-x-1'}
+                        : 'bg-zinc-50 text-zinc-700 border-transparent hover:border-red-600/20 hover:bg-white hover:translate-x-1'}
                     `}
                   >
                     <div className="flex justify-between items-center mb-1 relative z-10">
-                      <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-red-600' : 'text-zinc-400'}`}>{plan.minutos} min</span>
+                      <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-red-600' : 'text-zinc-600'}`}>{plan.minutos} min</span>
                       <span className="text-xl font-black tracking-tighter">${plan.precio}</span>
                     </div>
                     <p className="font-black text-sm uppercase tracking-tight relative z-10">{plan.descripcion}</p>
+                    <p className={`text-[9px] font-bold uppercase tracking-wider mt-1 relative z-10 ${form.planId === plan.id ? 'text-zinc-300' : 'text-zinc-500'}`}>{plan.detalle}</p>
                   </button>
                 ))}
               </div>
@@ -586,7 +598,7 @@ export default function KivoPublic() {
                   </p>
                 </div>
                 {fecha && (
-                  <div className="bg-zinc-50 border border-zinc-100 rounded-3xl px-8 py-6 animate-scale-in">
+                  <div className="bg-zinc-50 border border-zinc-200 rounded-3xl px-8 py-6 animate-scale-in">
                     <p className="text-[9px] font-black text-red-600 uppercase tracking-[0.4em] mb-2 text-right">Sesión para el</p>
                     <p className="text-3xl font-black text-black tracking-tighter">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
                   </div>
@@ -596,7 +608,7 @@ export default function KivoPublic() {
               <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-16 relative">
                 {/* Calendario Claro */}
                 <div className={`transition-all duration-700 ease-out flex flex-col items-center justify-start ${form.hora ? 'opacity-0 scale-95 pointer-events-none blur-xl translate-x-[-30px]' : 'opacity-100 scale-100'}`}>
-                  <div className="bg-white p-8 rounded-[3rem] border border-zinc-50 shadow-sm w-full flex justify-center">
+                  <div className="bg-white p-8 rounded-[3rem] border border-zinc-100 shadow-sm w-full flex justify-center">
                     <DayPicker
                       mode="single"
                       selected={fecha}
@@ -609,11 +621,11 @@ export default function KivoPublic() {
                   <div className="mt-12 flex gap-8">
                     <div className="flex items-center gap-3">
                       <div className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_10px_rgba(225,29,72,0.4)]" />
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Seleccionado</span>
+                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">Seleccionado</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="h-2.5 w-2.5 rounded-full bg-zinc-200" />
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Disponible</span>
+                      <div className="h-2.5 w-2.5 rounded-full bg-zinc-300" />
+                      <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">Disponible</span>
                     </div>
                   </div>
                 </div>
@@ -622,10 +634,10 @@ export default function KivoPublic() {
                 <div className={`flex flex-col h-full transition-all duration-700 ease-out ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
                   {!form.hora ? (
                     <div className="flex flex-col h-full animate-fade-in">
-                      <div className="flex items-center justify-between mb-8 border-b border-zinc-50 pb-8">
+                      <div className="flex items-center justify-between mb-8 border-b border-zinc-100 pb-8">
                         <div className="flex items-center gap-4">
                           {selectedHour && (
-                            <button onClick={() => setSelectedHour(null)} className="p-2.5 rounded-xl bg-zinc-50 text-zinc-400 hover:text-red-600 transition-colors">
+                            <button onClick={() => setSelectedHour(null)} className="p-2.5 rounded-xl bg-zinc-50 text-zinc-500 hover:text-red-600 transition-colors">
                               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                             </button>
                           )}
@@ -639,8 +651,8 @@ export default function KivoPublic() {
                       <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar-pro" style={{ maxHeight: '450px' }}>
                         {loadingSlots ? (
                           <div className="h-full flex flex-col items-center justify-center space-y-8">
-                            <div className="h-12 w-12 border-4 border-zinc-50 border-t-red-600 rounded-full animate-spin" />
-                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Sincronizando...</p>
+                            <div className="h-12 w-12 border-4 border-zinc-100 border-t-red-600 rounded-full animate-spin" />
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Sincronizando...</p>
                           </div>
                         ) : availableSlots.length > 0 ? (
                           !selectedHour ? (
@@ -656,8 +668,8 @@ export default function KivoPublic() {
                                     className={`
                                       relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-400 time-slot-btn
                                       ${!hasAvailability 
-                                        ? 'bg-zinc-50 text-zinc-200 border border-transparent cursor-not-allowed opacity-30' 
-                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-black hover:text-white'}
+                                        ? 'bg-zinc-50 text-zinc-300 border border-transparent cursor-not-allowed opacity-30' 
+                                        : 'bg-zinc-50 text-zinc-700 border border-zinc-200 hover:bg-black hover:text-white'}
                                     `}
                                   >
                                     <span>{h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}</span>
@@ -678,8 +690,8 @@ export default function KivoPublic() {
                                     className={`
                                       relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-400 animate-slide-up time-slot-btn
                                       ${slot.reservada 
-                                        ? 'bg-zinc-50 text-zinc-100 border border-transparent cursor-not-allowed opacity-20' 
-                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-red-600 hover:text-white'}
+                                        ? 'bg-zinc-50 text-zinc-200 border border-transparent cursor-not-allowed opacity-20' 
+                                        : 'bg-zinc-50 text-zinc-700 border border-zinc-200 hover:bg-red-600 hover:text-white'}
                                     `}
                                   >
                                     <span>{slot.hora}</span>
@@ -689,7 +701,7 @@ export default function KivoPublic() {
                           )
                         ) : (
                           <div className="h-full flex flex-col items-center justify-center space-y-6 py-20">
-                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.6em]">Sin Disponibilidad</p>
+                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.6em]">Sin Disponibilidad</p>
                           </div>
                         )}
                       </div>
@@ -698,8 +710,8 @@ export default function KivoPublic() {
                     <div className="flex flex-col items-center justify-center h-full animate-scale-in absolute inset-0 xl:relative">
                       <div className="space-y-8 w-full max-w-sm relative z-10">
                         <div className="text-center space-y-4 mb-10">
-                          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Resumen de Reserva</p>
-                          <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100">
+                          <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em]">Resumen de Reserva</p>
+                          <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-200">
                             <p className="text-4xl font-black text-black tracking-tighter mb-2">{form.hora}</p>
                             <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.3em]">
                               {fecha ? format(fecha, 'dd MMMM', { locale: es }) : ''}
@@ -722,7 +734,7 @@ export default function KivoPublic() {
                         
                         <button 
                           onClick={() => { setForm({ ...form, hora: '' }); setSelectedHour(null); }}
-                          className="w-full py-4 text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em] hover:text-red-600 transition-colors"
+                          className="w-full py-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] hover:text-red-600 transition-colors"
                         >
                           Modificar Horario
                         </button>
@@ -734,12 +746,12 @@ export default function KivoPublic() {
               </div>
 
               {!form.hora && (
-                <div className="mt-auto pt-12 border-t border-zinc-50 flex items-center justify-between">
-                  <p className="text-[9px] text-zinc-300 font-black uppercase tracking-[0.4em]">
-                    SISTEMA ALPHA <span className="text-zinc-200 ml-4">v4.0.1</span>
+                <div className="mt-auto pt-12 border-t border-zinc-100 flex items-center justify-between">
+                  <p className="text-[9px] text-zinc-500 font-black uppercase tracking-[0.4em]">
+                    SISTEMA ALPHA <span className="text-zinc-600 ml-4">v4.0.1</span>
                   </p>
                   <div className="flex items-center gap-6">
-                    <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.4em]">Realtime Sync</span>
+                    <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.4em]">Realtime Sync</span>
                     <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_10px_rgba(225,29,72,0.4)]" />
                   </div>
                 </div>
@@ -757,12 +769,12 @@ export default function KivoPublic() {
                 <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded-xl" />
                 <span className="text-3xl font-black tracking-tighter text-black">DETAIM</span>
               </div>
-              <p className="text-lg text-zinc-500 max-w-sm leading-relaxed font-bold">
+              <p className="text-lg text-zinc-700 max-w-sm leading-relaxed font-bold">
                 Redefiniendo el entrenamiento de precisión con simuladores tácticos de élite.
               </p>
               <div>
-                <p className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-6">Operaciones Centrales</p>
-                <a href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-600 hover:text-red-600 transition-colors flex items-start gap-4 group font-bold">
+                <p className="text-[12px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-6">Operaciones Centrales</p>
+                <a href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-700 hover:text-red-600 transition-colors flex items-start gap-4 group font-bold">
                   <div className="mt-2 h-2 w-2 rounded-full bg-red-600 group-hover:scale-150 transition-transform" />
                   <span>C.E. B&E, Cajicá. Oficina 401.</span>
                 </a>
@@ -772,7 +784,7 @@ export default function KivoPublic() {
             <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-16">
               <div className="space-y-8">
                 <h4 className="text-[12px] font-black text-black uppercase tracking-[0.4em]">Protocolos</h4>
-                <ul className="space-y-5 text-[12px] font-black text-zinc-500 uppercase tracking-widest">
+                <ul className="space-y-5 text-[12px] font-black text-zinc-600 uppercase tracking-widest">
                   <li><Link to="/legal/terminos-condiciones" className="hover:text-red-600 transition-colors">Términos</Link></li>
                   <li><Link to="/legal/politica-privacidad" className="hover:text-red-600 transition-colors">Privacidad</Link></li>
                   <li><Link to="/legal/tratamiento-datos" className="hover:text-red-600 transition-colors">Habeas Data</Link></li>
@@ -780,7 +792,7 @@ export default function KivoPublic() {
               </div>
               <div className="space-y-8">
                 <h4 className="text-[12px] font-black text-black uppercase tracking-[0.4em]">Soporte</h4>
-                <ul className="space-y-5 text-[12px] font-black text-zinc-500 uppercase tracking-widest">
+                <ul className="space-y-5 text-[12px] font-black text-zinc-600 uppercase tracking-widest">
                   <li><Link to="/legal/preguntas-frecuentes" className="hover:text-red-600 transition-colors">Preguntas</Link></li>
                   <li><Link to="/legal/horario-atencion" className="hover:text-red-600 transition-colors">Horarios</Link></li>
                   <li><Link to="/panel" className="hover:text-red-600 transition-colors">Staff</Link></li>
@@ -788,21 +800,21 @@ export default function KivoPublic() {
               </div>
               <div className="space-y-8">
                 <h4 className="text-[12px] font-black text-black uppercase tracking-[0.4em]">Red</h4>
-                <ul className="space-y-5 text-[12px] font-black text-zinc-500 uppercase tracking-widest">
+                <ul className="space-y-5 text-[12px] font-black text-zinc-600 uppercase tracking-widest">
                   <li><a href="https://detaim.com" className="hover:text-red-600 transition-colors">Web Oficial</a></li>
-                  <li><a href="#" className="hover:text-red-600 transition-colors">Instagram</a></li>
-                  <li><a href="#" className="hover:text-red-600 transition-colors">WhatsApp</a></li>
+                  <li><a href="https://www.instagram.com/detaim_studies/" className="hover:text-red-600 transition-colors">Instagram</a></li>
+                  <li><a href="https://wa.me/573133693983" className="hover:text-red-600 transition-colors">WhatsApp</a></li>
                 </ul>
               </div>
             </div>
           </div>
           
           <div className="pt-16 border-t border-zinc-200 flex flex-col sm:flex-row justify-between items-center gap-10">
-            <p className="text-[10px] text-zinc-400 font-black uppercase tracking-[0.5em]">
+            <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.5em]">
               © 2026 DETAIM GLOBAL ALPHA.
             </p>
             <div className="flex items-center gap-6">
-              <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Infr.</span>
+              <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Infr.</span>
               <span className="text-[13px] font-black text-black tracking-tighter">ALPHA CLOUD CORE</span>
             </div>
           </div>
