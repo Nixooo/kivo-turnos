@@ -957,6 +957,7 @@ app.patch(
         `UPDATE turnos SET estado = 'atendiendo' WHERE id = $1::uuid AND estado = 'espera'`,
         [req.params.id],
       )
+      await logActividad(req.staff.sid, req.staff.empresaId, 'ATENDER_TURNO', `Turno ${t[0].numero_publico} atendiendo`)
       res.json({ ok: true })
     } catch (e) {
       console.error(e)
@@ -1011,50 +1012,6 @@ app.patch(
   },
 )
 
-app.patch(
-  '/api/panel/turno/:id/reasignar',
-  authMiddleware,
-  async (req, res) => {
-    const { fecha_turno, hora_turno } = req.body
-    if (!fecha_turno || !hora_turno) return res.status(400).json({ error: 'Faltan datos' })
-    try {
-      const { rows: t } = await pool.query(
-        `SELECT t.id FROM turnos t JOIN sedes s ON s.id = t.sede_id
-         WHERE t.id = $1::uuid AND s.empresa_id = $2`,
-        [req.params.id, req.staff.empresaId],
-      )
-      if (!t.length) return res.status(404).json({ error: 'Turno no encontrado' })
-      await pool.query(
-        `UPDATE turnos SET fecha_turno = $1::date, hora_turno = $2::time, estado = 'espera' 
-         WHERE id = $3::uuid`,
-        [fecha_turno, hora_turno, req.params.id],
-      )
-      res.json({ ok: true })
-    } catch (e) {
-      console.error(e)
-      res.status(500).json({ error: 'Error' })
-    }
-  },
-)
-
-app.get('/api/panel/turnos-empresa', authMiddleware, async (req, res) => {
-  const { fecha } = req.query
-  try {
-    const { rows } = await pool.query(
-      `SELECT t.*, s.nombre as sede_nombre, s.slug as sede_slug
-       FROM turnos t
-       JOIN sedes s ON s.id = t.sede_id
-       WHERE s.empresa_id = $1 ${fecha ? 'AND t.fecha_turno = $2::date' : ''}
-       ORDER BY t.fecha_turno DESC, t.hora_turno DESC`,
-      fecha ? [req.staff.empresaId, fecha] : [req.staff.empresaId]
-    )
-    res.json(rows)
-  } catch (e) {
-    console.error(e)
-    res.status(500).json({ error: 'Error' })
-  }
-})
-
 app.get('/api/supremo/empresas', authMiddleware, requireSupremo, async (_req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM empresas ORDER BY nombre`)
@@ -1084,7 +1041,10 @@ app.post('/api/turnos-publico', async (req, res) => {
 
   const client = await pool.connect()
   try {
-    const sedeR = await client.query('SELECT * FROM sedes WHERE id = $1 OR slug = $1', [lugar_id])
+    const sedeR = await client.query(
+      'SELECT * FROM sedes WHERE slug = $1 OR (CASE WHEN $1 ~ \'^[0-9]+$\' THEN id = $1::int ELSE false END)',
+      [String(lugar_id)]
+    )
     if (!sedeR.rows.length) {
       return res.status(404).json({ error: 'Sede no encontrada' })
     }
