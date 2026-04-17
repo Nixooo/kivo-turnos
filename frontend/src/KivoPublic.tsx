@@ -489,7 +489,6 @@ export default function KivoPublic() {
             </div>
           </div>
           <nav className="flex items-center gap-12">
-            <button onClick={() => setShowPlansComparison(true)} className="text-[12px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">Planes</button>
             <Link to="/legal/horario-atencion" className="text-[12px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">Horarios</Link>
             <a href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica" target="_blank" rel="noopener noreferrer" className="btn-black flex items-center gap-3 rounded-full px-8 py-3.5 text-[11px] font-black uppercase tracking-widest shadow-2xl active:scale-95">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
