@@ -193,10 +193,10 @@ export default function KivoPublic() {
           <img src="/logo.jpg" alt="DETAIM" className="h-10 w-auto rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500 shadow-2xl" />
           <div className="flex flex-col">
             <span className="text-xl font-black tracking-tighter text-black">DETAIM</span>
-            <span className="text-[9px] font-bold tracking-[0.3em] text-zinc-400 uppercase group-hover:text-blue-500 transition-colors">Precision Simulation</span>
+            <span className="text-[9px] font-bold tracking-[0.3em] text-zinc-400 uppercase group-hover:text-red-600 transition-colors">ALPHA TRAINING SIMULATOR</span>
           </div>
         </div>
-        <nav className="flex items-center gap-8">
+        <nav className="flex items-center gap-10">
           <Link
             to="/legal/horario-atencion"
             className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
@@ -207,10 +207,10 @@ export default function KivoPublic() {
             href="https://maps.google.com/?q=Centro+Empresarial+B%26E+Cajica"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-zinc-800 active:scale-95 shadow-xl shadow-black/5"
+            className="flex items-center gap-2 rounded-full bg-black px-6 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-zinc-800 hover:scale-105 active:scale-95 shadow-xl shadow-black/10"
           >
             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            Ubicación
+            Sede Cajicá
           </a>
         </nav>
       </div>
@@ -277,7 +277,7 @@ export default function KivoPublic() {
           </p>
           <div className="flex items-center gap-4">
             <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">Powered by</span>
-            <span className="text-[11px] font-black text-black tracking-tighter">DETAIM CLOUD</span>
+            <span className="text-[11px] font-black text-black tracking-tighter">ALPHA CLOUD</span>
           </div>
         </div>
       </div>
@@ -296,7 +296,7 @@ export default function KivoPublic() {
               </div>
               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Reserva Confirmada</h2>
               <p className="mt-4 text-8xl font-black tracking-tighter text-black">{turnoNumero}</p>
-              <p className="mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM Simulación Profesional</p>
+              <p className="mt-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">DETAIM ALPHA TRAINING SIMULATOR</p>
             </div>
             <div className="p-10 text-left space-y-6 bg-zinc-50">
               <div className="grid grid-cols-2 gap-8">
@@ -373,9 +373,9 @@ export default function KivoPublic() {
         .animate-scale-in { animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         .detaim-calendar-pro {
-          --rdp-cell-size: 48px;
-          --rdp-accent-color: #000000;
-          --rdp-background-color: #f4f4f5;
+          --rdp-cell-size: 52px;
+          --rdp-accent-color: #e11d48;
+          --rdp-background-color: #ffffff;
           margin: 0;
           width: 100%;
           display: flex;
@@ -386,96 +386,72 @@ export default function KivoPublic() {
           background-color: #e11d48 !important; 
           color: #ffffff !important;
           font-weight: 900 !important;
-          border-radius: 18px !important;
-          box-shadow: 0 20px 40px -10px rgba(225,29,72,0.4);
-          transform: scale(1.1);
+          border-radius: 20px !important;
+          box-shadow: 0 15px 35px -10px rgba(225,29,72,0.4);
+          transform: scale(1.05);
         }
         .detaim-calendar-pro .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
-          background-color: #f4f4f5 !important;
-          border-radius: 18px !important;
-          transform: translateY(-4px) scale(1.05);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          background-color: #fff1f2 !important;
+          border-radius: 20px !important;
+          transform: translateY(-2px);
+          transition: all 0.3s ease;
           color: #e11d48 !important;
-        }
-        .detaim-calendar-pro .rdp-nav_button {
-          color: #a1a1aa !important;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          border-radius: 14px !important;
-        }
-        .detaim-calendar-pro .rdp-nav_button:hover {
-          color: #000000 !important;
-          background: #f4f4f5 !important;
-          transform: scale(1.1);
         }
         .detaim-calendar-pro .rdp-head_cell {
-          font-size: 12px !important;
-          font-weight: 900 !important;
+          font-size: 11px !important;
+          font-weight: 800 !important;
           text-transform: uppercase !important;
-          letter-spacing: 0.3em !important;
-          color: #a1a1aa !important;
-          padding-bottom: 2.5rem !important;
+          letter-spacing: 0.2em !important;
+          color: #94a3b8 !important;
+          padding-bottom: 1.5rem !important;
         }
         .detaim-calendar-pro .rdp-day {
-          font-size: 17px !important;
+          font-size: 16px !important;
           font-weight: 600 !important;
-          color: #3f3f46;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .detaim-calendar-pro .rdp-day_today {
-          color: #e11d48 !important;
-          font-weight: 900 !important;
+          color: #334155;
         }
         
-        .custom-scrollbar-pro::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar-pro::-webkit-scrollbar-track { background: #f4f4f5; }
-        .custom-scrollbar-pro::-webkit-scrollbar-thumb { 
-          background: #e4e4e7; 
-          border-radius: 20px; 
-        }
-        .custom-scrollbar-pro::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
-
         .glass-card {
           background: #ffffff;
-          border: 1px solid #f4f4f5;
-          box-shadow: 0 20px 60px -15px rgba(0,0,0,0.05);
-          transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          border: 1px solid rgba(0,0,0,0.03);
+          box-shadow: 0 10px 40px -15px rgba(0,0,0,0.03);
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-card:hover {
-          border-color: #e4e4e7;
-          box-shadow: 0 40px 100px -20px rgba(0,0,0,0.08);
-          transform: translateY(-5px);
+          box-shadow: 0 30px 70px -20px rgba(0,0,0,0.06);
+          transform: translateY(-4px);
+          border-color: rgba(0,0,0,0.06);
         }
         .glass-input {
           background: #f8fafc;
-          border: 2px solid transparent;
-          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-          color: #000000;
+          border: 1px solid #f1f5f9;
+          transition: all 0.4s ease;
         }
         .glass-input:focus {
           background: #ffffff;
           border-color: #e11d48;
-          box-shadow: 0 10px 40px -10px rgba(225,29,72,0.15);
-          transform: translateY(-2px);
+          box-shadow: 0 10px 30px -10px rgba(225,29,72,0.1);
+          transform: translateY(-1px);
         }
         .btn-red {
           background: #e11d48;
           color: #ffffff;
-          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 10px 25px -5px rgba(225,29,72,0.3);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .btn-red:hover {
+        .btn-red:hover:not(:disabled) {
           background: #be123c;
-          box-shadow: 0 25px 50px -12px rgba(225,29,72,0.5);
-          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 20px 40px -10px rgba(225,29,72,0.4);
+          transform: translateY(-2px) scale(1.01);
         }
-        .btn-black {
+        .time-slot-btn {
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .time-slot-btn:hover:not(:disabled) {
           background: #000000;
           color: #ffffff;
-          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-black:hover {
-          background: #18181b;
-          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
-          transform: translateY(-3px) scale(1.02);
+          transform: scale(1.05) translateY(-3px);
+          box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2);
         }
       `}</style>
 
@@ -485,7 +461,7 @@ export default function KivoPublic() {
             <img src="/logo.jpg" alt="DETAIM" className="h-12 w-auto rounded-2xl transition-all duration-500 shadow-xl" />
             <div className="flex flex-col">
               <span className="text-2xl font-black tracking-tighter text-black">DETAIM</span>
-              <span className="text-[11px] font-bold tracking-[0.4em] text-red-600 uppercase">Precision Simulation</span>
+              <span className="text-[11px] font-bold tracking-[0.4em] text-red-600 uppercase">ALPHA TRAINING SIMULATOR</span>
             </div>
           </div>
           <nav className="flex items-center gap-12">
@@ -525,40 +501,40 @@ export default function KivoPublic() {
           
           {/* Columna Izquierda: Tirador y Plan */}
           <div className="lg:col-span-4 space-y-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <div className="p-12 rounded-[4rem] glass-card">
-              <h3 className="text-2xl font-black mb-12 flex items-center gap-5 text-black tracking-tighter">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-600 text-white text-xs font-black shadow-xl animate-pulse">01</span>
-                Perfil del Tirador
+            <div className="p-10 rounded-[3rem] glass-card">
+              <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-black tracking-tighter">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600 text-white text-[10px] font-black shadow-lg">01</span>
+                Tirador
               </h3>
-              <div className="space-y-10">
+              <div className="space-y-8">
                 <div className="group relative">
-                  <label className="block text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-4 group-focus-within:text-red-600 transition-colors">Nombre Completo</label>
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3 group-focus-within:text-red-600 transition-colors">Nombre Completo</label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    className="w-full rounded-[2rem] glass-input px-8 py-5 text-base placeholder:text-zinc-300 outline-none"
-                    placeholder="Identificación del usuario"
+                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm placeholder:text-zinc-300 outline-none"
+                    placeholder="Escribe tu nombre"
                   />
                 </div>
                 <div className="group relative">
-                  <label className="block text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-4 group-focus-within:text-red-600 transition-colors">WhatsApp</label>
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3 group-focus-within:text-red-600 transition-colors">WhatsApp</label>
                   <input
                     type="tel"
                     value={form.telefono}
                     onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full rounded-[2rem] glass-input px-8 py-5 text-base placeholder:text-zinc-300 outline-none"
-                    placeholder="Canal de comunicación"
+                    className="w-full rounded-2xl glass-input px-6 py-4 text-sm placeholder:text-zinc-300 outline-none"
+                    placeholder="Tu número de contacto"
                   />
                 </div>
-                <div className="pt-10 border-t border-zinc-100">
-                  <label className="block text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400 mb-6">Nivel de Habilidad</label>
-                  <div className="grid grid-cols-3 gap-4">
+                <div className="pt-8 border-t border-zinc-50">
+                  <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-5">Nivel de Habilidad</label>
+                  <div className="grid grid-cols-3 gap-3">
                     {NIVELES.map(n => (
                       <button
                         key={n}
                         onClick={() => setForm({ ...form, nivelHabilidad: n })}
-                        className={`py-4 rounded-2xl text-[10px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-red-600 border-red-600 text-white shadow-2xl scale-105' : 'bg-transparent border-zinc-100 text-zinc-400 hover:border-red-600/30 hover:text-red-600'}`}
+                        className={`py-3 rounded-xl text-[9px] font-black border uppercase tracking-widest transition-all duration-500 ${form.nivelHabilidad === n ? 'bg-red-600 border-red-600 text-white shadow-lg scale-105' : 'bg-transparent border-zinc-100 text-zinc-400 hover:border-red-600/30 hover:text-red-600'}`}
                       >
                         {n}
                       </button>
@@ -568,28 +544,28 @@ export default function KivoPublic() {
               </div>
             </div>
 
-            <div className="p-12 rounded-[4rem] glass-card">
-              <h3 className="text-2xl font-black mb-12 flex items-center gap-5 text-black tracking-tighter">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-600 text-white text-xs font-black shadow-xl animate-pulse">02</span>
-                Sesión de Tiro
+            <div className="p-10 rounded-[3rem] glass-card">
+              <h3 className="text-xl font-black mb-10 flex items-center gap-4 text-black tracking-tighter">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600 text-white text-[10px] font-black shadow-lg">02</span>
+                Sesión
               </h3>
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {PLANES.map((plan) => (
                   <button
                     key={plan.id}
                     onClick={() => setForm({ ...form, planId: plan.id })}
                     className={`
-                      group w-full text-left p-8 rounded-3xl border transition-all duration-700 relative overflow-hidden
+                      group w-full text-left p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden
                       ${form.planId === plan.id 
-                        ? 'bg-black border-black shadow-2xl text-white scale-[1.03]' 
+                        ? 'bg-black border-black shadow-xl text-white scale-[1.02]' 
                         : 'bg-zinc-50 text-zinc-400 border-transparent hover:border-red-600/20 hover:bg-white hover:translate-x-1'}
                     `}
                   >
-                    <div className="flex justify-between items-center mb-2 relative z-10">
-                      <span className={`text-[11px] font-black uppercase tracking-[0.4em] ${form.planId === plan.id ? 'text-red-600' : 'text-zinc-400'}`}>{plan.minutos} min</span>
-                      <span className="text-2xl font-black tracking-tighter">${plan.precio}</span>
+                    <div className="flex justify-between items-center mb-1 relative z-10">
+                      <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${form.planId === plan.id ? 'text-red-600' : 'text-zinc-400'}`}>{plan.minutos} min</span>
+                      <span className="text-xl font-black tracking-tighter">${plan.precio}</span>
                     </div>
-                    <p className="font-black text-base uppercase tracking-tight relative z-10">{plan.descripcion}</p>
+                    <p className="font-black text-sm uppercase tracking-tight relative z-10">{plan.descripcion}</p>
                   </button>
                 ))}
               </div>
@@ -598,29 +574,29 @@ export default function KivoPublic() {
 
           {/* Columna Derecha: Calendario y Hora */}
           <div className="lg:col-span-8 space-y-10 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <div className="p-16 rounded-[5rem] glass-card min-h-[900px] relative overflow-hidden flex flex-col">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
-                <div className="space-y-4">
-                  <h3 className="text-8xl font-black tracking-tighter text-black flex items-center gap-10">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-[2rem] bg-red-600 text-white text-base font-black shadow-2xl animate-pulse">03</span>
+            <div className="p-12 rounded-[4rem] glass-card min-h-[800px] relative overflow-hidden flex flex-col">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                <div className="space-y-3">
+                  <h3 className="text-6xl font-black tracking-tighter text-black flex items-center gap-6">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-600 text-white text-sm font-black shadow-xl">03</span>
                     {form.hora ? 'Confirmar' : 'Agenda'}
                   </h3>
-                  <p className="text-[12px] font-black text-red-600 uppercase tracking-[0.6em] ml-28">
-                    Sincronización de Campo
+                  <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.5em] ml-20">
+                    Sincronización Operativa
                   </p>
                 </div>
                 {fecha && (
-                  <div className="bg-zinc-50 border border-zinc-100 rounded-[2.5rem] px-12 py-8 animate-scale-in">
-                    <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.4em] mb-3 text-right font-black">Sesión para el</p>
-                    <p className="text-4xl font-black text-black tracking-tighter">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
+                  <div className="bg-zinc-50 border border-zinc-100 rounded-3xl px-8 py-6 animate-scale-in">
+                    <p className="text-[9px] font-black text-red-600 uppercase tracking-[0.4em] mb-2 text-right">Sesión para el</p>
+                    <p className="text-3xl font-black text-black tracking-tighter">{format(fecha, 'dd MMMM yyyy', { locale: es })}</p>
                   </div>
                 )}
               </div>
 
-              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-24 relative">
+              <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-16 relative">
                 {/* Calendario Claro */}
-                <div className={`transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col items-center justify-start ${form.hora ? 'opacity-0 scale-90 pointer-events-none blur-3xl translate-x-[-50px]' : 'opacity-100 scale-100'}`}>
-                  <div className="bg-zinc-50 p-12 rounded-[4rem] border border-zinc-100 shadow-inner w-full flex justify-center hover:border-red-600/10 transition-colors">
+                <div className={`transition-all duration-700 ease-out flex flex-col items-center justify-start ${form.hora ? 'opacity-0 scale-95 pointer-events-none blur-xl translate-x-[-30px]' : 'opacity-100 scale-100'}`}>
+                  <div className="bg-white p-8 rounded-[3rem] border border-zinc-50 shadow-sm w-full flex justify-center">
                     <DayPicker
                       mode="single"
                       selected={fecha}
@@ -630,45 +606,45 @@ export default function KivoPublic() {
                       className="detaim-calendar-pro"
                     />
                   </div>
-                  <div className="mt-16 flex gap-12">
-                    <div className="flex items-center gap-4">
-                      <div className="h-3 w-3 rounded-full bg-red-600 shadow-[0_0_15px_rgba(225,29,72,0.6)]" />
-                      <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em]">Seleccionado</span>
+                  <div className="mt-12 flex gap-8">
+                    <div className="flex items-center gap-3">
+                      <div className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_10px_rgba(225,29,72,0.4)]" />
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Seleccionado</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="h-3 w-3 rounded-full bg-zinc-200" />
-                      <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em]">Disponible</span>
+                    <div className="flex items-center gap-3">
+                      <div className="h-2.5 w-2.5 rounded-full bg-zinc-200" />
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Disponible</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Selector de Horas Claro */}
-                <div className={`flex flex-col h-full transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
+                <div className={`flex flex-col h-full transition-all duration-700 ease-out ${!fecha ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
                   {!form.hora ? (
                     <div className="flex flex-col h-full animate-fade-in">
-                      <div className="flex items-center justify-between mb-12 border-b border-zinc-100 pb-10">
-                        <div className="flex items-center gap-6">
+                      <div className="flex items-center justify-between mb-8 border-b border-zinc-50 pb-8">
+                        <div className="flex items-center gap-4">
                           {selectedHour && (
-                            <button onClick={() => setSelectedHour(null)} className="p-3 rounded-2xl bg-zinc-50 text-zinc-400 hover:text-red-600 transition-colors">
-                              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+                            <button onClick={() => setSelectedHour(null)} className="p-2.5 rounded-xl bg-zinc-50 text-zinc-400 hover:text-red-600 transition-colors">
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                             </button>
                           )}
-                          <h4 className="text-[12px] font-black text-black uppercase tracking-[0.8em]">
+                          <h4 className="text-[10px] font-black text-black uppercase tracking-[0.6em]">
                             {selectedHour ? `Bloque ${selectedHour}:00` : 'Seleccione Bloque'}
                           </h4>
                         </div>
-                        {loadingSlots && <span className="flex h-3 w-3 rounded-full bg-red-600 animate-ping" />}
+                        {loadingSlots && <span className="flex h-2 w-2 rounded-full bg-red-600 animate-ping" />}
                       </div>
                       
-                      <div className="flex-1 overflow-y-auto pr-8 custom-scrollbar-pro" style={{ maxHeight: '500px' }}>
+                      <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar-pro" style={{ maxHeight: '450px' }}>
                         {loadingSlots ? (
-                          <div className="h-full flex flex-col items-center justify-center space-y-10">
-                            <div className="h-16 w-16 border-4 border-zinc-100 border-t-red-600 rounded-full animate-spin" />
-                            <p className="text-[11px] font-black text-zinc-300 uppercase tracking-[0.6em]">Sincronizando...</p>
+                          <div className="h-full flex flex-col items-center justify-center space-y-8">
+                            <div className="h-12 w-12 border-4 border-zinc-50 border-t-red-600 rounded-full animate-spin" />
+                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Sincronizando...</p>
                           </div>
                         ) : availableSlots.length > 0 ? (
                           !selectedHour ? (
-                            <div className="grid grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 gap-4">
                               {Array.from({ length: 11 }, (_, i) => i + 9).map((h) => {
                                 const hourStr = String(h).padStart(2, '0');
                                 const hasAvailability = availableSlots.some(s => s.hora.startsWith(hourStr) && !s.reservada);
@@ -678,19 +654,19 @@ export default function KivoPublic() {
                                     disabled={!hasAvailability}
                                     onClick={() => setSelectedHour(hourStr)}
                                     className={`
-                                      relative overflow-hidden rounded-[2rem] py-10 text-base font-black transition-all duration-500
+                                      relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-400 time-slot-btn
                                       ${!hasAvailability 
-                                        ? 'bg-zinc-50 text-zinc-200 border border-transparent cursor-not-allowed opacity-40' 
-                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-black hover:text-white hover:scale-[1.05] hover:shadow-2xl'}
+                                        ? 'bg-zinc-50 text-zinc-200 border border-transparent cursor-not-allowed opacity-30' 
+                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-black hover:text-white'}
                                     `}
                                   >
-                                    <span className="relative z-10">{h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}</span>
+                                    <span>{h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}</span>
                                   </button>
                                 );
                               })}
                             </div>
                           ) : (
-                            <div className="grid grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 gap-4">
                               {availableSlots
                                 .filter(s => s.hora.startsWith(selectedHour))
                                 .map((slot, index) => (
@@ -698,74 +674,71 @@ export default function KivoPublic() {
                                     key={slot.hora}
                                     disabled={slot.reservada}
                                     onClick={() => setForm({ ...form, hora: slot.hora })}
-                                    style={{ animationDelay: `${index * 0.05}s` }}
+                                    style={{ animationDelay: `${index * 0.03}s` }}
                                     className={`
-                                      relative overflow-hidden rounded-[2rem] py-10 text-base font-black transition-all duration-500 animate-slide-up
+                                      relative overflow-hidden rounded-2xl py-8 text-sm font-black transition-all duration-400 animate-slide-up time-slot-btn
                                       ${slot.reservada 
                                         ? 'bg-zinc-50 text-zinc-100 border border-transparent cursor-not-allowed opacity-20' 
-                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-red-600 hover:text-white hover:scale-[1.05] hover:shadow-2xl'}
+                                        : 'bg-zinc-50 text-zinc-500 border border-zinc-100 hover:bg-red-600 hover:text-white'}
                                     `}
                                   >
-                                    <span className="relative z-10">{slot.hora}</span>
+                                    <span>{slot.hora}</span>
                                   </button>
                                 ))}
                             </div>
                           )
                         ) : (
-                          <div className="h-full flex flex-col items-center justify-center space-y-8 py-40">
-                            <div className="h-24 w-24 rounded-full border-4 border-zinc-50 flex items-center justify-center opacity-40">
-                              <svg className="h-10 w-10 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <p className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.8em]">Sin Disponibilidad</p>
+                          <div className="h-full flex flex-col items-center justify-center space-y-6 py-20">
+                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.6em]">Sin Disponibilidad</p>
                           </div>
                         )}
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full animate-scale-in absolute inset-0 xl:relative">
-                      <div className="space-y-8 w-full max-w-md relative z-10">
+                      <div className="space-y-8 w-full max-w-sm relative z-10">
+                        <div className="text-center space-y-4 mb-10">
+                          <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Resumen de Reserva</p>
+                          <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100">
+                            <p className="text-4xl font-black text-black tracking-tighter mb-2">{form.hora}</p>
+                            <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.3em]">{format(fecha, 'dd MMMM', { locale: es })}</p>
+                          </div>
+                        </div>
+
                         <button
                           onClick={handleSubmitTurno}
                           disabled={!form.nombre || !form.telefono || reservando}
                           className={`
-                            btn-red w-full py-12 rounded-[3rem] font-black text-[16px] uppercase tracking-[0.6em] shadow-2xl
+                            btn-red w-full py-8 rounded-[2rem] font-black text-sm uppercase tracking-[0.4em]
                             ${(!form.nombre || !form.telefono || reservando)
-                              ? 'bg-zinc-100 text-zinc-300 cursor-not-allowed border border-transparent'
+                              ? 'bg-zinc-100 text-zinc-300 cursor-not-allowed shadow-none'
                               : ''}
                           `}
                         >
-                          {reservando ? 'Procesando...' : 'Confirmar Reserva'}
+                          {reservando ? 'Procesando...' : 'Confirmar Ahora'}
                         </button>
                         
-                        <div className="text-center">
-                          <p className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-6">
-                            Sesión para las <span className="text-red-600 font-black">{form.hora}</span>
-                          </p>
-                          <button 
-                            onClick={() => { setForm({ ...form, hora: '' }); setSelectedHour(null); }}
-                            className="w-full py-6 rounded-full bg-transparent text-[11px] font-black text-zinc-400 uppercase tracking-[0.6em] hover:text-black transition-all duration-500"
-                          >
-                            Modificar Horario
-                          </button>
-                        </div>
+                        <button 
+                          onClick={() => { setForm({ ...form, hora: '' }); setSelectedHour(null); }}
+                          className="w-full py-4 text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em] hover:text-red-600 transition-colors"
+                        >
+                          Modificar Horario
+                        </button>
                       </div>
-                      {submitError && <p className="mt-12 text-center text-[12px] text-red-600 font-black uppercase tracking-[0.5em] animate-pulse">{submitError}</p>}
+                      {submitError && <p className="mt-8 text-center text-[10px] text-red-600 font-black uppercase tracking-[0.4em] animate-pulse">{submitError}</p>}
                     </div>
                   )}
                 </div>
               </div>
 
               {!form.hora && (
-                <div className="mt-24 pt-20 border-t border-zinc-100 flex items-center justify-between">
-                  <p className="text-[11px] text-zinc-400 font-black uppercase tracking-[0.5em]">
-                    Cifrado Táctico <span className="text-zinc-300 ml-6">v3.0.0 — PRO</span>
+                <div className="mt-auto pt-12 border-t border-zinc-50 flex items-center justify-between">
+                  <p className="text-[9px] text-zinc-300 font-black uppercase tracking-[0.4em]">
+                    SISTEMA ALPHA <span className="text-zinc-200 ml-4">v4.0.1</span>
                   </p>
-                  <div className="flex items-center gap-8">
-                    <div className="flex flex-col items-end">
-                      <span className="text-[11px] font-black text-zinc-300 uppercase tracking-[0.6em]">Sync</span>
-                      <span className="text-[11px] font-black text-red-600 uppercase">Realtime</span>
-                    </div>
-                    <div className="h-3 w-3 rounded-full bg-red-600 shadow-[0_0_15px_rgba(225,29,72,0.8)]" />
+                  <div className="flex items-center gap-6">
+                    <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.4em]">Realtime Sync</span>
+                    <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_10px_rgba(225,29,72,0.4)]" />
                   </div>
                 </div>
               )}
@@ -824,11 +797,11 @@ export default function KivoPublic() {
           
           <div className="pt-16 border-t border-zinc-200 flex flex-col sm:flex-row justify-between items-center gap-10">
             <p className="text-[10px] text-zinc-400 font-black uppercase tracking-[0.5em]">
-              © 2026 DETAIM GLOBAL PRECISION.
+              © 2026 DETAIM GLOBAL ALPHA.
             </p>
             <div className="flex items-center gap-6">
               <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Infr.</span>
-              <span className="text-[13px] font-black text-black tracking-tighter">DETAIM CLOUD CORE</span>
+              <span className="text-[13px] font-black text-black tracking-tighter">ALPHA CLOUD CORE</span>
             </div>
           </div>
         </div>
