@@ -15,10 +15,6 @@ import {
   reasignarTurno,
   updatePrecioPlan,
   fetchPlanes,
-  fetchStaff,
-  fetchLogs,
-  crearStaff,
-  eliminarStaff,
   updateConfigSede,
   type ResumenAdmin,
 } from './api/panel'
@@ -107,14 +103,6 @@ export default function PanelAdmin() {
   const [updatingPrecio, setUpdatingPrecio] = useState<string | null>(null)
   const [newPrecio, setNewPrecio] = useState('')
 
-  // Estados para Staff
-  const [staffList, setStaffList] = useState<any[]>([])
-  const [newStaffEmail, setNewStaffEmail] = useState('')
-  const [newStaffPass, setNewStaffPass] = useState('')
-
-  // Estados para Logs
-  const [logs, setLogs] = useState<any[]>([])
-
   // Estados para Config Sede
   const [sedeConfig, setSedeConfig] = useState<any>(null)
 
@@ -153,12 +141,6 @@ export default function PanelAdmin() {
       if (view === 'config') {
         const p = await fetchPlanes()
         setPlanes(p)
-      } else if (view === 'staff') {
-        const s = await fetchStaff()
-        setStaffList(s)
-      } else if (view === 'logs') {
-        const l = await fetchLogs()
-        setLogs(l)
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error al cargar'
@@ -228,28 +210,6 @@ export default function PanelAdmin() {
       alert('Configuración guardada')
     } catch (e) {
       alert('Error al guardar configuración')
-    }
-  }
-
-  const handleCrearStaff = async () => {
-    if (!newStaffEmail || !newStaffPass) return
-    try {
-      await crearStaff({ email: newStaffEmail, password: newStaffPass, role: 'asesor' })
-      setNewStaffEmail('')
-      setNewStaffPass('')
-      void cargar()
-    } catch (e) {
-      alert('Error al crear staff')
-    }
-  }
-
-  const handleEliminarStaff = async (id: number) => {
-    if (!confirm('¿Eliminar este miembro del staff?')) return
-    try {
-      await eliminarStaff(id)
-      void cargar()
-    } catch (e) {
-      alert('Error al eliminar')
     }
   }
 
