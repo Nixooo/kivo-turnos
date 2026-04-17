@@ -1881,6 +1881,40 @@ app.patch('/api/panel/planes/:id', authMiddleware, requireAdmin, async (req, res
   }
 })
 
+// 2b. Crear Plan (Admin)
+app.post('/api/panel/planes', authMiddleware, requireAdmin, async (req, res) => {
+  const { nombre, descripcion, precio, minutos, activo, orden } = req.body
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO planes (nombre, descripcion, precio, minutos, activo, orden, empresa_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [nombre, descripcion, precio || '0', minutos || 60, activo ?? true, orden || 0, req.staff.empresaId]
+    )
+    await logActividad(req.staff.sid, req.staff.empresaId, 'CREATE_PLAN', `Plan ${rows[0].id} creado`)
+    res.status(201).json(rows[0])
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al crear plan' })
+  }
+})
+
+// 2c. Eliminar Plan (Admin)
+app.delete('/api/panel/planes/:id', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { rowCount } = await pool.query(
+      'DELETE FROM planes WHERE id = $1 AND empresa_id = $2',
+      [req.params.id, req.staff.empresaId]
+    )
+    if (!rowCount) return res.status(404).json({ error: 'Plan no encontrado' })
+    await logActividad(req.staff.sid, req.staff.empresaId, 'DELETE_PLAN', `Plan ${req.params.id} eliminado`)
+    res.json({ ok: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al eliminar plan' })
+  }
+})
+
 // 3. Actualizar Configuración de Sede (Horarios, etc.) (Admin)
 app.patch('/api/panel/sedes/:id/config', authMiddleware, requireAdmin, async (req, res) => {
   const { hora_apertura, hora_cierre, geocerca_metros } = req.body

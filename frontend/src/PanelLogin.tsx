@@ -107,10 +107,6 @@ export default function PanelLogin() {
               {loading ? 'Iniciando...' : 'Entrar al Panel'}
             </button>
           </form>
-          <p className="mt-8 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-            Credenciales de acceso: <br/>
-            <span className="text-zinc-500">admin@detaim.com / 12345</span>
-          </p>
         </div>
 
         <p className="mt-10 text-center">

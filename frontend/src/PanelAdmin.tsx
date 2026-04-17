@@ -16,6 +16,8 @@ import {
   updatePrecioPlan,
   fetchPlanes,
   updateConfigSede,
+  crearPlan,
+  eliminarPlan,
   type ResumenAdmin,
 } from './api/panel'
 
@@ -102,6 +104,8 @@ export default function PanelAdmin() {
   const [planes, setPlanes] = useState<any[]>([])
   const [updatingPrecio, setUpdatingPrecio] = useState<string | null>(null)
   const [newPrecio, setNewPrecio] = useState('')
+  const [isCreatingPlan, setIsCreatingPlan] = useState(false)
+  const [newPlan, setNewPlan] = useState({ nombre: '', descripcion: '', precio: '', minutos: 60 })
 
   // Estados para Config Sede
   const [sedeConfig, setSedeConfig] = useState<any>(null)
@@ -196,6 +200,29 @@ export default function PanelAdmin() {
       alert('Precio actualizado con éxito')
     } catch (e) {
       alert('Error al actualizar precio')
+    }
+  }
+
+  const handleCrearPlan = async () => {
+    if (!newPlan.nombre || !newPlan.precio) return
+    try {
+      await crearPlan(newPlan)
+      setIsCreatingPlan(false)
+      setNewPlan({ nombre: '', descripcion: '', precio: '', minutos: 60 })
+      void cargar()
+      alert('Plan creado con éxito')
+    } catch (e) {
+      alert('Error al crear plan')
+    }
+  }
+
+  const handleEliminarPlan = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar este protocolo de precio?')) return
+    try {
+      await eliminarPlan(id)
+      void cargar()
+    } catch (e) {
+      alert('Error al eliminar')
     }
   }
 
@@ -299,7 +326,12 @@ export default function PanelAdmin() {
         ) : view === 'stats' ? (
           <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
             <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="Pend. Confirmación" value={resumen?.totales?.pendientes ?? 0} icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+              <div className="group relative">
+                <StatCard label="Pend. Confirmación" value={resumen?.totales?.pendientes ?? 0} icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
+                <div className="absolute top-full left-0 mt-4 w-64 p-6 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-3xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-50 leading-relaxed border border-white/10">
+                  Son reservas realizadas desde casa que requieren que el usuario llegue a la sede para ser activadas.
+                </div>
+              </div>
               <StatCard label="En Espera" value={resumen?.totales?.en_espera ?? 0} accent="emerald" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
               <StatCard label="En Sesión" value={resumen?.totales?.atendiendo ?? 0} accent="amber" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>} />
               <StatCard label="Completados" value={resumen?.totales?.completados ?? 0} accent="blue" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
@@ -329,9 +361,12 @@ export default function PanelAdmin() {
             </div>
 
             {/* Lista de Turnos */}
-            <div className="rounded-[5rem] border border-zinc-100 bg-white p-12 shadow-sm min-h-[700px]">
+            <div id="print-section" className="rounded-[5rem] border border-zinc-100 bg-white p-12 shadow-sm min-h-[700px]">
               <div className="flex items-center justify-between mb-16 border-b border-zinc-50 pb-10">
-                <h3 className="text-3xl font-black text-black tracking-tighter uppercase">Protocolo de Agenda</h3>
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-3xl font-black text-black tracking-tighter uppercase">Protocolo de Agenda</h3>
+                  <p className="print-only hidden text-[10px] font-black text-red-600 uppercase tracking-widest">{fechaLabel}</p>
+                </div>
                 <span className="px-6 py-2.5 rounded-full bg-red-50 text-red-600 text-[11px] font-black uppercase tracking-widest border border-red-100">
                   {turnos.length} Sesiones Programadas
                 </span>
@@ -379,7 +414,7 @@ export default function PanelAdmin() {
                             {t.estado}
                           </span>
                           
-                          <div className="flex items-center gap-3 ml-6">
+                          <div className="flex items-center gap-3 ml-6 no-print">
                             {t.estado === 'espera' && (
                               <>
                                 <button onClick={() => handleAction(t.id, 'adelantar')} className="p-4 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20" title="Adelantar Turno">
@@ -409,10 +444,66 @@ export default function PanelAdmin() {
           <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
             {/* Gestión de Precios */}
             <div className="rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm">
-              <h3 className="text-3xl font-black text-black tracking-tighter uppercase mb-10">Protocolos de Precio</h3>
+              <div className="flex items-center justify-between mb-10">
+                <h3 className="text-3xl font-black text-black tracking-tighter uppercase">Protocolos de Precio</h3>
+                <button 
+                  onClick={() => setIsCreatingPlan(true)}
+                  className="px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-600/20"
+                >
+                  Nuevo Protocolo
+                </button>
+              </div>
+
+              {isCreatingPlan && (
+                <div className="mb-12 p-10 rounded-[3rem] bg-zinc-50 border-2 border-dashed border-zinc-200 animate-in zoom-in-95 duration-500">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Nombre</label>
+                      <input 
+                        type="text" 
+                        value={newPlan.nombre} 
+                        onChange={e => setNewPlan({...newPlan, nombre: e.target.value})}
+                        placeholder="Ej: Personalizado"
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Descripción</label>
+                      <input 
+                        type="text" 
+                        value={newPlan.descripcion} 
+                        onChange={e => setNewPlan({...newPlan, descripcion: e.target.value})}
+                        placeholder="Breve detalle..."
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Precio</label>
+                      <input 
+                        type="text" 
+                        value={newPlan.precio} 
+                        onChange={e => setNewPlan({...newPlan, precio: e.target.value})}
+                        placeholder="35.000"
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="flex items-end gap-3">
+                      <button onClick={handleCrearPlan} className="flex-1 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg">Crear</button>
+                      <button onClick={() => setIsCreatingPlan(false)} className="px-5 py-3 bg-white border border-zinc-200 text-zinc-400 rounded-2xl text-[10px] font-black uppercase hover:bg-zinc-50 transition-all">X</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 {planes.map(plan => (
-                  <div key={plan.id} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 hover:bg-white transition-all duration-500 group">
+                  <div key={plan.id} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 hover:bg-white transition-all duration-500 group relative">
+                    <button 
+                      onClick={() => handleEliminarPlan(plan.id)}
+                      className="absolute top-4 right-4 h-8 w-8 rounded-xl bg-white text-zinc-300 hover:text-rose-600 border border-transparent hover:border-rose-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
                     <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">{plan.nombre}</p>
                     <p className="text-[9px] font-bold text-zinc-500 uppercase mb-6 line-clamp-1">{plan.descripcion}</p>
                     {updatingPrecio === plan.id ? (
@@ -485,7 +576,7 @@ export default function PanelAdmin() {
                 <div className="grid grid-cols-2 gap-4">
                   <button onClick={() => window.print()} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 text-[10px] font-black uppercase text-zinc-600 hover:bg-black hover:text-white transition-all flex flex-col items-center gap-4 group">
                     <svg className="h-6 w-6 text-zinc-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    Exportar PDF
+                    Imprimir Agenda
                   </button>
                   <button onClick={() => void cargar()} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 text-[10px] font-black uppercase text-zinc-600 hover:bg-red-600 hover:text-white transition-all flex flex-col items-center gap-4 group">
                     <svg className="h-6 w-6 text-zinc-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
@@ -494,6 +585,16 @@ export default function PanelAdmin() {
                 </div>
               </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+              @media print {
+                body * { visibility: hidden; }
+                #print-section, #print-section * { visibility: visible; }
+                #print-section { position: absolute; left: 0; top: 0; width: 100%; }
+                .no-print { display: none !important; }
+                .print-only { display: block !important; }
+              }
+            `}} />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-40 space-y-8 opacity-20">

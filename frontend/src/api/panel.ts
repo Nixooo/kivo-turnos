@@ -202,6 +202,21 @@ export async function updatePrecioPlan(id: string, precio: string): Promise<void
   if (!r.ok) throw new Error('Error')
 }
 
+export async function crearPlan(data: any): Promise<void> {
+  const r = await authFetch('/api/panel/planes', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function eliminarPlan(id: string): Promise<void> {
+  const r = await authFetch(`/api/panel/planes/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
 export async function updateConfigSede(id: number, config: any): Promise<void> {
   const r = await authFetch(`/api/panel/sedes/${id}/config`, {
     method: 'PATCH',
