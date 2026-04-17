@@ -701,7 +701,9 @@ export default function KivoPublic() {
                           <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Resumen de Reserva</p>
                           <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100">
                             <p className="text-4xl font-black text-black tracking-tighter mb-2">{form.hora}</p>
-                            <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.3em]">{format(fecha, 'dd MMMM', { locale: es })}</p>
+                            <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.3em]">
+                              {fecha ? format(fecha, 'dd MMMM', { locale: es }) : ''}
+                            </p>
                           </div>
                         </div>
 
