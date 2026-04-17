@@ -92,7 +92,7 @@ export default function KivoPublic() {
   const [selectedHour, setSelectedHour] = useState<string | null>(null)
   const [dbPlanes, setDbPlanes] = useState<any[]>([])
   const [dbMembresias, setDbMembresias] = useState<any[]>([])
-  const [showMembresias, setShowMembresias] = useState(false)
+  const [showMembresias, setShowMembresias] = useState(true)
 
   useEffect(() => {
     const load = async () => {
@@ -116,6 +116,7 @@ export default function KivoPublic() {
         const resM = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/membresias`)
         if (resM.ok) {
           const m = await resM.json()
+          console.log('Membresías cargadas:', m)
           setDbMembresias(m)
         }
       } catch (err) {
@@ -599,6 +600,80 @@ export default function KivoPublic() {
                   </button>
                 ))}
               </div>
+
+              {/* Membresías Mensuales - Banner Interactivo (Movido aquí para máxima visibilidad) */}
+              {dbMembresias.length > 0 && (
+                <div className="mt-12 space-y-6">
+                  <button 
+                    onClick={() => setShowMembresias(!showMembresias)}
+                    className="w-full group relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 to-black p-8 border border-zinc-800 hover:border-red-600 transition-all duration-500 shadow-xl"
+                  >
+                    <div className={`absolute inset-0 bg-red-600/10 transition-opacity duration-500 ${showMembresias ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                    <div className="relative flex items-center justify-between">
+                      <div className="flex items-center gap-5">
+                        <div className="h-10 w-10 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-lg">
+                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-sm font-black text-white uppercase tracking-wider">Membresías Élite</h3>
+                          <p className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Ahorro y beneficios VIP</p>
+                        </div>
+                      </div>
+                      <div className={`transition-transform duration-500 ${showMembresias ? 'rotate-180' : ''}`}>
+                        <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </button>
+
+                  {showMembresias && (
+                    <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
+                      {dbMembresias.map((m) => (
+                        <div key={m.id} className="group relative overflow-hidden rounded-[2.5rem] bg-white border border-zinc-100 p-8 hover:shadow-xl transition-all duration-500">
+                          <div className="absolute top-0 left-0 h-full w-1.5 bg-red-600" />
+                          <div className="space-y-6">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="text-[8px] font-black text-red-600 uppercase tracking-widest mb-0.5">Protocolo Alpha</p>
+                                <h4 className="text-lg font-black text-black tracking-tighter uppercase">{m.nombre}</h4>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xl font-black text-black tracking-tighter">${m.precio}</p>
+                                <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">/ Mes</p>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-bold leading-relaxed uppercase">
+                              {m.descripcion}
+                            </p>
+                            
+                            <div className="space-y-2 pt-4 border-t border-zinc-50">
+                              {(m.beneficios || []).slice(0, 3).map((b: string, i: number) => (
+                                <div key={i} className="flex items-center gap-3">
+                                  <div className="h-1 w-1 rounded-full bg-red-600" />
+                                  <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest leading-tight">{b}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="bg-zinc-50 rounded-2xl p-5 border border-zinc-100">
+                              <div className="flex items-center gap-3 text-black">
+                                <svg className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <span className="text-[9px] font-black uppercase tracking-widest">Pago en Efectivo - Sede Cajicá</span>
+                              </div>
+                            </div>
+
+                            <button 
+                              onClick={() => window.open(`https://wa.me/573133693983?text=Hola,%20quiero%20adquirir%20la%20membresía%20${encodeURIComponent(m.nombre)}`, '_blank')}
+                              className="w-full py-4 rounded-xl bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-red-600 transition-all"
+                            >
+                              Solicitar Info
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -723,96 +798,6 @@ export default function KivoPublic() {
                           </div>
                         )}
                       </div>
-                      {/* Membresías Mensuales - Banner Interactivo */}
-                      {dbMembresias.length > 0 && (
-                        <div className="mt-16 space-y-6">
-                          <button 
-                            onClick={() => setShowMembresias(!showMembresias)}
-                            className="w-full group relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-zinc-900 to-black p-10 border border-zinc-800 hover:border-red-600/50 transition-all duration-700 shadow-2xl"
-                          >
-                            <div className={`absolute inset-0 bg-red-600/10 transition-opacity duration-700 ${showMembresias ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-                            <div className="relative flex items-center justify-between">
-                              <div className="flex items-center gap-8">
-                                <div className="h-14 w-14 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-xl shadow-red-600/20">
-                                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                                </div>
-                                <div className="text-left">
-                                  <h3 className="text-xl font-black text-white uppercase tracking-tighter">Membresías Mensuales Élite</h3>
-                                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mt-1">Descubre beneficios exclusivos y ahorro estratégico</p>
-                                </div>
-                              </div>
-                              <div className={`h-10 w-10 rounded-full border border-zinc-700 flex items-center justify-center text-white transition-transform duration-500 ${showMembresias ? 'rotate-180' : ''}`}>
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
-                              </div>
-                            </div>
-                          </button>
-
-                          {showMembresias && (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-top-4 duration-700">
-                              <div className="grid gap-6 md:grid-cols-2">
-                                {dbMembresias.map((m) => (
-                                  <div key={m.id} className="group relative overflow-hidden rounded-[3rem] bg-white border border-zinc-100 p-10 hover:shadow-2xl transition-all duration-700">
-                                    <div className="absolute top-0 left-0 h-full w-2 bg-red-600" />
-                                    <div className="space-y-8">
-                                      <div className="flex justify-between items-start">
-                                        <div>
-                                          <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1">Protocolo Alpha</p>
-                                          <h4 className="text-2xl font-black text-black tracking-tighter uppercase">{m.nombre}</h4>
-                                        </div>
-                                        <div className="text-right">
-                                          <p className="text-3xl font-black text-black tracking-tighter">${m.precio}</p>
-                                          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">/ Mes</p>
-                                        </div>
-                                      </div>
-                                      <p className="text-[11px] text-zinc-500 font-bold leading-relaxed uppercase">
-                                        {m.descripcion}
-                                      </p>
-                                      
-                                      <div className="space-y-3 pt-6 border-t border-zinc-50">
-                                        {(m.beneficios || []).slice(0, 3).map((b: string, i: number) => (
-                                          <div key={i} className="flex items-center gap-3">
-                                            <div className="h-1.5 w-1.5 rounded-full bg-red-600" />
-                                            <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{b}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-
-                                      <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100">
-                                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-3">Información de Compra</p>
-                                        <div className="flex items-center gap-4 text-black">
-                                          <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                          <span className="text-[10px] font-black uppercase tracking-widest">Efectivo en Sede Cajicá</span>
-                                        </div>
-                                      </div>
-
-                                      <button 
-                                        onClick={() => window.open(`https://wa.me/573133693983?text=Hola,%20quiero%20adquirir%20la%20membresía%20${encodeURIComponent(m.nombre)}`, '_blank')}
-                                        className="w-full py-5 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-600 transition-all shadow-xl shadow-black/10"
-                                      >
-                                        Solicitar por WhatsApp
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                {[
-                                  { title: 'Flexibilidad', icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-                                  { title: 'Grabación', icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg> },
-                                  { title: 'Acumulación', icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg> },
-                                  { title: 'Prioridad', icon: <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg> },
-                                ].map((v, i) => (
-                                  <div key={i} className="p-5 rounded-[2rem] bg-zinc-50 border border-zinc-100 flex items-center gap-4 group hover:bg-white hover:border-red-600/20 transition-all duration-500">
-                                    <div className="text-red-600 group-hover:scale-110 transition-transform">{v.icon}</div>
-                                    <h4 className="text-[9px] font-black text-black uppercase tracking-widest">{v.title}</h4>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full animate-scale-in absolute inset-0 xl:relative">
