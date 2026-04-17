@@ -169,6 +169,16 @@ export async function reasignarTurno(id: string, fecha: string, hora: string): P
   if (!r.ok) throw new Error('Error')
 }
 
+export async function adelantarTurno(id: string): Promise<void> {
+  const r = await authFetch(
+    `/api/panel/turno/${encodeURIComponent(id)}/adelantar`,
+    {
+      method: 'PATCH',
+    },
+  )
+  if (!r.ok) throw new Error('Error')
+}
+
 export async function fetchTurnosEmpresa(fecha?: string): Promise<any[]> {
   const q = fecha ? `?fecha=${encodeURIComponent(fecha)}` : ''
   const r = await authFetch(`/api/panel/turnos-empresa${q}`)

@@ -1006,6 +1006,46 @@ app.patch(
 )
 
 app.patch(
+  '/api/panel/turno/:id/adelantar',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { rows: t } = await pool.query(
+        `SELECT t.id, t.numero_publico, t.sede_id, t.fecha_turno, t.orden_atencion 
+         FROM turnos t JOIN sedes s ON s.id = t.sede_id
+         WHERE t.id = $1::uuid AND s.empresa_id = $2`,
+        [req.params.id, req.staff.empresaId],
+      )
+      if (!t.length) return res.status(404).json({ error: 'Turno no encontrado' })
+      const turno = t[0]
+
+      // Buscar el turno inmediatamente anterior en la cola
+      const { rows: anterior } = await pool.query(
+        `SELECT id, orden_atencion FROM turnos 
+         WHERE sede_id = $1 AND fecha_turno = $2 AND orden_atencion < $3 AND estado = 'espera'
+         ORDER BY orden_atencion DESC LIMIT 1`,
+        [turno.sede_id, turno.fecha_turno, turno.orden_atencion]
+      )
+
+      if (anterior.length) {
+        const targetOrden = anterior[0].orden_atencion
+        // Intercambiar orden_atencion
+        await pool.query('BEGIN')
+        await pool.query(`UPDATE turnos SET orden_atencion = $1 WHERE id = $2`, [turno.orden_atencion, anterior[0].id])
+        await pool.query(`UPDATE turnos SET orden_atencion = $1 WHERE id = $2`, [targetOrden, turno.id])
+        await pool.query('COMMIT')
+        await logActividad(req.staff.sid, req.staff.empresaId, 'ADELANTAR_TURNO', `Turno ${turno.numero_publico} adelantado`)
+      }
+
+      res.json({ ok: true })
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: 'Error al adelantar turno' })
+    }
+  },
+)
+
+app.patch(
   '/api/panel/turno/:id/cancelar',
   authMiddleware,
   async (req, res) => {
@@ -1801,22 +1841,12 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
-// Servir archivos estáticos del frontend
-app.use(express.static(frontendDist))
-
-// Redirigir cualquier otra petición al index.html del frontend (React Router)
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' })
-  res.sendFile(path.join(frontendDist, 'index.html'))
-})
-
-// Iniciar servidor primero para que Render lo detecte vivo
 // --- ENDPOINTS PANEL ADMIN (10+ OPCIONES) ---
 
 // 1. Listar Planes (Público y Admin)
 app.get('/api/planes', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM planes WHERE activo = true ORDER BY orden ASC')
+    const { rows } = await pool.query('SELECT * FROM planes ORDER BY orden ASC')
     res.json(rows)
   } catch (e) {
     console.error(e)
@@ -1979,6 +2009,15 @@ app.get('/api/panel/reporte/hoy', authMiddleware, requireAdmin, async (req, res)
     console.error(e)
     res.status(500).json({ error: 'Error al generar reporte' })
   }
+})
+
+// Servir archivos estáticos del frontend
+app.use(express.static(frontendDist))
+
+// Redirigir cualquier otra petición al index.html del frontend (React Router)
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' })
+  res.sendFile(path.join(frontendDist, 'index.html'))
 })
 
 app.listen(PORT, '0.0.0.0', () => {

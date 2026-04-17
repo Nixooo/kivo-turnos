@@ -11,6 +11,7 @@ import {
   fetchTurnosEmpresa,
   cancelarTurno,
   completarTurno,
+  adelantarTurno,
   reasignarTurno,
   updatePrecioPlan,
   fetchPlanes,
@@ -94,7 +95,7 @@ export default function PanelAdmin() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [authOk, setAuthOk] = useState(false)
-  const [view, setView] = useState<'stats' | 'calendar' | 'config' | 'staff' | 'logs'>('stats')
+  const [view, setView] = useState<'stats' | 'calendar' | 'config'>('stats')
   
   // Estados para reasignación
   const [editingTurno, setEditingTurno] = useState<any | null>(null)
@@ -176,13 +177,15 @@ export default function PanelAdmin() {
     void cargar()
   }, [authOk, cargar, view])
 
-  const handleAction = async (id: string, action: 'cancel' | 'complete') => {
+  const handleAction = async (id: string, action: 'cancel' | 'complete' | 'adelantar') => {
     try {
       if (action === 'cancel') {
         if (!confirm('¿Seguro que deseas eliminar este turno?')) return
         await cancelarTurno(id)
-      } else {
+      } else if (action === 'complete') {
         await completarTurno(id)
+      } else if (action === 'adelantar') {
+        await adelantarTurno(id)
       }
       void cargar()
     } catch (e) {
@@ -292,8 +295,6 @@ export default function PanelAdmin() {
               { id: 'stats', label: 'Métricas' },
               { id: 'calendar', label: 'Agenda' },
               { id: 'config', label: 'Ajustes' },
-              { id: 'staff', label: 'Staff' },
-              { id: 'logs', label: 'Logs' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -344,28 +345,8 @@ export default function PanelAdmin() {
               <StatCard label="Completados" value={resumen?.totales?.completados ?? 0} accent="blue" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
             </div>
             
-            <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
+            <div className="grid gap-8 grid-cols-1 lg:grid-cols-1">
               <StatCard label="Cancelados" value={resumen?.totales?.cancelados ?? 0} accent="rose" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
-              <div className="lg:col-span-2 rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm">
-                <div className="flex items-center justify-between mb-10">
-                  <div>
-                    <h2 className="text-2xl font-black text-black tracking-tight uppercase">Carga Operativa</h2>
-                    <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest mt-2">Distribución por Sede</p>
-                  </div>
-                  <div className="h-2 w-16 bg-zinc-50 rounded-full" />
-                </div>
-                <div className="space-y-6">
-                  {(resumen?.porSede ?? []).map((row) => (
-                    <div key={row.slug} className="group flex items-center justify-between p-8 rounded-[2.5rem] bg-zinc-50 border border-transparent hover:border-zinc-200 hover:bg-white transition-all duration-500">
-                      <span className="font-black text-black uppercase tracking-tight text-lg">{row.nombre}</span>
-                      <div className="flex items-center gap-6">
-                        <span className="text-4xl font-black text-black tabular-nums tracking-tighter">{row.espera}</span>
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">En Fila</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         ) : view === 'calendar' ? (
@@ -440,9 +421,14 @@ export default function PanelAdmin() {
                           
                           <div className="flex items-center gap-3 ml-6">
                             {t.estado === 'espera' && (
-                              <button onClick={() => handleAction(t.id, 'complete')} className="p-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20" title="Finalizar Sesión">
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                              </button>
+                              <>
+                                <button onClick={() => handleAction(t.id, 'adelantar')} className="p-4 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20" title="Adelantar Turno">
+                                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7 7 7M5 19l7-7 7 7" /></svg>
+                                </button>
+                                <button onClick={() => handleAction(t.id, 'complete')} className="p-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20" title="Finalizar Sesión">
+                                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                </button>
+                              </>
                             )}
                             <button onClick={() => { setEditingTurno(t); setNewFecha(t.fecha_turno); setNewHora(t.hora_turno.slice(0, 5)); }} className="p-4 rounded-2xl bg-black text-white hover:bg-zinc-800 transition-all shadow-xl shadow-black/10" title="Reasignar">
                               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -546,97 +532,6 @@ export default function PanelAdmin() {
                     Sincronizar
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        ) : view === 'staff' ? (
-          <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-            <div className="grid gap-8 lg:grid-cols-3">
-              <div className="lg:col-span-1 rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm h-fit">
-                <h3 className="text-3xl font-black text-black tracking-tighter uppercase mb-10">Nuevo Staff</h3>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Correo Electrónico</label>
-                    <input
-                      type="email"
-                      value={newStaffEmail}
-                      onChange={e => setNewStaffEmail(e.target.value)}
-                      placeholder="operador@detaim.com"
-                      className="w-full bg-zinc-50 border-2 border-transparent rounded-3xl px-6 py-4 text-sm font-bold text-black focus:bg-white focus:border-red-600 outline-none transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Contraseña Inicial</label>
-                    <input
-                      type="password"
-                      value={newStaffPass}
-                      onChange={e => setNewStaffPass(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-zinc-50 border-2 border-transparent rounded-3xl px-6 py-4 text-sm font-bold text-black focus:bg-white focus:border-red-600 outline-none transition-all"
-                    />
-                  </div>
-                  <button onClick={handleCrearStaff} className="w-full py-5 rounded-3xl bg-black text-white text-[11px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-xl shadow-black/10">
-                    Dar de Alta
-                  </button>
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm">
-                <h3 className="text-3xl font-black text-black tracking-tighter uppercase mb-10">Cuerpo de Instructores</h3>
-                <div className="grid gap-6">
-                  {staffList.map(s => (
-                    <div key={s.id} className="flex items-center justify-between p-8 rounded-[2.5rem] bg-zinc-50 border border-transparent hover:border-zinc-200 hover:bg-white transition-all duration-500 group">
-                      <div className="flex items-center gap-6">
-                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-lg ${s.role === 'admin' ? 'bg-red-600' : 'bg-black'}`}>
-                          {s.email.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-black text-black uppercase tracking-tight text-lg">{s.email}</p>
-                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{s.role}</span>
-                        </div>
-                      </div>
-                      {!s.is_supremo && (
-                        <button onClick={() => handleEliminarStaff(s.id)} className="p-4 rounded-2xl bg-white text-zinc-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100">
-                          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : view === 'logs' ? (
-          <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-            <div className="rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm">
-              <div className="flex items-center justify-between mb-16 border-b border-zinc-50 pb-10">
-                <h3 className="text-3xl font-black text-black tracking-tighter uppercase">Caja Negra Operativa</h3>
-                <span className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Últimos 100 Registros</span>
-              </div>
-              <div className="space-y-4">
-                {logs.map(log => (
-                  <div key={log.id} className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 rounded-3xl bg-zinc-50 border border-transparent hover:border-zinc-100 transition-all items-center">
-                    <div className="text-[10px] font-black text-zinc-400 tabular-nums uppercase">
-                      {format(new Date(log.created_at), 'dd/MM HH:mm:ss')}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                        log.accion.includes('UPDATE') ? 'bg-amber-100 text-amber-600' :
-                        log.accion.includes('CREATE') ? 'bg-emerald-100 text-emerald-600' :
-                        log.accion.includes('DELETE') ? 'bg-rose-100 text-rose-600' :
-                        'bg-zinc-200 text-zinc-600'
-                      }`}>
-                        {log.accion}
-                      </span>
-                    </div>
-                    <div className="text-xs font-black text-black uppercase tracking-tight truncate">
-                      {log.staff_email || 'Sistema'}
-                    </div>
-                    <div className="text-[11px] font-bold text-zinc-500 truncate italic">
-                      {log.detalle}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
