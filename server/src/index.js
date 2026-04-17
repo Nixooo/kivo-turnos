@@ -2050,15 +2050,6 @@ app.get('/api/panel/reporte/hoy', authMiddleware, requireAdmin, async (req, res)
   }
 })
 
-// Servir archivos estáticos del frontend
-app.use(express.static(frontendDist))
-
-// Redirigir cualquier otra petición al index.html del frontend (React Router)
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' })
-  res.sendFile(path.join(frontendDist, 'index.html'))
-})
-
 // --- MEMBRESIAS ---
 
 app.get('/api/membresias', async (req, res) => {
@@ -2117,6 +2108,15 @@ app.delete('/api/panel/membresias/:id', authMiddleware, requireAdmin, async (req
     console.error(e)
     res.status(500).json({ error: 'Error al eliminar' })
   }
+})
+
+// Servir archivos estáticos del frontend
+app.use(express.static(frontendDist))
+
+// Redirigir cualquier otra petición al index.html del frontend (React Router)
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API route not found' })
+  res.sendFile(path.join(frontendDist, 'index.html'))
 })
 
 app.listen(PORT, '0.0.0.0', () => {
