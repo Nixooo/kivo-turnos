@@ -527,6 +527,93 @@ export default function KivoPublic() {
       </div>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-8 py-16">
+        {/* Sección de Membresías Élite - Banner Superior */}
+        {dbMembresias.length > 0 && (
+          <div className="mx-auto w-full max-w-7xl px-8 pt-16 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <button 
+              onClick={() => setShowMembresias(!showMembresias)}
+              className="w-full group relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-zinc-900 via-zinc-800 to-black p-12 border border-zinc-800 hover:border-red-600 transition-all duration-700 shadow-2xl"
+            >
+              <div className={`absolute inset-0 bg-red-600/5 transition-opacity duration-700 ${showMembresias ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+              <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
+                <div className="flex items-center gap-10">
+                  <div className="h-20 w-20 rounded-[2rem] bg-red-600 flex items-center justify-center text-white shadow-2xl shadow-red-600/30 animate-pulse">
+                    <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                  </div>
+                  <div className="text-left space-y-2">
+                    <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Planes de Membresía Mensual</h2>
+                    <p className="text-sm font-bold text-zinc-400 uppercase tracking-[0.4em]">Maximiza tu entrenamiento con beneficios exclusivos</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <span className="text-[11px] font-black text-red-600 uppercase tracking-[0.3em] bg-red-600/10 px-6 py-3 rounded-full border border-red-600/20">Ver Opciones VIP</span>
+                  <div className={`h-12 w-12 rounded-full border-2 border-zinc-700 flex items-center justify-center text-white transition-transform duration-500 ${showMembresias ? 'rotate-180 bg-red-600 border-red-600' : 'bg-transparent'}`}>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {showMembresias && (
+              <div className="mt-10 grid gap-8 md:grid-cols-2 animate-in fade-in zoom-in-95 duration-700">
+                {dbMembresias.map((m) => (
+                  <div key={m.id} className="group relative overflow-hidden rounded-[4rem] bg-white border border-zinc-100 p-12 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-2">
+                    <div className="absolute top-0 left-0 h-full w-2 bg-red-600" />
+                    <div className="flex flex-col xl:flex-row gap-12">
+                      <div className="flex-1 space-y-8">
+                        <div>
+                          <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.4em] mb-3">Protocolo de Élite</p>
+                          <h3 className="text-3xl font-black text-black tracking-tighter uppercase">{m.nombre}</h3>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-6xl font-black text-black tracking-tighter">${m.precio}</span>
+                          <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">/ Mes</span>
+                        </div>
+                        <p className="text-sm text-zinc-500 font-bold leading-relaxed uppercase">
+                          {m.descripcion}
+                        </p>
+                        <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100">
+                          <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-3">Información de Pago</p>
+                          <div className="flex items-center gap-4 text-black">
+                            <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Efectivo en Sede Cajicá</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => window.open(`https://wa.me/573133693983?text=Hola,%20quiero%20adquirir%20la%20membresía%20${encodeURIComponent(m.nombre)}`, '_blank')}
+                          className="w-full py-6 rounded-[2rem] bg-black text-white text-[11px] font-black uppercase tracking-[0.4em] hover:bg-red-600 transition-all shadow-xl shadow-black/10"
+                        >
+                          Adquirir Membresía
+                        </button>
+                      </div>
+                      <div className="flex-1 space-y-8 bg-zinc-50 rounded-[3rem] p-10 border border-zinc-100">
+                        <div className="grid grid-cols-2 gap-6">
+                          <div>
+                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-2">Volumen</p>
+                            <p className="text-sm font-black text-black uppercase">{m.sesiones_mes} Sesiones</p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-2">Duración</p>
+                            <p className="text-sm font-black text-black uppercase">{m.duracion_sesion_min} min / sesión</p>
+                          </div>
+                        </div>
+                        <div className="space-y-4 pt-6 border-t border-zinc-200">
+                          {(m.beneficios || []).map((b: string, i: number) => (
+                            <div key={i} className="flex items-start gap-4">
+                              <svg className="h-4 w-4 text-red-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                              <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest leading-tight">{b}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 h-full">
           
           {/* Columna Izquierda: Tirador y Plan */}
