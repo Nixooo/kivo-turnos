@@ -1155,8 +1155,13 @@ app.post('/api/turnos-publico', async (req, res) => {
     let codigo = randomCodigo()
     
     // Obtener duración del plan desde la DB
-    const planRes = await client.query('SELECT minutos FROM planes WHERE id = $1', [plan_id])
-    const duracion = planRes.rows[0]?.minutos || 15
+    let duracion = 15
+    try {
+      const planRes = await client.query('SELECT minutos FROM planes WHERE id = $1', [plan_id])
+      duracion = planRes.rows[0]?.minutos || 15
+    } catch (pe) {
+      console.warn('No se pudo cargar la duración del plan, usando default 15min')
+    }
 
     const ins = await client.query(
       `
@@ -1164,7 +1169,7 @@ app.post('/api/turnos-publico', async (req, res) => {
         sede_id, numero_publico, documento, documento_norm, nombre, telefono,
         fecha_turno, hora_turno, duracion_minutos, plan_id, estado, orden_atencion, 
         codigo_seguro, idempotency_key, respuestas_extra
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7::date,$8::time,$9,$10,'pendiente_confirmacion',$11,$12,$13,$14::jsonb)
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7::date,$8::time,$9,$10,'espera',$11,$12,$13,$14::jsonb)
       RETURNING id, numero_publico, codigo_seguro
     `,
       [
@@ -1190,7 +1195,7 @@ app.post('/api/turnos-publico', async (req, res) => {
       id: ins.rows[0].id,
       numero_turno: ins.rows[0].numero_publico,
       codigo_seguridad: ins.rows[0].codigo_seguro,
-      estado: 'pendiente_confirmacion',
+      estado: 'espera',
     })
   } catch (e) {
     await client.query('ROLLBACK')

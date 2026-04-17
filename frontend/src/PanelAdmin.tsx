@@ -325,13 +325,7 @@ export default function PanelAdmin() {
           </div>
         ) : view === 'stats' ? (
           <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="group relative">
-                <StatCard label="Pend. Confirmación" value={resumen?.totales?.pendientes ?? 0} icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
-                <div className="absolute top-full left-0 mt-4 w-64 p-6 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-3xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-50 leading-relaxed border border-white/10">
-                  Son reservas realizadas desde casa que requieren que el usuario llegue a la sede para ser activadas.
-                </div>
-              </div>
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="En Espera" value={resumen?.totales?.en_espera ?? 0} accent="emerald" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
               <StatCard label="En Sesión" value={resumen?.totales?.atendiendo ?? 0} accent="amber" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>} />
               <StatCard label="Completados" value={resumen?.totales?.completados ?? 0} accent="blue" icon={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
