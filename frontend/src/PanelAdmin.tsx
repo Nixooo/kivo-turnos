@@ -13,15 +13,15 @@ import {
   completarTurno,
   reasignarTurno,
   updatePrecioPlan,
+  fetchPlanes,
+  fetchStaff,
+  fetchLogs,
+  crearStaff,
+  eliminarStaff,
+  updateConfigSede,
   type ResumenAdmin,
 } from './api/panel'
 
-const PLANES_CONFIG = [
-  { id: 'basico-express', label: 'Básico Express' },
-  { id: 'tactico-express', label: 'Táctico Express' },
-  { id: 'basico-30', label: "Básico 30'" },
-  { id: 'tactico-30', label: "Táctico 30'" },
-]
 
 function StatCard({
   label,
@@ -641,8 +641,10 @@ export default function PanelAdmin() {
             </div>
           </div>
         ) : (
-          <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-1000">
-            {/* ... resto del código ... */}
+          <div className="flex flex-col items-center justify-center py-40 space-y-8 opacity-20">
+            <p className="text-[12px] font-black uppercase tracking-[0.5em]">Seleccione una vista del comando</p>
+          </div>
+        )}
 
         {/* Modal de Reasignación - Tema Claro */}
         {editingTurno && (
