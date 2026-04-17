@@ -76,11 +76,6 @@ export default function KivoPublic() {
   const [turnoNumero, setTurnoNumero] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [reservando, setReservando] = useState(false)
-  const [codigoAsignado, setCodigoAsignado] = useState('')
-  const [codigoDigitado, setCodigoDigitado] = useState('')
-  const [reservaTemporalId, setReservaTemporalId] = useState<string | null>(null)
-  const [modalCodigoOpen, setModalCodigoOpen] = useState(false)
-  const [showPlansComparison, setShowPlansComparison] = useState(false)
   const [availableSlots, setAvailableSlots] = useState<{hora: string, reservada: boolean}[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [selectedHour, setSelectedHour] = useState<string | null>(null)
@@ -171,9 +166,7 @@ export default function KivoPublic() {
       const data = await res.json()
       if (res.ok) {
         setTurnoNumero(data.numero_turno)
-        setCodigoAsignado(data.codigo_seguridad)
-        setReservaTemporalId(data.id)
-        setModalCodigoOpen(true)
+        setPaso('confirmado')
       } else {
         setSubmitError(data.error || 'Error al procesar la reserva')
       }
@@ -181,24 +174,6 @@ export default function KivoPublic() {
       setSubmitError('Error de conexión con el servidor')
     } finally {
       setReservando(false)
-    }
-  }
-
-  const handleConfirmarCodigoModal = async () => {
-    if (codigoDigitado === codigoAsignado) {
-      try {
-        await fetch(`${import.meta.env.VITE_API_URL || ''}/api/turnos/${reservaTemporalId}/confirmar-publico`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codigo: codigoDigitado }),
-        })
-        setModalCodigoOpen(false)
-        setPaso('confirmado')
-      } catch (err) {
-        setSubmitError('Error al confirmar el código')
-      }
-    } else {
-      alert('Código incorrecto')
     }
   }
 
@@ -222,12 +197,6 @@ export default function KivoPublic() {
           </div>
         </div>
         <nav className="flex items-center gap-8">
-          <button
-            onClick={() => setShowPlansComparison(true)}
-            className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
-          >
-            Planes
-          </button>
           <Link
             to="/legal/horario-atencion"
             className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
