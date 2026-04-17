@@ -2059,6 +2059,66 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDist, 'index.html'))
 })
 
+// --- MEMBRESIAS ---
+
+app.get('/api/membresias', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM membresias WHERE activo = true ORDER BY orden ASC')
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al listar membresias' })
+  }
+})
+
+app.post('/api/panel/membresias', authMiddleware, requireAdmin, async (req, res) => {
+  const { id, nombre, descripcion, precio, sesiones_mes, duracion_sesion_min, beneficios, orden } = req.body
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO membresias (id, nombre, descripcion, precio, sesiones_mes, duracion_sesion_min, beneficios, orden, empresa_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9) RETURNING *`,
+      [id || normSlug(nombre), nombre, descripcion, precio, sesiones_mes || 4, duracion_sesion_min || 30, JSON.stringify(beneficios || []), orden || 0, req.staff.empresaId]
+    )
+    res.status(201).json(rows[0])
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al crear membresia' })
+  }
+})
+
+app.patch('/api/panel/membresias/:id', authMiddleware, requireAdmin, async (req, res) => {
+  const { nombre, descripcion, precio, sesiones_mes, duracion_sesion_min, beneficios, orden, activo } = req.body
+  try {
+    const { rows } = await pool.query(
+      `UPDATE membresias SET 
+        nombre = COALESCE($1, nombre),
+        descripcion = COALESCE($2, descripcion),
+        precio = COALESCE($3, precio),
+        sesiones_mes = COALESCE($4, sesiones_mes),
+        duracion_sesion_min = COALESCE($5, duracion_sesion_min),
+        beneficios = COALESCE($6::jsonb, beneficios),
+        orden = COALESCE($7, orden),
+        activo = COALESCE($8, activo)
+      WHERE id = $9 AND empresa_id = $10 RETURNING *`,
+      [nombre, descripcion, precio, sesiones_mes, duracion_sesion_min, beneficios ? JSON.stringify(beneficios) : null, orden, activo, req.params.id, req.staff.empresaId]
+    )
+    res.json(rows[0])
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al actualizar membresia' })
+  }
+})
+
+app.delete('/api/panel/membresias/:id', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM membresias WHERE id = $1 AND empresa_id = $2', [req.params.id, req.staff.empresaId])
+    res.json({ ok: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al eliminar' })
+  }
+})
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`DETAIM API ejecutándose en puerto ${PORT} (0.0.0.0)`)
   console.log(`Frontend servido desde: ${frontendDist}`)

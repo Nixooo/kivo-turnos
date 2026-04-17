@@ -202,6 +202,28 @@ export async function fetchPlanes(): Promise<any[]> {
   return r.json()
 }
 
+export async function fetchMembresias(): Promise<any[]> {
+  const apiUrl = getApiUrl()
+  const r = await fetch(`${apiUrl}/api/membresias`)
+  if (!r.ok) throw new Error('Error')
+  return r.json()
+}
+
+export async function crearMembresia(data: any): Promise<void> {
+  const r = await authFetch('/api/panel/membresias', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
+export async function eliminarMembresia(id: string): Promise<void> {
+  const r = await authFetch(`/api/panel/membresias/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+  if (!r.ok) throw new Error('Error')
+}
+
 export async function updatePrecioPlan(id: string, precio: string): Promise<void> {
   const r = await authFetch(`/api/panel/planes/${encodeURIComponent(id)}`, {
     method: 'PATCH',

@@ -191,6 +191,69 @@ export async function initDb() {
     }
   }
 
+    CREATE TABLE IF NOT EXISTS membresias (
+      id TEXT PRIMARY KEY,
+      empresa_id INT REFERENCES empresas(id) ON DELETE CASCADE,
+      nombre TEXT NOT NULL,
+      descripcion TEXT,
+      precio TEXT NOT NULL,
+      sesiones_mes INT DEFAULT 4,
+      duracion_sesion_min INT DEFAULT 30,
+      beneficios JSONB DEFAULT '[]'::jsonb,
+      activo BOOLEAN DEFAULT TRUE,
+      orden INT DEFAULT 0
+    );
+  `)
+
+  if (dId) {
+    const defaultMembresias = [
+      [
+        'tirador-progreso', 
+        'Tirador en Progreso', 
+        'Ideal para aficionados, deportistas o civiles que desean mantener su memoria muscular activa.', 
+        '120.000', 
+        4, 
+        30, 
+        JSON.stringify([
+          'Acceso Total: Escenarios Niveles 1 al 4',
+          'Telemetría BLE Incluida',
+          'Reportes de Evolución PDF',
+          'Descuento Táctico: 20% OFF en recargas M4'
+        ]),
+        1
+      ],
+      [
+        'pro-tactical', 
+        'Pro-Tactical', 
+        'Diseñada para profesionales de seguridad, personal militar/policial o competidores de alto volumen.', 
+        '200.000', 
+        8, 
+        30, 
+        JSON.stringify([
+          'Bono de Fuego (M4): 4 recargas gratis al mes',
+          'Acceso Ilimitado: Escenarios 1 al 4',
+          'Telemetría y Data: Sistema BLE siempre incluido',
+          'Descuento Táctico: 20% OFF en recargas M4'
+        ]),
+        2
+      ]
+    ]
+    for (const [id, nom, desc, pre, ses, dur, ben, ord] of defaultMembresias) {
+      await q(`
+        INSERT INTO membresias (id, empresa_id, nombre, descripcion, precio, sesiones_mes, duracion_sesion_min, beneficios, orden)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ON CONFLICT (id) DO UPDATE SET
+          nombre = EXCLUDED.nombre,
+          descripcion = EXCLUDED.descripcion,
+          precio = EXCLUDED.precio,
+          sesiones_mes = EXCLUDED.sesiones_mes,
+          duracion_sesion_min = EXCLUDED.duracion_sesion_min,
+          beneficios = EXCLUDED.beneficios,
+          orden = EXCLUDED.orden
+      `, [id, dId, nom, desc, pre, ses, dur, ben, ord])
+    }
+  }
+
   const { rows: ec } = await q('SELECT COUNT(*)::int AS c FROM empresas')
   if (ec[0].c === 0) {
     await q(`

@@ -18,6 +18,9 @@ import {
   updateConfigSede,
   crearPlan,
   eliminarPlan,
+  fetchMembresias,
+  crearMembresia,
+  eliminarMembresia,
   type ResumenAdmin,
 } from './api/panel'
 
@@ -107,6 +110,11 @@ export default function PanelAdmin() {
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
   const [newPlan, setNewPlan] = useState({ nombre: '', descripcion: '', precio: '', minutos: 60 })
 
+  // Estados para Membresías
+  const [membresias, setMembresias] = useState<any[]>([])
+  const [isCreatingMembresia, setIsCreatingMembresia] = useState(false)
+  const [newMembresia, setNewMembresia] = useState({ nombre: '', descripcion: '', precio: '', sesiones: 4, duracion: 30 })
+
   // Estados para Config Sede
   const [sedeConfig, setSedeConfig] = useState<any>(null)
 
@@ -145,6 +153,8 @@ export default function PanelAdmin() {
       if (view === 'config') {
         const p = await fetchPlanes()
         setPlanes(p)
+        const m = await fetchMembresias()
+        setMembresias(m)
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error al cargar'
@@ -220,6 +230,29 @@ export default function PanelAdmin() {
     if (!confirm('¿Seguro que deseas eliminar este protocolo de precio?')) return
     try {
       await eliminarPlan(id)
+      void cargar()
+    } catch (e) {
+      alert('Error al eliminar')
+    }
+  }
+
+  const handleCrearMembresia = async () => {
+    if (!newMembresia.nombre || !newMembresia.precio) return
+    try {
+      await crearMembresia(newMembresia)
+      setIsCreatingMembresia(false)
+      setNewMembresia({ nombre: '', descripcion: '', precio: '', sesiones: 4, duracion: 30 })
+      void cargar()
+      alert('Membresía creada con éxito')
+    } catch (e) {
+      alert('Error al crear membresía')
+    }
+  }
+
+  const handleEliminarMembresia = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar esta membresía?')) return
+    try {
+      await eliminarMembresia(id)
       void cargar()
     } catch (e) {
       alert('Error al eliminar')
@@ -526,6 +559,89 @@ export default function PanelAdmin() {
                         </div>
                       </button>
                     )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Gestión de Membresías */}
+            <div className="rounded-[4rem] border border-zinc-100 bg-white p-12 shadow-sm">
+              <div className="flex items-center justify-between mb-10">
+                <h3 className="text-3xl font-black text-black tracking-tighter uppercase">Protocolos de Membresía</h3>
+                <button 
+                  onClick={() => setIsCreatingMembresia(true)}
+                  className="px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-600/20"
+                >
+                  Nueva Membresía
+                </button>
+              </div>
+
+              {isCreatingMembresia && (
+                <div className="mb-12 p-10 rounded-[3rem] bg-zinc-50 border-2 border-dashed border-zinc-200 animate-in zoom-in-95 duration-500">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Nombre</label>
+                      <input 
+                        type="text" 
+                        value={newMembresia.nombre} 
+                        onChange={e => setNewMembresia({...newMembresia, nombre: e.target.value})}
+                        placeholder="Ej: Tirador PRO"
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Precio</label>
+                      <input 
+                        type="text" 
+                        value={newMembresia.precio} 
+                        onChange={e => setNewMembresia({...newMembresia, precio: e.target.value})}
+                        placeholder="120.000"
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Sesiones/Mes</label>
+                      <input 
+                        type="number" 
+                        value={newMembresia.sesiones} 
+                        onChange={e => setNewMembresia({...newMembresia, sesiones: Number(e.target.value)})}
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-4">Min/Sesión</label>
+                      <input 
+                        type="number" 
+                        value={newMembresia.duracion} 
+                        onChange={e => setNewMembresia({...newMembresia, duracion: Number(e.target.value)})}
+                        className="w-full bg-white rounded-2xl px-5 py-3 text-sm font-bold outline-none border border-zinc-100 focus:border-red-600 transition-all"
+                      />
+                    </div>
+                    <div className="flex items-end gap-3">
+                      <button onClick={handleCrearMembresia} className="flex-1 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg">Crear</button>
+                      <button onClick={() => setIsCreatingMembresia(false)} className="px-5 py-3 bg-white border border-zinc-200 text-zinc-400 rounded-2xl text-[10px] font-black uppercase hover:bg-zinc-50 transition-all">X</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                {membresias.map(m => (
+                  <div key={m.id} className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 hover:bg-white transition-all duration-500 group relative">
+                    <button 
+                      onClick={() => handleEliminarMembresia(m.id)}
+                      className="absolute top-4 right-4 h-8 w-8 rounded-xl bg-white text-zinc-300 hover:text-rose-600 border border-transparent hover:border-rose-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">{m.nombre}</p>
+                    <p className="text-[3xl] font-black text-black tracking-tighter tabular-nums mb-4">${m.precio}</p>
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        {m.sesiones_mes} Sesiones de {m.duracion_sesion_min}m
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>

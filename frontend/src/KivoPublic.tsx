@@ -91,6 +91,7 @@ export default function KivoPublic() {
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [selectedHour, setSelectedHour] = useState<string | null>(null)
   const [dbPlanes, setDbPlanes] = useState<any[]>([])
+  const [dbMembresias, setDbMembresias] = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -108,6 +109,13 @@ export default function KivoPublic() {
           const p = await resP.json()
           setDbPlanes(p)
           if (p.length > 0) setForm(f => ({ ...f, planId: p[0].id }))
+        }
+
+        // Cargar membresías
+        const resM = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/membresias`)
+        if (resM.ok) {
+          const m = await resM.json()
+          setDbMembresias(m)
         }
       } catch (err) {
         console.error('No se pudieron cargar los datos iniciales.', err)
@@ -517,6 +525,81 @@ export default function KivoPublic() {
       </div>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-8 py-16">
+        {/* Sección de Membresías */}
+        <div className="mb-32 space-y-16 animate-fade-in">
+          <div className="max-w-3xl">
+            <h2 className="text-4xl font-black tracking-tighter text-black uppercase mb-6">Planes de Membresía Mensual</h2>
+            <p className="text-lg text-zinc-600 font-bold leading-relaxed">
+              Diseñadas para quienes entienden que la excelencia no se alcanza en un día. Nuestras membresías te garantizan entrenamiento constante y beneficios exclusivos.
+            </p>
+          </div>
+
+          <div className="grid gap-10 md:grid-cols-2">
+            {dbMembresias.map((m) => (
+              <div key={m.id} className="group relative overflow-hidden rounded-[4rem] bg-white border border-zinc-100 p-12 shadow-sm hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+                <div className="absolute top-0 left-0 h-full w-2 bg-red-600" />
+                <div className="flex flex-col lg:flex-row gap-12">
+                  <div className="flex-1 space-y-8">
+                    <div>
+                      <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.4em] mb-3">Protocolo Élite</p>
+                      <h3 className="text-3xl font-black text-black tracking-tighter uppercase">{m.nombre}</h3>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-6xl font-black text-black tracking-tighter">${m.precio}</span>
+                      <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">/ Mes</span>
+                    </div>
+                    <p className="text-sm text-zinc-500 font-bold leading-relaxed uppercase">
+                      {m.descripcion}
+                    </p>
+                    <button 
+                      onClick={() => window.open(`https://wa.me/573124769501?text=Hola,%20quiero%20adquirir%20la%20membresía%20${encodeURIComponent(m.nombre)}`, '_blank')}
+                      className="w-full py-6 rounded-[2rem] bg-black text-white text-[11px] font-black uppercase tracking-[0.4em] hover:bg-red-600 transition-all shadow-xl shadow-black/10"
+                    >
+                      Adquirir Membresía
+                    </button>
+                  </div>
+                  <div className="flex-1 space-y-8 bg-zinc-50 rounded-[3rem] p-10 border border-zinc-100">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-2">Volumen</p>
+                        <p className="text-sm font-black text-black uppercase">{m.sesiones_mes} Sesiones</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-2">Plataforma</p>
+                        <p className="text-sm font-black text-black uppercase">PX4 / M4</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4 pt-6 border-t border-zinc-200">
+                      {(m.beneficios || []).map((b: string, i: number) => (
+                        <div key={i} className="flex items-start gap-4">
+                          <svg className="h-4 w-4 text-red-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest leading-tight">{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Ventajas */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { title: 'Flexibilidad', desc: 'Aparta tus módulos sin complicaciones.', icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+              { title: 'Grabación', desc: 'Servicio de video profesional incluido.', icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg> },
+              { title: 'Acumulación', desc: 'No pierdes sesiones si no vas.', icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg> },
+              { title: 'Prioridad', desc: 'Preferencia en horarios de afluencia.', icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg> },
+            ].map((v, i) => (
+              <div key={i} className="p-10 rounded-[3rem] bg-zinc-50 border border-zinc-100 hover:bg-white hover:border-red-600/20 transition-all duration-500">
+                <div className="h-12 w-12 rounded-2xl bg-white shadow-lg border border-zinc-50 flex items-center justify-center text-red-600 mb-8">{v.icon}</div>
+                <h4 className="text-sm font-black text-black uppercase tracking-widest mb-3">{v.title}</h4>
+                <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed">{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 h-full">
           
           {/* Columna Izquierda: Tirador y Plan */}
