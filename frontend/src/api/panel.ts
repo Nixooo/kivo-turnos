@@ -27,9 +27,16 @@ export function setStoredIsSupremo(v: boolean) {
 
 const token = () => localStorage.getItem(TOKEN_KEY)
 
+const getApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL
+  if (url) return url.endsWith('/') ? url.slice(0, -1) : url
+  return '' // En producción, si se sirve desde el mismo servidor, esto funciona
+}
+
 async function authFetch(path: string, opts: RequestInit = {}) {
   const t = token()
-  const r = await fetch(path, {
+  const apiUrl = getApiUrl()
+  const r = await fetch(`${apiUrl}${path}`, {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +65,8 @@ export async function loginPanel(
   email: string,
   password: string,
 ): Promise<LoginResponse> {
-  const r = await fetch('/api/auth/login', {
+  const apiUrl = getApiUrl()
+  const r = await fetch(`${apiUrl}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
