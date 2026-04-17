@@ -229,6 +229,22 @@ app.get('/api/empresas/:slug', async (req, res) => {
   }
 })
 
+app.get('/api/empresas/:slug/sedes', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT s.*, e.slug AS empresa_slug FROM sedes s
+       JOIN empresas e ON e.id = s.empresa_id
+       WHERE e.slug = $1
+       ORDER BY s.nombre`,
+      [req.params.slug],
+    )
+    res.json(rows.map(mapSede))
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al listar sedes de la empresa' })
+  }
+})
+
 app.get('/api/sedes/:slug', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM sedes WHERE slug = $1', [
@@ -1012,6 +1028,24 @@ app.patch(
   },
 )
 
+app.get('/api/panel/turnos-empresa', authMiddleware, async (req, res) => {
+  const { fecha } = req.query
+  try {
+    const { rows } = await pool.query(
+      `SELECT t.*, s.nombre as sede_nombre, s.slug as sede_slug
+       FROM turnos t
+       JOIN sedes s ON s.id = t.sede_id
+       WHERE s.empresa_id = $1 ${fecha ? 'AND t.fecha_turno = $2::date' : ''}
+       ORDER BY t.hora_turno ASC`,
+      fecha ? [req.staff.empresaId, fecha] : [req.staff.empresaId]
+    )
+    res.json(rows)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Error al cargar turnos de la empresa' })
+  }
+})
+
 app.get('/api/supremo/empresas', authMiddleware, requireSupremo, async (_req, res) => {
   try {
     const { rows } = await pool.query(`SELECT * FROM empresas ORDER BY nombre`)
@@ -1042,7 +1076,7 @@ app.post('/api/turnos-publico', async (req, res) => {
   const client = await pool.connect()
   try {
     const sedeR = await client.query(
-      'SELECT * FROM sedes WHERE slug = $1 OR (CASE WHEN $1 ~ \'^[0-9]+$\' THEN id = $1::int ELSE false END)',
+      'SELECT * FROM sedes WHERE slug = $1 OR (CASE WHEN $1 ~ \'^[0-9]+$\' THEN id = $1::int ELSE false END) OR slug = \'detaim-cajica\'',
       [String(lugar_id)]
     )
     if (!sedeR.rows.length) {

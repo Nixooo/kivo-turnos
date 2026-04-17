@@ -171,10 +171,9 @@ export async function reasignarTurno(id: string, fecha: string, hora: string): P
 
 export async function fetchTurnosEmpresa(fecha?: string): Promise<any[]> {
   const q = fecha ? `?fecha=${encodeURIComponent(fecha)}` : ''
-  const r = await authFetch(`/api/panel/cola/detaim-cajica${q}`) // Usamos la sede por defecto para ALPHA
+  const r = await authFetch(`/api/panel/turnos-empresa${q}`)
   if (!r.ok) throw new Error('Error')
-  const j = await r.json()
-  return j.turnos || []
+  return r.json()
 }
 
 // --- NUEVAS FUNCIONES PARA PANEL ADMIN 10+ OPCIONES ---

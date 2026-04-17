@@ -205,7 +205,7 @@ export async function initDb() {
     ON CONFLICT (slug) DO NOTHING
   `)
 
-  const { rows: sc } = await q('SELECT COUNT(*)::int AS c FROM sedes')
+  const { rows: sc } = await q("SELECT COUNT(*)::int AS c FROM sedes WHERE slug = 'detaim-cajica'")
   if (sc[0].c === 0) {
     const ins = [
       [
