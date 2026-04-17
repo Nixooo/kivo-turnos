@@ -241,23 +241,31 @@ export async function initDb() {
     }
   }
 
-  const { rows: stc } = await q('SELECT COUNT(*)::int AS c FROM staff')
-  if (stc[0].c === 0) {
-    const { rows: detaim } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
-    const eid = detaim[0]?.id
-    if (eid) {
-      await q(
-        `INSERT INTO staff (email, password_plain, role, empresa_id) VALUES
-          ('admin@detaim.com', '12345', 'admin', $1),
-          ('asesor@detaim.com', '12345', 'asesor', $1)
-        ON CONFLICT (email) DO NOTHING`,
-        [eid],
-      )
-    }
+  const { rows: detaim } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
+  const eid = detaim[0]?.id
+  if (eid) {
+    // Asegurar que el admin predeterminado exista y tenga la contraseña correcta
+    await q(
+      `INSERT INTO staff (email, password_plain, role, empresa_id) 
+       VALUES ('admin@detaim.com', '12345', 'admin', $1)
+       ON CONFLICT (email) DO UPDATE SET 
+         password_plain = EXCLUDED.password_plain,
+         password_hash = NULL,
+         role = 'admin',
+         empresa_id = EXCLUDED.empresa_id`,
+      [eid],
+    )
+    
+    // Asegurar que el asesor predeterminado exista
+    await q(
+      `INSERT INTO staff (email, password_plain, role, empresa_id) 
+       VALUES ('asesor@detaim.com', '12345', 'asesor', $1)
+       ON CONFLICT (email) DO NOTHING`,
+      [eid],
+    )
   }
 
-  const { rows: core } = await q(`SELECT id FROM empresas WHERE slug = 'detaim' LIMIT 1`)
-  const coreId = core[0]?.id
+  const coreId = eid
   if (coreId) {
     await q(`UPDATE staff SET is_supremo = false WHERE is_supremo = true AND email <> $1`, [
       SUPREMO_EMAIL,
