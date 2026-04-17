@@ -1791,15 +1791,8 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
-try {
-  console.log('Iniciando base de datos...')
-  await initDb()
-  console.log('Base de datos inicializada correctamente.')
-} catch (error) {
-  console.error('Error crítico al inicializar la base de datos:', error)
-  // En producción, podrías querer continuar o salir. 
-  // Por ahora seguimos para que al menos el servidor responda algo.
-}
+// Servir archivos estáticos del frontend
+app.use(express.static(frontendDist))
 
 // Redirigir cualquier otra petición al index.html del frontend (React Router)
 app.get('*', (req, res) => {
@@ -1807,7 +1800,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDist, 'index.html'))
 })
 
+// Iniciar servidor primero para que Render lo detecte vivo
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`DETAIM API ejecutándose en puerto ${PORT} (0.0.0.0)`)
   console.log(`Frontend servido desde: ${frontendDist}`)
+  
+  // Inicializar DB en segundo plano
+  console.log('Iniciando base de datos en segundo plano...')
+  initDb()
+    .then(() => console.log('Base de datos inicializada correctamente.'))
+    .catch(error => console.error('Error al inicializar la base de datos:', error))
 })
